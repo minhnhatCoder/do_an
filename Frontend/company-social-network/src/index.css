@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-content {
+  padding: 1rem;
+  background-color: #f0f2f5;
+}
+
+.box_shadow-light {
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+  background-color: #1677ff;
+  background-image: none;
+}
+.ck-editor__editable {
+  min-height: 150px !important;
+}
+
+.btn-blue {
+  @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-5 rounded;
+}
+
+.btn-gray {
+  @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-5 rounded-l;
+}
+
+.btn-green {
+  @apply bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-5 rounded-l;
+}
