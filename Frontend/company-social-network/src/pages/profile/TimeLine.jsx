@@ -6,8 +6,9 @@ import { BiLink } from "react-icons/bi";
 import { AiOutlineMail, AiFillPhone } from "react-icons/ai";
 import { FaBirthdayCake, FaMapMarkerAlt } from "react-icons/fa";
 import { InputPost } from "../home";
+import { convertTimeStampToString } from "../../helper/timeHelper";
 
-const TimeLine = () => {
+const TimeLine = ({ userInfo }) => {
   return (
     <div className="w-2/3 mx-auto mt-3">
       <div className="flex gap-3">
@@ -21,39 +22,37 @@ const TimeLine = () => {
             <div className="mt-2 flex gap-3">
               <BsFillBriefcaseFill className="w-6 h-6" color="#c3c7cc" />
               <div>
-                <p className="font-semibold">Hunter Team</p>
-                <p className="font-light text-neutral-400 text-sm">
-                  Nhân viên Hunter Team
-                </p>
+                <p className="font-semibold">{userInfo?.department?.name}</p>
+                <p className="font-light text-neutral-400 text-sm">{userInfo?.position?.name}</p>
               </div>
             </div>
             <div className="mt-2 flex gap-3">
               <AiOutlineMail className="w-6 h-6" color="#c3c7cc" />
-              <p className="font-semibold">Thanhbinh191099@gmail.com</p>
+              <p className="font-semibold">{userInfo?.email}</p>
             </div>
             <div className="mt-2 flex gap-3">
               <AiFillPhone className="w-6 h-6" color="#c3c7cc" />
-              <p className="font-semibold">0983296832</p>
+              <p className="font-semibold">{userInfo?.phone}</p>
             </div>
             <div className="mt-2 flex gap-3">
               <FaBirthdayCake className="w-6 h-6" color="#c3c7cc" />
-              <p className="font-semibold">19/10/1999</p>
+              <p className="font-semibold">
+                {userInfo?.birth ? convertTimeStampToString(userInfo?.birth) : "(Chưa cập nhật)"}
+              </p>
             </div>
             <div className="mt-2 flex gap-3">
-              <BiLink className="w-6 h-6" color="#c3c7cc" />
-              <p className="font-semibold">http://localhost:5173/profile</p>
+              <BiLink className="w-6 h-6 min-w-6 min-h-6" color="#c3c7cc" />
+              <a className="font-semibold truncate w-72 text-green-500 cursor-pointer">{`profile/${userInfo?.employee_id}`}</a>
             </div>
             <div className="mt-2 flex gap-3">
               <FaMapMarkerAlt className="w-6 h-6" color="#c3c7cc" />
-              <p className="font-semibold">Hà Nội</p>
+              <p className="font-semibold">{userInfo?.address}</p>
             </div>
           </div>
           <div className="w-full bg-white rounded-lg p-3 mt-3 pb-8">
             <div className="flex justify-between">
               <p className="font-bold text-lg">Ảnh</p>
-              <a className="text-blue-500 hover:text-orange-500 cursor-pointer">
-                Xem tất cả
-              </a>
+              <a className="text-blue-500 hover:text-orange-500 cursor-pointer">Xem tất cả</a>
             </div>
             <div className="flex items-center justify-center gap-3 mt-3 flex-wrap">
               <img
@@ -85,9 +84,7 @@ const TimeLine = () => {
           <div className="w-full bg-white rounded-lg p-3 mt-3 pb-8">
             <div className="flex justify-between">
               <p className="font-bold text-lg">Bạn bè (12)</p>
-              <a className="text-blue-500 hover:text-orange-500 cursor-pointer">
-                Xem tất cả bạn bè
-              </a>
+              <a className="text-blue-500 hover:text-orange-500 cursor-pointer">Xem tất cả bạn bè</a>
             </div>
             <div className="flex gap-3 mt-3 flex-wrap">
               <div className="w-[110px] h-[110px] cursor-pointer relative">

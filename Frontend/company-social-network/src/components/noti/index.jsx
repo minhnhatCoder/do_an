@@ -1,7 +1,9 @@
 import { toast } from "react-toastify";
-const Toast = (type, message) => {
+import PropTypes from "prop-types";
+
+const Toast = (type = "", message, position = "top-right") => {
   return toast[type](`🦄 ${message}`, {
-    position: "top-right",
+    position: position,
     autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
@@ -10,6 +12,11 @@ const Toast = (type, message) => {
     progress: undefined,
     theme: "dark",
   });
+};
+Toast.propTypes = {
+  type: "info" || "success" || "warning" || "error" || "",
+  message: PropTypes.string.isRequired,
+  position: PropTypes.string,
 };
 
 export default Toast;

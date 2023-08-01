@@ -1,7 +1,7 @@
 import { Modal } from "antd";
 import React, { useState } from "react";
 import { Date, Editor, Select, Text } from "../../components/input";
-import Upload from "../../components/upload";
+import Upload from "../../components/uploadFiles";
 
 const Edit = ({ id, show, setShow }) => {
   const [infoEdit, setInfoEdit] = useState({});
@@ -70,7 +70,7 @@ const Edit = ({ id, show, setShow }) => {
           />
         </div>
         <div className="mt-5">
-          <Upload />
+          <Upload title={"Tài liệu"} />
         </div>
         <div className="mt-5 w-full ">
           <Select

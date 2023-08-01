@@ -10,26 +10,33 @@
 .box_shadow-light {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
-button,
-[type="button"],
-[type="reset"],
-[type="submit"] {
-  -webkit-appearance: button;
-  background-color: #1677ff;
-  background-image: none;
-}
 .ck-editor__editable {
   min-height: 150px !important;
 }
 
 .btn-blue {
-  @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-5 rounded;
+  @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-5 rounded cursor-pointer;
 }
 
 .btn-gray {
-  @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-5 rounded-l;
+  @apply bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 px-5 rounded cursor-pointer;
 }
 
 .btn-green {
-  @apply bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-5 rounded-l;
+  @apply bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-5 rounded cursor-pointer;
+}
+
+.btn-outlined {
+  @apply  hover:text-gray-600 hover:border-blue-500 text-gray-800 font-bold py-1 px-5 rounded cursor-pointer border;
+}
+
+/* tile uploaded pictures */
+.upload-list-inline .ant-upload-list-item {
+  float: left;
+  width: 200px;
+  margin-inline-end: 8px;
+}
+
+.ant-upload-rtl.upload-list-inline .ant-upload-list-item {
+  float: right;
 }

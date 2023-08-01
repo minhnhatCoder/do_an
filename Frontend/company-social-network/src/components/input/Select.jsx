@@ -5,7 +5,7 @@ const SelectUi = ({
   title,
   value,
   onChange,
-  classname,
+  className,
   required,
   disabled,
   isMulti,
@@ -14,7 +14,7 @@ const SelectUi = ({
   isClearable,
 }) => {
   return (
-    <div className={classname}>
+    <div className={className}>
       {title && (
         <p className="mb-2">
           {title}

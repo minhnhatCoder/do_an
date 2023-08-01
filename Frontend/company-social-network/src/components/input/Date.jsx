@@ -1,22 +1,21 @@
 import { DatePicker } from "antd";
-import React from "react";
+import dayjs from "dayjs";
+import React, { useState } from "react";
 
-const Date = ({
-  title,
-  value,
-  onChange,
-  classname,
-  required,
-  disabled,
-  type = "date",
-  allowClear,
-}) => {
+const Date = ({ title, value, onChange, className, required, disabled, type = "date", allowClear }) => {
+  const [selectedValue, setSelectedValue] = useState(value);
   const onOk = (value) => {
     console.log("onOk: ", value);
   };
+  const handleDateChange = (date, dateString) => {
+    // Chuyển đổi dateString thành timestamp sử dụng Day.js
+    const timestamp = dayjs(dateString).unix();
+    setSelectedValue(date);
+    onChange && onChange(timestamp);
+  };
   if (type == "date") {
     return (
-      <div className={classname}>
+      <div className={className}>
         {title && (
           <p className="mb-2">
             {title}
@@ -27,18 +26,17 @@ const Date = ({
         <DatePicker
           disabled={disabled}
           className="w-full"
-          value={value}
+          onChange={handleDateChange}
+          value={selectedValue ?? 0}
           allowClear={allowClear}
-          onChange={(e) => {
-            onchange && onChange(e?.target?.value);
-          }}
+          //  format="DD-MM-YYYY"
         />
       </div>
     );
   }
   if (type == "date-time") {
     return (
-      <div className={classname}>
+      <div className={className}>
         {title && (
           <p className="mb-2">
             {title}
@@ -49,13 +47,12 @@ const Date = ({
         <DatePicker
           disabled={disabled}
           className="w-full"
-          value={value}
           showTime
           allowClear={allowClear}
           //   onOk={onOk}
-          onChange={(e) => {
-            onchange && onChange(e?.target?.value);
-          }}
+          onChange={handleDateChange}
+          //  format="DD-MM-YYYY HH:mm:ss"
+          value={selectedValue ?? 0}
         />
       </div>
     );

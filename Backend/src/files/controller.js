@@ -19,6 +19,7 @@ exports.upload = async (req, res) => {
         let newFile = new filesModel({
           url: newPath.url,
           public_id: newPath.public_id,
+          name: String(newPath.public_id.split("files/")[1]),
         });
         // Save img
         const result = await newFile.save();

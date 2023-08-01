@@ -2,11 +2,7 @@ const usersDB = require("./model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const _ = require("lodash");
-const {
-  registerValidation,
-  loginValidation,
-  passwordValidation,
-} = require("../../helper/validate");
+const { registerValidation, loginValidation, passwordValidation } = require("../../helper/validate");
 
 exports.register = async (req, res) => {
   if (_.isEmpty(req.body)) {
@@ -15,13 +11,6 @@ exports.register = async (req, res) => {
       message: "Content can not be empty",
     });
   } else {
-    const { error } = registerValidation(req.body);
-    if (error)
-      return res.status(400).json({
-        status: 400,
-        message: error.details[0].message,
-      });
-
     //check email
     const emailExist = await usersDB.findOne({ email: req.body.email });
     if (emailExist)
@@ -37,14 +26,19 @@ exports.register = async (req, res) => {
       email: req.body.email,
       password: hashedPassword,
       role: req.body.role,
+      department: req.body.department,
+      position: req.body.position,
+      display_name: req.body.display_name,
+      gender: req.body.gender,
+      image: req.body.image,
+      address: req.body.address,
+      phone: req.body.phone,
     });
     try {
       const saveUser = await user.save();
-      return res
-        .status(201)
-        .json({ status: 201, message: "Đăng ký thành công" });
+      return res.status(201).json({ status: 201, message: "Đăng ký thành công", data: saveUser });
     } catch (error) {
-      return res.status(400).json({ status: 400, message: "Đăng ký thất bại" });
+      return res.status(400).json({ status: 400, message: error.message });
     }
   }
 };
@@ -58,40 +52,29 @@ exports.login = async (req, res) => {
   } else {
     //validate the data
     const { error } = loginValidation(req.body);
-    if (error)
-      return res
-        .status(400)
-        .json({ status: 400, message: error.details[0].message });
+    if (error) return res.status(400).json({ status: 400, message: error.details[0].message });
 
     const user = await usersDB.findOne({ email: req.body.email });
     if (!user) {
       return res.status(400).json({
         status: 400,
-        message: "tài khaorn không tồn tại trên hệ thống",
+        message: "tài khoản không tồn tại trên hệ thống",
       });
     }
     //check password
     const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass)
-      return res
-        .status(400)
-        .json({ status: 400, message: "Mật khẩu không đúng" });
+    if (!validPass) return res.status(400).json({ status: 400, message: "Mật khẩu không đúng" });
 
-    const { _id, name, email, role, image, ...rest } = user;
+    const { _id, ...rest } = user;
 
     //create token
-    const token = jwt.sign(
-      { _id, name, email, role, image: image?.imageUrl },
-      process.env.TOKEN_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
+    const token = jwt.sign({ _id }, process.env.TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
     return res.status(200).json({
       status: 200,
       message: "Đăng nhập thành công",
       token,
-      user: { _id, name, email, role, image },
     });
   }
 };

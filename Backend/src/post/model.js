@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: mongoose.Types.ObjectId,
       },
-      user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+      created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
       content: String,
       image: String,
       answer_comment: [

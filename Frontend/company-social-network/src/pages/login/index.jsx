@@ -4,22 +4,17 @@ import { Link, useNavigate } from "react-router-dom";
 import Auth from "../../services/authServices";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
 import Toast from "../../components/noti";
-import { useUserInfo } from "../../store";
-import jwt_decode from "jwt-decode";
 
 const Login = () => {
   const navigate = useNavigate();
   const [data, setData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const setUserInfo = useUserInfo((state) => state.setUserInfo);
-  const userInfo = useUserInfo((state) => state.userInfo);
 
   const onLogin = async () => {
     try {
       setLoading(true);
       const res = await Auth.login(data);
       localStorage.setItem(LOCAL_STORAGE_USER_KEY, res.data.token);
-      setUserInfo(res.data.user);
       navigate("/");
       Toast("success", res.data.message);
     } catch (error) {
@@ -55,19 +50,13 @@ const Login = () => {
           Đăng nhập
         </button>
         <div className=" mt-4 text-right w-96">
-          <Link
-            className="text-blue-500 cursor-pointer font-bold"
-            to="/register"
-          >
+          <Link className="text-blue-500 cursor-pointer font-bold" to="/register">
             Đăng ký
           </Link>
         </div>
       </div>
       <div className="w-2/3">
-        <img
-          src="https://www.gapo.vn/assets/images/right-cover.jpg"
-          className="w-full h-full"
-        />
+        <img src="https://www.gapo.vn/assets/images/right-cover.jpg" className="w-full h-full" />
       </div>
     </div>
   );

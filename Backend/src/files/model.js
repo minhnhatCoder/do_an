@@ -5,7 +5,7 @@ const fileSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  resource_type: {
+  name: {
     type: String,
   },
   public_id: String,

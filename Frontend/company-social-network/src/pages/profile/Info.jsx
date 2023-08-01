@@ -1,47 +1,40 @@
 import React, { useEffect, useState } from "react";
-import {
-  BsFillPersonFill,
-  BsPencil,
-  BsFillTelephoneFill,
-  BsFillBriefcaseFill,
-} from "react-icons/bs";
+import { BsFillPersonFill, BsPencil, BsFillTelephoneFill, BsFillBriefcaseFill } from "react-icons/bs";
 import { AiFillInfoCircle } from "react-icons/ai";
 import _ from "lodash";
 import { Text } from "../../components/input";
 import { Input } from "antd";
+import { convertTimeStampToString } from "../../helper/timeHelper";
+import UserServices from "../../services/user";
+import Toast from "../../components/noti";
+import { useRootState } from "../../store";
 
-const Info = () => {
-  const [editInfo, setEditInfo] = useState([
-    {
-      isEdit: false,
-      info: {
-        display_name: "Lê Văn Bình",
-        email: "Thanhbinh191099@gmail.com",
-        birthday: "19/10/1999",
-        address: "Hà Nội",
-      },
-    },
-    {
-      isEdit: false,
-      info: {
-        phone: "0983296832",
-        link: "Thanhbinh191099@gmail.com",
-      },
-    },
-    {
-      isEdit: false,
-      info: {
-        company: "Getfly",
-        staff_code: "NV191099",
-        role_name: "Nhân viên",
-        position: "Hunter Team",
-      },
-    },
-  ]);
-  const [initialInfo, setInitialInfo] = useState();
+const Info = ({ userInfo }) => {
+  const [isEditInfo, setIsEditInfo] = useState(false);
+  const [isEditContact, setIsEditContact] = useState(false);
+  const [isEditJob, setIsEditJob] = useState(false);
+  const [infoEdit, setInfoEdit] = useState({});
+  const [initInfoEdit, setInitInfoEdit] = useState({});
+  const [loading, setLoading] = useState(false);
+  const setUserInfo = useRootState((state) => state.setUserInfo);
+
+  const updateUserInfo = async () => {
+    setLoading(true);
+    try {
+      const res = await UserServices.updateUser(infoEdit?._id, infoEdit);
+      setUserInfo(res.data);
+      setLoading(false);
+      Toast("success", res?.message);
+    } catch (error) {
+      setInfoEdit(_.cloneDeep(initInfoEdit));
+      setLoading(false);
+      Toast("success", error?.response?.data?.message);
+    }
+  };
   useEffect(() => {
-    setInitialInfo(_.cloneDeep(editInfo));
-  }, []);
+    setInfoEdit(_.cloneDeep(userInfo));
+    setInitInfoEdit(_.cloneDeep(userInfo));
+  }, [JSON.stringify(userInfo)]);
   return (
     <div className="w-2/3 mx-auto mt-3">
       <div className="bg-white rounded-lg p-3">
@@ -52,12 +45,11 @@ const Info = () => {
             </div>
             <p className="font-bold text-lg">Thông tin cá nhân</p>
           </div>
-          {!editInfo[0].isEdit ? (
+          {!isEditInfo ? (
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => {
-                editInfo[0].isEdit = true;
-                setEditInfo([...editInfo]);
+                setIsEditInfo(true);
               }}
             >
               <BsPencil className="w-5 h-5 text-blue-500" />
@@ -68,9 +60,13 @@ const Info = () => {
               <button
                 className="btn-gray !px-7"
                 onClick={() => {
-                  editInfo[0].isEdit = false;
-                  editInfo[0].info = _.cloneDeep(initialInfo[0].info);
-                  setEditInfo([...editInfo]);
+                  setIsEditInfo(false);
+                  setInfoEdit({
+                    ...infoEdit,
+                    display_name: initInfoEdit?.display_name,
+                    birth: initInfoEdit?.birth,
+                    address: initInfoEdit?.address,
+                  });
                 }}
               >
                 Hủy
@@ -78,9 +74,8 @@ const Info = () => {
               <button
                 className="btn-green !px-7"
                 onClick={() => {
-                  editInfo[0].isEdit = false;
-                  setEditInfo([...editInfo]);
-                  setInitialInfo(_.cloneDeep(editInfo));
+                  setIsEditInfo(false);
+                  updateUserInfo();
                 }}
               >
                 Lưu
@@ -90,34 +85,27 @@ const Info = () => {
         </div>
         <div className="mt-5">
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Tên hiển thị
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Tên hiển thị</div>
             <div className="w-4/5 ">
-              {editInfo?.[0]?.isEdit ? (
+              {isEditInfo ? (
                 <Input
-                  value={editInfo?.[0]?.info?.display_name}
+                  value={infoEdit?.display_name}
                   onChange={(e) => {
-                    editInfo[0].info.display_name = e?.target?.value;
-                    setEditInfo([...editInfo]);
+                    setInfoEdit({ ...infoEdit, display_name: e.target.value });
                   }}
                 />
               ) : (
-                <p className="font-bold">{editInfo?.[0]?.info?.display_name}</p>
+                <p className="font-bold">{infoEdit?.display_name}</p>
               )}
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Email
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Email</div>
             <div className="w-4/5 ">
-              {editInfo?.[0]?.isEdit ? (
-                <Input value={editInfo?.[0]?.info?.email} disabled />
+              {isEditInfo ? (
+                <Input value={infoEdit?.email} disabled />
               ) : (
-                <p className="font-bold text-green-500">
-                  Thanhbinh191099@gmail.com
-                </p>
+                <p className="font-bold text-green-500">{infoEdit?.email}</p>
               )}
 
               <p className="text-base text-neutral-500 mt-2">
@@ -127,38 +115,32 @@ const Info = () => {
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Ngày sinh
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Ngày sinh</div>
             <div className="w-4/5">
-              {editInfo?.[0]?.isEdit ? (
+              {isEditInfo ? (
                 <Input
-                  value={editInfo?.[0]?.info?.birthday}
+                  value={infoEdit?.birth}
                   onChange={(e) => {
-                    editInfo[0].info.birthday = e?.target?.value;
-                    setEditInfo([...editInfo]);
+                    setInfoEdit({ ...infoEdit, birth: e.target.value });
                   }}
                 />
               ) : (
-                <p className="font-bold">{editInfo?.[0]?.info?.birthday}</p>
+                <p className="font-bold">{convertTimeStampToString(infoEdit?.birth) || "(Chưa cập nhật)"}</p>
               )}
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Địa chỉ
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Địa chỉ</div>
             <div className="w-4/5">
-              {editInfo?.[0]?.isEdit ? (
+              {isEditInfo ? (
                 <Input
-                  value={editInfo?.[0]?.info?.address}
+                  value={infoEdit?.address}
                   onChange={(e) => {
-                    editInfo[0].info.address = e?.target?.value;
-                    setEditInfo([...editInfo]);
+                    setInfoEdit({ ...infoEdit, address: e.target.value });
                   }}
                 />
               ) : (
-                <p className="font-bold">{editInfo?.[0]?.info?.address}</p>
+                <p className="font-bold">{infoEdit?.address}</p>
               )}
             </div>
           </div>
@@ -172,12 +154,11 @@ const Info = () => {
             </div>
             <p className="font-bold text-lg">Thông tin liên hệ</p>
           </div>
-          {!editInfo[1].isEdit ? (
+          {!isEditContact ? (
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => {
-                editInfo[1].isEdit = true;
-                setEditInfo([...editInfo]);
+                setIsEditContact(true);
               }}
             >
               <BsPencil className="w-5 h-5 text-blue-500" />
@@ -186,21 +167,24 @@ const Info = () => {
           ) : (
             <div className="flex items-center gap-3">
               <button
-                class="btn-gray !px-7"
+                className="btn-gray !px-7"
                 onClick={() => {
-                  editInfo[1].isEdit = false;
-                  editInfo[1].info = _.cloneDeep(initialInfo[1].info);
-                  setEditInfo([...editInfo]);
+                  setIsEditContact(false);
+                  setInfoEdit({
+                    ...infoEdit,
+                    display_name: initInfoEdit?.display_name,
+                    birth: initInfoEdit?.birth,
+                    address: initInfoEdit?.address,
+                  });
                 }}
               >
                 Hủy
               </button>
               <button
-                class="btn-green !px-7"
+                className="btn-green !px-7"
                 onClick={() => {
-                  editInfo[1].isEdit = false;
-                  setEditInfo([...editInfo]);
-                  setInitialInfo(_.cloneDeep(editInfo));
+                  setIsEditContact(false);
+                  updateUserInfo();
                 }}
               >
                 Lưu
@@ -210,40 +194,30 @@ const Info = () => {
         </div>
         <div className="mt-5">
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Số điện thoại
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Số điện thoại</div>
             <div className="w-4/5 ">
-              {editInfo?.[1]?.isEdit ? (
+              {isEditContact ? (
                 <Input
-                  value={editInfo?.[1]?.info?.phone}
+                  value={infoEdit?.phone}
                   onChange={(e) => {
-                    editInfo[1].info.phone = e?.target?.value;
-                    setEditInfo([...editInfo]);
+                    setInfoEdit({
+                      ...infoEdit,
+                      phone: e?.target?.value,
+                    });
                   }}
                 />
               ) : (
-                <p className="font-bold">{editInfo?.[1]?.info?.phone}</p>
+                <p className="font-bold">{infoEdit?.phone}</p>
               )}
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Đường dẫn
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Đường dẫn</div>
             <div className="w-4/5 ">
-              {editInfo?.[1]?.isEdit ? (
-                <Input
-                  value={editInfo?.[1]?.info?.link}
-                  onChange={(e) => {
-                    editInfo[1].info.link = e?.target?.value;
-                    setEditInfo([...editInfo]);
-                  }}
-                />
+              {isEditContact ? (
+                <Input value={`http://localhost:5173/profile/${userInfo?.employee_id}`} disabled />
               ) : (
-                <p className="font-bold  text-green-500">
-                  {editInfo?.[1]?.info?.link}
-                </p>
+                <p className="font-bold  text-green-500">{`/profile/${userInfo?.employee_id}`}</p>
               )}
             </div>
           </div>
@@ -258,12 +232,11 @@ const Info = () => {
             </div>
             <p className="font-bold text-lg">Công việc</p>
           </div>
-          {!editInfo[2].isEdit ? (
+          {!isEditJob ? (
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => {
-                editInfo[2].isEdit = true;
-                setEditInfo([...editInfo]);
+                setIsEditJob(true);
               }}
             >
               <BsPencil className="w-5 h-5 text-blue-500" />
@@ -272,21 +245,18 @@ const Info = () => {
           ) : (
             <div className="flex items-center gap-3">
               <button
-                class="btn-gray !px-7"
+                className="btn-gray !px-7"
                 onClick={() => {
-                  editInfo[2].isEdit = false;
-                  editInfo[2].info = _.cloneDeep(initialInfo[2].info);
-                  setEditInfo([...editInfo]);
+                  setIsEditJob(false);
+                  //
                 }}
               >
                 Hủy
               </button>
               <button
-                class="btn-green !px-7"
+                className="btn-green !px-7"
                 onClick={() => {
-                  editInfo[2].isEdit = false;
-                  setEditInfo([...editInfo]);
-                  setInitialInfo(_.cloneDeep(editInfo));
+                  setIsEditJob(false);
                 }}
               >
                 Lưu
@@ -296,43 +266,31 @@ const Info = () => {
         </div>
         <div className="mt-5">
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Tổ chức
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Tổ chức</div>
             <div className="w-4/5 ">
-              {editInfo?.[2]?.isEdit ? (
-                <Input value={editInfo?.[2]?.info?.company} disabled />
-              ) : (
-                <p className="font-bold">{editInfo?.[2]?.info?.company}</p>
-              )}
+              {isEditJob ? <Input value={"Getfly"} disabled /> : <p className="font-bold">{"Getfly"}</p>}
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Mã nhân viên
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Mã nhân viên</div>
             <div className="w-4/5 ">
-              {editInfo?.[2]?.isEdit ? (
+              {isEditJob ? (
                 <Input
-                  value={editInfo?.[2]?.info?.staff_code}
+                  value={infoEdit?.employee_id}
                   onChange={(e) => {
-                    editInfo[2].info.staff_code = e?.target?.value;
-                    setEditInfo([...editInfo]);
+                    setInfoEdit({ ...infoEdit, employee_id: e.target.value });
                   }}
+                  disabled
                 />
               ) : (
-                <p className="font-bold text-green-500">
-                  {editInfo?.[2]?.info?.staff_code}
-                </p>
+                <p className="font-bold text-green-500">{infoEdit?.employee_id}</p>
               )}
             </div>
           </div>
           <div className="flex mt-3">
-            <div className="w-1/5 text-neutral-500 text-lg font-medium">
-              Vị trí
-            </div>
+            <div className="w-1/5 text-neutral-500 text-lg font-medium">Vị trí</div>
             <div className="w-4/5 font-bold">
-              Hunter team - Nhân viên Hunter Team
+              {userInfo?.department?.name} - {userInfo?.position?.name}
             </div>
           </div>
         </div>

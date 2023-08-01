@@ -3,11 +3,7 @@ import React, { useState } from "react";
 import { BiPlus, BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { MdPendingActions } from "react-icons/md";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
-import {
-  AiOutlineEye,
-  AiOutlinePlus,
-  AiOutlineFundProjectionScreen,
-} from "react-icons/ai";
+import { AiOutlineEye, AiOutlinePlus, AiOutlineFundProjectionScreen } from "react-icons/ai";
 import { CiGrid41 } from "react-icons/ci";
 import Edit from "./Edit";
 import Detail from "./Detail";
@@ -201,7 +197,7 @@ const Tasks = () => {
                 type="primary"
                 icon={<AiOutlinePlus />}
                 size={"middle"}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center btn-blue"
                 onClick={() => setShow(true)}
               >
                 Tạo công việc
@@ -209,12 +205,7 @@ const Tasks = () => {
             </div>
           </div>
           <div className="mt-4">
-            <Tabs
-              defaultActiveKey="1"
-              items={items}
-              onChange={onChangeTab}
-              centered
-            />
+            <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} centered />
 
             <Table columns={columns} dataSource={data} pagination={false} />
             <Edit id={0} show={show} setShow={setShow} />

@@ -14,9 +14,7 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   async (config) => {
-    let authToken = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
-      ? JSON.parse(localStorage.getItem(LOCAL_STORAGE_USER_KEY))
-      : null;
+    let authToken = localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null;
     config.headers.Authorization = "Bear " + authToken;
     return config;
   },

@@ -23,7 +23,7 @@ const RootRoute = () => {
             <Route exact path="/" element={<HomePage />} />
             <Route exact path="/friends" element={<Friends />} />
             <Route exact path="/tasks" element={<Tasks />} />
-            <Route exact path="/profile" element={<Profile />} />
+            <Route exact path="/profile/:id" element={<Profile />} />
           </Route>
 
           <Route exact path="/login" element={<Login />} />

@@ -4,11 +4,15 @@ import { IoIosPeople, IoMdNotificationsOutline } from "react-icons/io";
 import { BsChatDots } from "react-icons/bs";
 import { BiTask, BiSearchAlt } from "react-icons/bi";
 import { FiLogOut } from "react-icons/fi";
+import { FaRegUserCircle } from "react-icons/fa";
+import Toast from "../../components/noti";
 import { Avatar, Badge, Dropdown, AutoComplete, Input } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useRootState } from "../../store";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
+  const userInfo = useRootState((state) => state.userInfo);
   let location = useLocation();
   const [menuItems] = useState([
     { icon: <AiFillHome className="w-8 h-8" color="#28526e" />, link: "/" },
@@ -24,17 +28,11 @@ const Layout = ({ children }) => {
     {
       key: "1",
       label: (
-        <Link className="font-semibold" to="/profile">
+        <Link className="font-semibold" to={`/profile/${userInfo?.employee_id}`}>
           Xem trang cá nhân
         </Link>
       ),
-      icon: (
-        <Avatar
-          className="border border-black"
-          size={32}
-          src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-        />
-      ),
+      icon: <FaRegUserCircle className="w-5 h-5" />,
     },
     {
       key: "2",
@@ -80,11 +78,7 @@ const Layout = ({ children }) => {
       </Link>
     ),
   });
-  if (
-    location.pathname === "/login" ||
-    location.pathname === "/register" ||
-    location.pathname === "/forgot"
-  ) {
+  if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot") {
     return <div>{children}</div>;
   } else
     return (
@@ -105,12 +99,7 @@ const Layout = ({ children }) => {
               onClear={() => setOptions([])}
               // autoComplete
             >
-              <Input
-                size="large"
-                placeholder="Tìm kiếm..."
-                className="rounded-full"
-                prefix={<BiSearchAlt />}
-              />
+              <Input size="large" placeholder="Tìm kiếm..." className="rounded-full" prefix={<BiSearchAlt />} />
             </AutoComplete>
           </div>
 
@@ -120,9 +109,7 @@ const Layout = ({ children }) => {
                 <div
                   key={index}
                   className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
-                    index == menuActive
-                      ? "border-b-[#28526e]"
-                      : "border-b-white"
+                    index == menuActive ? "border-b-[#28526e]" : "border-b-white"
                   } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
                   onClick={() => {
                     setMenuActive(index);
@@ -142,10 +129,7 @@ const Layout = ({ children }) => {
               }}
             >
               <Badge count={99} overflowCount={99} offset={[0, 0]}>
-                <IoMdNotificationsOutline
-                  className="w-8 h-8 cursor-pointer"
-                  color="#28526e"
-                />
+                <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
               </Badge>
             </Dropdown>
 
@@ -155,19 +139,13 @@ const Layout = ({ children }) => {
               }}
             >
               <div className="flex items-center justify-center gap-2 cursor-pointer">
-                <Avatar
-                  className="border border-black"
-                  size={40}
-                  src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-                />
-                <p className="font-bold">Trần Minh Nhật</p>
+                <Avatar className="border border-black" size={40} src={userInfo?.image || ""} />
+                <p className="font-bold">{userInfo?.display_name}</p>
               </div>
             </Dropdown>
           </div>
         </div>
-        <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)]">
-          {children}
-        </div>
+        <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)]">{children}</div>
       </div>
     );
 };
