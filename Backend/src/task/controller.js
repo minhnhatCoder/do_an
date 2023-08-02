@@ -1,14 +1,15 @@
-const taskDB = require("./model");
+const { tasksDB, projectsDB } = require("./model");
 const Features = require("../../libs/feature");
 
-exports.create = async (req, res) => {
+exports.createTask = async (req, res) => {
   try {
-    const task = new taskDB({
+    const task = new tasksDB({
       title: req.body.title,
       description: req.body.description,
       attachments: req.body.attachments,
       related_user: req.body.related_user,
-      assignor: req.body.assignor,
+      project: req.body.project,
+      assigner: req.body.assigner,
       reciever: req.body.reciever,
     });
     const saveTask = await task.save();
@@ -23,20 +24,13 @@ exports.create = async (req, res) => {
 };
 exports.getTask = async (req, res) => {
   try {
-    const features = new Features(
-      taskDB.find().populate("reciever", ["first_name", "last_name", "image"]),
-      req.query
-    )
+    const features = new Features(tasksDB.find().populate("reciever", ["first_name", "last_name", "image"]), req.query)
       .sorting()
       .paginating()
       .searching()
       .filtering();
 
-    const counting = new Features(taskDB.find(), req.query)
-      .sorting()
-      .searching()
-      .filtering()
-      .counting();
+    const counting = new Features(tasksDB.find(), req.query).sorting().searching().filtering().counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -56,27 +50,90 @@ exports.getTask = async (req, res) => {
 };
 exports.getTaskById = async (req, res) => {
   try {
-    const data = await taskDB.findById(req.params.id);
+    const data = await tasksDB.findById(req.params.id);
     return res.status(200).json({ status: 200, data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
 };
-exports.update = async (req, res) => {
+exports.updateTask = async (req, res) => {
   try {
-    const data = await taskDB.findByIdAndUpdate(req.params.id, req.body, {
+    const data = await tasksDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
 };
 exports.deleteTask = async (req, res) => {
   try {
-    await taskDB.findByIdAndDelete(req.params.id);
+    await tasksDB.findByIdAndDelete(req.params.id);
+    return res.status(200).json({ status: 200, message: "Xóa thành công" });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
+
+exports.createProject = async (req, res) => {
+  try {
+    const project = new projectsDB({
+      title: req.body.title,
+      related_user: req.body.related_user,
+    });
+    const saveProject = await project.save();
+    return res.status(200).json({
+      status: 200,
+      message: "Tạo dự án thành công",
+      data: saveProject,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
+exports.getProjects = async (req, res) => {
+  try {
+    const features = new Features(projectsDB.find(), req.query).sorting().paginating().searching().filtering();
+
+    const counting = new Features(projectsDB.find(), req.query).sorting().searching().filtering().counting();
+    const result = await Promise.allSettled([
+      features.query,
+      counting.query, //count number of user.
+    ]);
+
+    const project = result[0].status === "fulfilled" ? result[0].value : [];
+    const count = result[1].status === "fulfilled" ? result[1].value : 0;
+
+    return res.status(200).json({
+      status: 200,
+      data: project,
+      count: count,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
+exports.getProject = async (req, res) => {
+  try {
+    const data = await projectsDB.findById(req.params.id);
+    return res.status(200).json({ status: 200, data });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
+exports.updateProject = async (req, res) => {
+  try {
+    const data = await projectsDB.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
+exports.deleteProject = async (req, res) => {
+  try {
+    await projectsDB.findByIdAndDelete(req.params.id);
     return res.status(200).json({ status: 200, message: "Xóa thành công" });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });

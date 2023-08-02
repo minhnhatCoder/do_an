@@ -2,6 +2,8 @@ import { Modal } from "antd";
 import React, { useState } from "react";
 import { Date, Editor, Select, Text } from "../../components/input";
 import Upload from "../../components/uploadFiles";
+import SelectUsers from "../../components/Select/Users";
+import SelectProjects from "../../components/Select/Projects";
 
 const Edit = ({ id, show, setShow }) => {
   const [infoEdit, setInfoEdit] = useState({});
@@ -36,30 +38,32 @@ const Edit = ({ id, show, setShow }) => {
           />
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-5">
-          <Date
-            classname="w-1/2"
-            title="Ngày bắt đầu"
-            // value={infoEdit?.task_name}
-            required
-            type="date-time"
-            onChange={(value, dateString) => {
-              console.log("Selected Time: ", value);
-              console.log("Formatted Selected Time: ", dateString);
-            }}
-          />
+        <div className="flex items-center justify-center gap-3 mt-5 w-full">
+          <div className="w-1/2">
+            <Date
+              title="Ngày bắt đầu"
+              // value={infoEdit?.task_name}
+              required
+              type="date-time"
+              onChange={(value, dateString) => {
+                console.log("Selected Time: ", value);
+                console.log("Formatted Selected Time: ", dateString);
+              }}
+            />
+          </div>
 
-          <Date
-            classname="w-1/2"
-            title="Ngày kết thúc"
-            // value={infoEdit?.task_name}
-            required
-            type="date-time"
-            onChange={(value, dateString) => {
-              console.log("Selected Time: ", value);
-              console.log("Formatted Selected Time: ", dateString);
-            }}
-          />
+          <div className="w-1/2">
+            <Date
+              title="Ngày kết thúc"
+              // value={infoEdit?.task_name}
+              required
+              type="date-time"
+              onChange={(value, dateString) => {
+                console.log("Selected Time: ", value);
+                console.log("Formatted Selected Time: ", dateString);
+              }}
+            />
+          </div>
         </div>
         <div className="mt-5 w-full">
           <Editor
@@ -72,14 +76,10 @@ const Edit = ({ id, show, setShow }) => {
         <div className="mt-5">
           <Upload title={"Tài liệu"} />
         </div>
+        <SelectProjects menuPlacement={"top"} title="Dự án" required className="mt-5" />
+
         <div className="mt-5 w-full ">
-          <Select
-            menuPlacement={"top"}
-            title="Người nhận việc"
-            required
-            // value={infoEdit?.task_name}
-            // onChange={(e) => setInfoEdit({ task_description: e, ...infoEdit })}
-          />
+          <SelectUsers menuPlacement={"top"} title="Người nhận việc" required />
         </div>
         <div className="mt-5 w-full">
           <Select

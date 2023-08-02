@@ -6,6 +6,7 @@ import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
 import { AiOutlineEye, AiOutlinePlus, AiOutlineFundProjectionScreen } from "react-icons/ai";
 import { CiGrid41 } from "react-icons/ci";
 import Edit from "./Edit";
+import EditProject from "./EditProject";
 import Detail from "./Detail";
 
 const Tasks = () => {
@@ -149,26 +150,6 @@ const Tasks = () => {
                 <AiOutlineFundProjectionScreen className="w-7 h-7" />
                 <p className="font-bold"> Dự án 1</p>
               </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
-              </div>
             </div>
           </div>
         </div>
@@ -209,6 +190,7 @@ const Tasks = () => {
 
             <Table columns={columns} dataSource={data} pagination={false} />
             <Edit id={0} show={show} setShow={setShow} />
+            <EditProject id={0} show={show} setShow={setShow} />
             <Detail id={0} show={showDetail} setShow={setShowDetail} />
           </div>
         </div>

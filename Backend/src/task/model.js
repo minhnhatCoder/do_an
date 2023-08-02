@@ -11,6 +11,10 @@ const taskSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  priority: {
+    type: Number,
+    required: true,
+  },
   created_at: {
     type: Number,
     default: dayjs(new Date()).unix(),
@@ -28,7 +32,8 @@ const taskSchema = new mongoose.Schema({
     default: 0,
   },
   related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  assignor: {
+  project: { type: mongoose.Schema.Types.ObjectId, ref: "projects", required: true },
+  assigner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
     require: true,
@@ -43,6 +48,20 @@ const taskSchema = new mongoose.Schema({
     default: [],
   },
 });
-const tasksDB = mongoose.model("tasks", taskSchema);
 
-module.exports = tasksDB;
+const projectSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    default: "",
+    require: true,
+  },
+  created_at: {
+    type: Number,
+    default: dayjs(new Date()).unix(),
+  },
+  related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+});
+const tasksDB = mongoose.model("tasks", taskSchema);
+const projectsDB = mongoose.model("projects", projectSchema);
+
+module.exports = { tasksDB, projectsDB };

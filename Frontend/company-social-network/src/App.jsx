@@ -12,6 +12,7 @@ import DepartmentServices from "./services/deptServices";
 function App() {
   const token = localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null;
   const setUserInfo = useRootState((state) => state.setUserInfo);
+  const setUsers = useRootState((state) => state.setUsers);
   const setDepts = useRootState((state) => state.setDepts);
   const setPositions = useRootState((state) => state.setPositions);
 
@@ -19,6 +20,14 @@ function App() {
     const token_gen = jwt_decode(token);
     const data = await UserServices.getUser(token_gen?._id);
     setUserInfo(data.data);
+  };
+  const getUsers = async () => {
+    try {
+      const res = await UserServices.getUsers();
+      setUsers(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
   const getDepts = async () => {
     try {
@@ -40,6 +49,7 @@ function App() {
     if (token) {
       getUserInfo();
       getDepts();
+      getUsers();
       getPositions();
     }
   }, [token]);

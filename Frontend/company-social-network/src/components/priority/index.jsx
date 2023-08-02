@@ -19,7 +19,7 @@ const Priority = ({ id = 1, hideValue, onChange, hasTitle }) => {
       case 2:
         return <Tag color="orange">Trung bình</Tag>;
       case 3:
-        <Tag color="blue">Thấp</Tag>;
+        return <Tag color="blue">Thấp</Tag>;
       case 4:
         return <Tag color="gray">Không ưu tiên</Tag>;
 
@@ -70,12 +70,7 @@ const Priority = ({ id = 1, hideValue, onChange, hasTitle }) => {
       {hasTitle && <p className="font-semibold">Ưu tiên</p>}
       {hideValue ? null : handleShowTag(id)}
       {onChange ? (
-        <Popover
-          placement="bottom"
-          title={"Đặt độ ưu tiên"}
-          content={content}
-          trigger="click"
-        >
+        <Popover placement="bottom" title={"Đặt độ ưu tiên"} content={content} trigger="click">
           <CgArrowsExchangeAltV className="hover:bg-gray-100 p-1 rounded-md w-6 h-6 cursor-pointer" />
         </Popover>
       ) : null}
