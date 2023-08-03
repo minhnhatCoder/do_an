@@ -1,5 +1,5 @@
-import { Button, Input, Tabs, Space, Table, Tag } from "antd";
-import React, { useState } from "react";
+import { Button, Input, Tabs, Space, Table, Tag, Empty } from "antd";
+import React, { useEffect, useState } from "react";
 import { BiPlus, BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { MdPendingActions } from "react-icons/md";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -8,10 +8,13 @@ import { CiGrid41 } from "react-icons/ci";
 import Edit from "./Edit";
 import EditProject from "./EditProject";
 import Detail from "./Detail";
+import TasksServices from "../../services/tasksServices";
 
 const Tasks = () => {
   const [show, setShow] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
+  const [addProject, setAddProject] = useState(false);
+  const [projects, setProjects] = useState([]);
   const items = [
     {
       key: "1",
@@ -133,6 +136,15 @@ const Tasks = () => {
     },
   ];
 
+  const getProjects = async () => {
+    const res = await TasksServices.getProjects();
+    setProjects(res?.data);
+  };
+
+  useEffect(() => {
+    getProjects();
+  }, []);
+
   return (
     <div className="main-content h-full">
       <div className="flex gap-2 overflow-y-auto h-full bg-white rounded-lg">
@@ -146,10 +158,28 @@ const Tasks = () => {
             </div>
             <div className="mt-3">
               <p className="font-bold text-lg mb-2">Tất cả dự án</p>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2">
-                <AiOutlineFundProjectionScreen className="w-7 h-7" />
-                <p className="font-bold"> Dự án 1</p>
+              <div className=" min-h-[450px] overflow-auto">
+                {projects?.length > 0 ? (
+                  projects.map((p) => {
+                    return (
+                      <div className="flex gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2" key={p?._id}>
+                        <AiOutlineFundProjectionScreen className="w-7 h-7" />
+                        <p className="font-bold"> {p?.title}</p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <Empty />
+                )}
               </div>
+              <p
+                className="text-blue-500 hover:text-orange-500 text-center cursor-pointer"
+                onClick={() => {
+                  setAddProject(!addProject);
+                }}
+              >
+                + Tạo dự án
+              </p>
             </div>
           </div>
         </div>
@@ -190,7 +220,7 @@ const Tasks = () => {
 
             <Table columns={columns} dataSource={data} pagination={false} />
             <Edit id={0} show={show} setShow={setShow} />
-            <EditProject id={0} show={show} setShow={setShow} />
+            <EditProject id={0} show={addProject} setShow={setAddProject} />
             <Detail id={0} show={showDetail} setShow={setShowDetail} />
           </div>
         </div>

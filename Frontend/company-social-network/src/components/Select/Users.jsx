@@ -38,7 +38,6 @@ const SelectUsers = ({
   }, [users?.length]);
 
   const CustomOption = ({ innerProps, label, data }) => {
-    console.log(data);
     return (
       <div {...innerProps} className="flex items-center p-2 gap-2 hover:text-white hover:bg-blue-500 cursor-pointer">
         <Avatar size={"large"} src={data?.image} />
@@ -51,6 +50,20 @@ const SelectUsers = ({
       </div>
     );
   };
+
+  const formatSelectedValues = (data) => {
+    console.log(data);
+    if (data) {
+      return (
+        <div className="flex items-center gap-2">
+          <img src={data?.image} style={{ width: "30px", height: "30px", borderRadius: "50%" }} />
+          {data?.label}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className={className}>
       {title && (
@@ -68,7 +81,12 @@ const SelectUsers = ({
         className="w-full"
         components={{ Option: CustomOption }}
         menuPlacement={menuPlacement}
-        value={options.find((opt) => opt?.value == value) ?? null}
+        value={
+          isMulti
+            ? options.filter((opt) => value?.includes(opt?.value)) ?? []
+            : options.find((opt) => opt?.value == value) ?? null
+        }
+        formatOptionLabel={formatSelectedValues}
         onChange={onChange}
       />
     </div>

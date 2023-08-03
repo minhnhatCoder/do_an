@@ -54,23 +54,24 @@ const Edit = ({ id, show, setShow }) => {
       width={900}
     >
       <Spin spinning={loading}>
-        <div className="p-3  min-h-[700px] max-h-[1000px] overflow-y-auto h-[350px]">
+        <div className="p-3  min-h-[350px] overflow-y-auto h-[350px]">
           <Text
             classname="w-full"
             title="Tên dự án"
             value={infoEdit?.title}
             required
-            onChange={(e) => setInfoEdit({ title: e, ...infoEdit })}
+            onChange={(e) => setInfoEdit({ ...infoEdit, title: e.target.value })}
           />
 
           <div className="mt-5 w-full">
             <SelectUsers
               isMulti
               isClearable
-              menuPlacement={"top"}
               title="Người liên quan"
               value={infoEdit?.related_user ?? []}
-              onChange={(e) => setInfoEdit({ related_user: e?.map((item) => item?.value), ...infoEdit })}
+              onChange={(e) => {
+                setInfoEdit({ ...infoEdit, related_user: e.map((i) => i?.value) });
+              }}
             />
           </div>
         </div>
