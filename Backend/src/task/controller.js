@@ -9,8 +9,9 @@ exports.createTask = async (req, res) => {
       attachments: req.body.attachments,
       related_user: req.body.related_user,
       project: req.body.project,
-      assigner: req.body.assigner,
+      assigner: req.user_data._id,
       reciever: req.body.reciever,
+      priority: req.body.priority,
     });
     const saveTask = await task.save();
     return res.status(200).json({
@@ -79,6 +80,7 @@ exports.createProject = async (req, res) => {
   try {
     const project = new projectsDB({
       title: req.body.title,
+      assigner: req.user_data._id,
       related_user: req.body.related_user,
     });
     const saveProject = await project.save();

@@ -33,6 +33,7 @@ const taskSchema = new mongoose.Schema({
   },
   related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   project: { type: mongoose.Schema.Types.ObjectId, ref: "projects", required: true },
+  parent_task: { type: mongoose.Schema.Types.ObjectId, ref: "tasks" },
   assigner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
@@ -53,6 +54,11 @@ const projectSchema = new mongoose.Schema({
   title: {
     type: String,
     default: "",
+    require: true,
+  },
+  assigner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
     require: true,
   },
   created_at: {

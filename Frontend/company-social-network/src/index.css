@@ -40,3 +40,13 @@
 .ant-upload-rtl.upload-list-inline .ant-upload-list-item {
   float: right;
 }
+
+.ant-upload-list-item-thumbnail.ant-upload-list-item-file{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-btn-primary{
+  background-color: #1677ff !important;
+}

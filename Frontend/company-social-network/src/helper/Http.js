@@ -15,7 +15,8 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   async (config) => {
     let authToken = localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null;
-    config.headers.Authorization = "Bear " + authToken;
+    authToken = authToken ? authToken.trim() : null; // Loại bỏ các khoảng trắng không mong muốn
+    config.headers.Authorization = authToken ? authToken : null;
     return config;
   },
   (err) => {

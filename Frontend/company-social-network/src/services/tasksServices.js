@@ -26,26 +26,22 @@ const Tasks = {
     const url = "/job/projects" + id;
     return axiosClient.put(url, body);
   },
-  //   addDept: (body) => {
-  //     const url = "/company/depts";
-  //     return axiosClient.post(url, body);
-  //   },
-  //   getPosition: (id) => {
-  //     const url = "/company/positions/" + id;
-  //     return axiosClient.get(url);
-  //   },
-  //   getPositions: () => {
-  //     const url = "/company/positions";
-  //     return axiosClient.get(url);
-  //   },
-  //   updatePosition: (id, body) => {
-  //     const url = "/company/positions/" + id;
-  //     return axiosClient.put(url, body);
-  //   },
-  //   addPosition: (body) => {
-  //     const url = "/company/positions";
-  //     return axiosClient.post(url, body);
-  //   },
+  getTask: (id) => {
+    const url = "/job/tasks/" + id;
+    return axiosClient.get(url);
+  },
+  getTasks: () => {
+    const url = "/job/tasks";
+    return axiosClient.get(url);
+  },
+  addTask: (body) => {
+    const url = "/job/tasks";
+    return axiosClient.post(url, body);
+  },
+  updateTask: (id, body) => {
+    const url = "/job/tasks" + id;
+    return axiosClient.put(url, body);
+  },
 };
 
 export default Tasks;

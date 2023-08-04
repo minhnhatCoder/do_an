@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
 
 const checkAuth = (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
-  if (!token)
-    return res.status(401).json({ status: 401, message: "Từ chối truy cập" });
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).json({ status: 401, message: "Từ chối truy cập" });
 
   try {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET);
@@ -14,7 +13,7 @@ const checkAuth = (req, res, next) => {
   }
 };
 const checkRole = (req, res, next) => {
-  const token = req.headers.authorization.split(" ")[1];
+  const token = req.headers.authorization;
   try {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET);
     const role = verified.role;

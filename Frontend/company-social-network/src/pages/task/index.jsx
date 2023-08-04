@@ -15,6 +15,8 @@ const Tasks = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [addProject, setAddProject] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [currentProject, setCurrentProject] = useState({});
+  const [tasks, setTasks] = useState([]);
   const items = [
     {
       key: "1",
@@ -137,13 +139,31 @@ const Tasks = () => {
   ];
 
   const getProjects = async () => {
-    const res = await TasksServices.getProjects();
-    setProjects(res?.data);
+    try {
+      const res = await TasksServices.getProjects();
+      setProjects(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getTasks = async () => {
+    try {
+      const res = await TasksServices.getTasks();
+      setTasks(res?.data);
+      console.log(res?.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
     getProjects();
   }, []);
+
+  useEffect(() => {
+    currentProject?._id && getTasks();
+  }, [currentProject?._id]);
 
   return (
     <div className="main-content h-full">
@@ -162,7 +182,13 @@ const Tasks = () => {
                 {projects?.length > 0 ? (
                   projects.map((p) => {
                     return (
-                      <div className="flex gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2" key={p?._id}>
+                      <div
+                        className="flex gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md mt-2"
+                        key={p?._id}
+                        onClick={() => {
+                          setCurrentProject(p);
+                        }}
+                      >
                         <AiOutlineFundProjectionScreen className="w-7 h-7" />
                         <p className="font-bold"> {p?.title}</p>
                       </div>
@@ -184,7 +210,7 @@ const Tasks = () => {
           </div>
         </div>
         <div className="w-3/4 p-3">
-          <p className="font-bold text-xl">Công việc của tôi</p>
+          <p className="font-bold text-xl">{currentProject?.title}</p>
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center justify-center gap-3">
               <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
@@ -219,7 +245,7 @@ const Tasks = () => {
             <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} centered />
 
             <Table columns={columns} dataSource={data} pagination={false} />
-            <Edit id={0} show={show} setShow={setShow} />
+            <Edit id={0} show={show} setShow={setShow} projectId={currentProject?._id} />
             <EditProject id={0} show={addProject} setShow={setAddProject} />
             <Detail id={0} show={showDetail} setShow={setShowDetail} />
           </div>

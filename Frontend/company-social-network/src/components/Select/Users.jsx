@@ -52,7 +52,6 @@ const SelectUsers = ({
   };
 
   const formatSelectedValues = (data) => {
-    console.log(data);
     if (data) {
       return (
         <div className="flex items-center gap-2">
@@ -81,6 +80,7 @@ const SelectUsers = ({
         className="w-full"
         components={{ Option: CustomOption }}
         menuPlacement={menuPlacement}
+        closeMenuOnSelect={isMulti ? false : true}
         value={
           isMulti
             ? options.filter((opt) => value?.includes(opt?.value)) ?? []
