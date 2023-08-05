@@ -122,7 +122,7 @@ const Friends = () => {
     try {
       const params = {
         limit: 10,
-        page: _page ? _page : page,
+        page: _page || _page == 0 ? _page : page,
         search: filter.display_name,
         ["department[eq]"]: filter.dept_id,
         ["position[eq]"]: filter.position_id,

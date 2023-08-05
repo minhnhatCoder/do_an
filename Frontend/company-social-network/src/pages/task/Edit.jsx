@@ -8,13 +8,17 @@ import SelectPriority from "../../components/Select/Priority";
 import Tasks from "../../services/tasksServices";
 import Toast from "../../components/noti";
 
-const Edit = ({ id, show, setShow, projectId, getData }) => {
+const Edit = ({ id, show, setShow, projectInfo, getData }) => {
   const [infoEdit, setInfoEdit] = useState({});
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
+  const [relatedUsers, setRelatedUsers] = useState([]);
   useEffect(() => {
-    projectId && setInfoEdit({ ...infoEdit, project: projectId });
-  }, [projectId]);
+    if (projectInfo?._id && show) {
+      setInfoEdit({ ...infoEdit, project: projectInfo?._id });
+      setRelatedUsers(projectInfo?.related_user || []);
+    }
+  }, [projectInfo?._id, show]);
 
   const onUpdate = async () => {
     setLoading(true);
@@ -33,7 +37,7 @@ const Edit = ({ id, show, setShow, projectId, getData }) => {
       }
     } catch (error) {
       setLoading(false);
-      Toast("error", error?.response?.data?.message);
+      Toast("error", error?.response?.data?.message || error?.message);
     }
   };
 
@@ -53,7 +57,7 @@ const Edit = ({ id, show, setShow, projectId, getData }) => {
       onCancel={() => {
         setShow(false);
         setFiles([]);
-        setInfoEdit({});
+        setInfoEdit();
       }}
       width={900}
     >
@@ -116,12 +120,14 @@ const Edit = ({ id, show, setShow, projectId, getData }) => {
             value={infoEdit?.project}
             onChange={(e) => {
               setInfoEdit({ ...infoEdit, project: e?.value });
+              setRelatedUsers(e?.related_user);
             }}
           />
 
           <div className="mt-5 w-full ">
             <SelectUsers
               menuPlacement={"top"}
+              usersId={relatedUsers ?? []}
               title="Người nhận việc"
               required
               value={infoEdit?.reciever}
@@ -134,6 +140,7 @@ const Edit = ({ id, show, setShow, projectId, getData }) => {
             <SelectUsers
               isMulti
               isClearable
+              usersId={relatedUsers ?? []}
               menuPlacement={"top"}
               title="Người liên quan"
               value={infoEdit?.related_user ?? []}

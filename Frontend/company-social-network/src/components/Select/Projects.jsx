@@ -29,7 +29,13 @@ const SelectProjects = ({
 
     try {
       const res = await TasksServices.getProjects();
-      setOptions(res?.data?.map((project) => ({ value: project?._id, label: project?.title })));
+      setOptions(
+        res?.data?.map((project) => ({
+          value: project?._id,
+          label: project?.title,
+          related_users: project?.related_user,
+        }))
+      );
       setLoading(false);
     } catch (error) {
       setLoading(false);

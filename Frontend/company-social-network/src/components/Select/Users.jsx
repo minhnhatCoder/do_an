@@ -22,6 +22,7 @@ const SelectUsers = ({
   isMulti,
   menuPlacement,
   isClearable,
+  usersId,
 }) => {
   const users = useRootState((state) => state.users);
   const [options, setOptions] = useState([]);
@@ -37,6 +38,21 @@ const SelectUsers = ({
     );
   }, [users?.length]);
 
+  useEffect(() => {
+    if (usersId?.length > 0) {
+      setOptions(options?.filter((opt) => usersId?.includes(opt?.value)));
+    } else {
+      setOptions(
+        users.map((user) => ({
+          value: user._id,
+          label: user.display_name,
+          image: user.image,
+          department: user?.department,
+          position: user?.position,
+        }))
+      );
+    }
+  }, [usersId]);
   const CustomOption = ({ innerProps, label, data }) => {
     return (
       <div {...innerProps} className="flex items-center p-2 gap-2 hover:text-white hover:bg-blue-500 cursor-pointer">

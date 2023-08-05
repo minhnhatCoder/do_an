@@ -30,9 +30,9 @@ const Tasks = {
     const url = "/job/tasks/" + id;
     return axiosClient.get(url);
   },
-  getTasks: () => {
+  getTasks: (params) => {
     const url = "/job/tasks";
-    return axiosClient.get(url);
+    return axiosClient.get(url, { params: params });
   },
   addTask: (body) => {
     const url = "/job/tasks";

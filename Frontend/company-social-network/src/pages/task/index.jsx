@@ -1,22 +1,24 @@
 import { Button, Input, Tabs, Space, Table, Tag, Empty } from "antd";
 import React, { useEffect, useState } from "react";
-import { BiPlus, BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
+import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { MdPendingActions } from "react-icons/md";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
-import { AiOutlineEye, AiOutlinePlus, AiOutlineFundProjectionScreen } from "react-icons/ai";
+import { AiOutlinePlus } from "react-icons/ai";
 import { CiGrid41 } from "react-icons/ci";
 import Edit from "./Edit";
 import EditProject from "./EditProject";
 import Detail from "./Detail";
 import TasksServices from "../../services/tasksServices";
+import { FcBriefcase } from "react-icons/fc";
+import Task from "./Task";
 
 const Tasks = () => {
   const [show, setShow] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [addProject, setAddProject] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [currentProject, setCurrentProject] = useState({});
-  const [tasks, setTasks] = useState([]);
+  const [currentProject, setCurrentProject] = useState({ title: "Timeline", _id: 0 });
+
   const items = [
     {
       key: "1",
@@ -147,23 +149,9 @@ const Tasks = () => {
     }
   };
 
-  const getTasks = async () => {
-    try {
-      const res = await TasksServices.getTasks();
-      setTasks(res?.data);
-      console.log(res?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
     getProjects();
   }, []);
-
-  useEffect(() => {
-    currentProject?._id && getTasks();
-  }, [currentProject?._id]);
 
   return (
     <div className="main-content h-full">
@@ -172,9 +160,14 @@ const Tasks = () => {
           <p className="font-bold text-lg mb-2">Quản lý công việc</p>
 
           <div className="p-3">
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
+            <div
+              className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-1 rounded-md"
+              onClick={() => {
+                setCurrentProject({ title: "Công việc của tôi", _id: 0 });
+              }}
+            >
               <CiGrid41 className="w-7 h-7" />
-              <p className="font-bold"> Công việc của tôi</p>
+              <p className="font-bold"> Timeline</p>
             </div>
             <div className="mt-3">
               <p className="font-bold text-lg mb-2">Tất cả dự án</p>
@@ -189,7 +182,7 @@ const Tasks = () => {
                           setCurrentProject(p);
                         }}
                       >
-                        <AiOutlineFundProjectionScreen className="w-7 h-7" />
+                        <FcBriefcase className="w-7 h-7" />
                         <p className="font-bold"> {p?.title}</p>
                       </div>
                     );
@@ -209,48 +202,9 @@ const Tasks = () => {
             </div>
           </div>
         </div>
-        <div className="w-3/4 p-3">
-          <p className="font-bold text-xl">{currentProject?.title}</p>
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
-                <LuSlidersHorizontal className="w-4 h-4" />
-                <p>Bộ lọc</p>
-              </div>
-              <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
-                <BiSort className="w-4 h-4" />
-                <p>Sắp xếp</p>
-              </div>
-              <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
-                <AiOutlineEye className="w-4 h-4" />
-                <p>Đến hạn hôm nay</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-center justify-center gap-2">
-                <Input placeholder="Tìm kiếm..." prefix={<BiSearchAlt />} />
-              </div>
-              <Button
-                type="primary"
-                icon={<AiOutlinePlus />}
-                size={"middle"}
-                className="flex items-center justify-center btn-blue"
-                onClick={() => setShow(true)}
-              >
-                Tạo công việc
-              </Button>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} centered />
-
-            <Table columns={columns} dataSource={data} pagination={false} />
-            <Edit id={0} show={show} setShow={setShow} projectId={currentProject?._id} />
-            <EditProject id={0} show={addProject} setShow={setAddProject} />
-            <Detail id={0} show={showDetail} setShow={setShowDetail} />
-          </div>
-        </div>
+        <Task currentProject={currentProject} />
       </div>
+      <EditProject id={0} show={addProject} setShow={setAddProject} />
     </div>
   );
 };
