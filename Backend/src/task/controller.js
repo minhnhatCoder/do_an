@@ -26,12 +26,7 @@ exports.createTask = async (req, res) => {
 exports.getTask = async (req, res) => {
   try {
     const features = new Features(
-      tasksDB
-        .find()
-        .find({
-          assigner: "64be99f4d4fab24791d6e2dd",
-        })
-        .populate("reciever", ["first_name", "last_name", "image"]),
+      tasksDB.find().populate("reciever", ["first_name", "last_name", "image"]),
       req.query
     )
       .sorting()

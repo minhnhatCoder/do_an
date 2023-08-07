@@ -79,7 +79,6 @@ module.exports = function (query, queryString) {
       const transformedObject = {};
 
       for (const key in inputObject) {
-        console.log(key);
         if (key.includes("#")) {
           const [firstKey, secondKey] = key.split("#");
           transformedObject.or = [
@@ -107,6 +106,7 @@ module.exports = function (query, queryString) {
       (match) => "$" + match
     );
     this.query = this.query.find(JSON.parse(queryStr));
+    console.log(JSON.parse(queryStr));
     return this;
   };
   //localhost:3000/product/get-all?price[gte]=300&price[lte]=10000
