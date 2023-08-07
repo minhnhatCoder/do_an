@@ -75,8 +75,37 @@ module.exports = function (query, queryString) {
     //   queryStr = JSON.stringify(queryObj);
     // }
 
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex|elemMatch|eq|options)\b/g, (match) => "$" + match);
+    function transformObject(inputObject) {
+      const transformedObject = {};
+
+      for (const key in inputObject) {
+        console.log(key);
+        if (key.includes("#")) {
+          const [firstKey, secondKey] = key.split("#");
+          transformedObject.or = [
+            { [firstKey]: inputObject[key] },
+            { [secondKey]: inputObject[key] },
+          ];
+        } else if (key.includes("^")) {
+          const [firstKey, secondKey] = key.split("^");
+          transformedObject.and = [
+            { [firstKey]: inputObject[key] },
+            { [secondKey]: inputObject[key] },
+          ];
+        } else {
+          transformedObject[key] = inputObject[key];
+        }
+      }
+
+      return transformedObject;
+    }
+
+    let queryStr = JSON.stringify(transformObject(queryObj));
+
+    queryStr = queryStr.replace(
+      /\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and)\b/g,
+      (match) => "$" + match
+    );
     this.query = this.query.find(JSON.parse(queryStr));
     return this;
   };
