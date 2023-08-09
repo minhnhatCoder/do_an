@@ -79,6 +79,7 @@ module.exports = function (query, queryString) {
       const transformedObject = {};
 
       for (const key in inputObject) {
+        console.log(inputObject[key]);
         if (key.includes("#")) {
           const [firstKey, secondKey] = key.split("#");
           transformedObject.or = [
@@ -102,7 +103,7 @@ module.exports = function (query, queryString) {
     let queryStr = JSON.stringify(transformObject(queryObj));
 
     queryStr = queryStr.replace(
-      /\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and)\b/g,
+      /\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in)\b/g,
       (match) => "$" + match
     );
     this.query = this.query.find(JSON.parse(queryStr));

@@ -15,6 +15,7 @@ import Edit from "./Edit";
 import Detail from "./Detail";
 import TasksServices from "../../services/tasksServices";
 import { MdPendingActions } from "react-icons/md";
+import { useRootState } from "../../store";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
@@ -22,7 +23,9 @@ const Task = ({ currentProject }) => {
   const [showDetail, setShowDetail] = useState(false);
   const [page, setPage] = useState(1);
   const [show, setShow] = useState(false);
-  const [value3, setValue3] = useState("all");
+  const currentUser = useRootState((state) => state.userInfo);
+  console.log(filter);
+
   const options = [
     {
       label: "Tất cả",
@@ -169,9 +172,13 @@ const Task = ({ currentProject }) => {
           limit: 10,
           page: _page ? _page : page,
           search: filter.display_name,
-          ["department[eq]"]: filter.dept_id,
-          ["position[eq]"]: filter.position_id,
+          "project[eq]": currentProject?._id,
         };
+      }
+      if (filter.is_mine == "mine") {
+        params["assigner#reciever[eq]"] = currentUser?._id;
+      } else {
+        params["related_user[in]"] = [currentUser?._id];
       }
       const res = await TasksServices.getTasks(params);
       setTasks(res?.data);
@@ -182,7 +189,7 @@ const Task = ({ currentProject }) => {
 
   useEffect(() => {
     getTasks();
-  }, [currentProject?._id]);
+  }, [currentProject?._id, filter.is_mine]);
   return (
     <div className="w-3/4 p-3">
       <p className="font-bold text-xl">{currentProject?.title}</p>
@@ -200,6 +207,7 @@ const Task = ({ currentProject }) => {
             <Radio.Group
               options={options}
               onChange={(e) => {
+                console.log(e);
                 setFilter({ ...filter, is_mine: e.target.value });
               }}
               value={filter?.is_mine}
@@ -224,10 +232,21 @@ const Task = ({ currentProject }) => {
         </div>
       </div>
       <div className="mt-4">
-        <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} centered />
+        <Tabs
+          defaultActiveKey="1"
+          items={items}
+          onChange={onChangeTab}
+          centered
+        />
 
         <Table columns={columns} dataSource={data} pagination={false} />
-        <Edit id={0} show={show} setShow={setShow} projectInfo={currentProject} getData={getTasks} />
+        <Edit
+          id={0}
+          show={show}
+          setShow={setShow}
+          projectInfo={currentProject}
+          getData={getTasks}
+        />
         <Detail id={0} show={showDetail} setShow={setShowDetail} />
       </div>
     </div>

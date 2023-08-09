@@ -19,6 +19,14 @@ const taskSchema = new mongoose.Schema({
     type: Number,
     default: dayjs(new Date()).unix(),
   },
+  start_date: {
+    type: Number,
+    required: true,
+  },
+  end_date: {
+    type: Number,
+    required: true,
+  },
   comments: {
     type: Array,
     default: [],
@@ -32,7 +40,11 @@ const taskSchema = new mongoose.Schema({
     default: 0,
   },
   related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  project: { type: mongoose.Schema.Types.ObjectId, ref: "projects", required: true },
+  project: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "projects",
+    required: true,
+  },
   parent_task: { type: mongoose.Schema.Types.ObjectId, ref: "tasks" },
   assigner: {
     type: mongoose.Schema.Types.ObjectId,

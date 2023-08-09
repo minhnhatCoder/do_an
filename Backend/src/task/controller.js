@@ -9,6 +9,8 @@ exports.createTask = async (req, res) => {
       attachments: req.body.attachments,
       related_user: req.body.related_user,
       project: req.body.project,
+      start_date: req.body.start_date,
+      end_date: req.body.end_date,
       assigner: req.user_data._id,
       reciever: req.body.reciever,
       priority: req.body.priority,
@@ -26,7 +28,7 @@ exports.createTask = async (req, res) => {
 exports.getTask = async (req, res) => {
   try {
     const features = new Features(
-      tasksDB.find().populate("reciever", ["first_name", "last_name", "image"]),
+      tasksDB.find().populate("reciever", ["display_name", "image"]),
       req.query
     )
       .sorting()

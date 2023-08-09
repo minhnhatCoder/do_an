@@ -45,14 +45,16 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg text-center">{id ? "Sửa công việc" : "Tạo công việc"}</p>
+          <p className="font-bold text-lg text-center">
+            {id ? "Sửa công việc" : "Tạo công việc"}
+          </p>
         </div>
       }
       open={show}
       //   footer={null}
       centered
       onOk={() => {
-        onUpdate();
+        !loading && onUpdate();
       }}
       onCancel={() => {
         setShow(false);
@@ -68,7 +70,9 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
             title="Tên công việc"
             value={infoEdit?.title}
             required
-            onChange={(e) => setInfoEdit({ ...infoEdit, title: e.target.value })}
+            onChange={(e) =>
+              setInfoEdit({ ...infoEdit, title: e.target.value })
+            }
           />
           <div className="mt-5 w-full ">
             <SelectPriority
@@ -145,7 +149,10 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
               title="Người liên quan"
               value={infoEdit?.related_user ?? []}
               onChange={(e) => {
-                setInfoEdit({ ...infoEdit, related_user: e.map((i) => i?.value) });
+                setInfoEdit({
+                  ...infoEdit,
+                  related_user: e.map((i) => i?.value),
+                });
               }}
             />
           </div>
