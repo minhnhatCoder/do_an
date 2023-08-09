@@ -67,6 +67,21 @@ const projectSchema = new mongoose.Schema({
   },
   related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 });
+
+// Middleware kiểm tra trước khi lưu (pre-save middleware)
+taskSchema.pre("save", async function (next) {
+  // Kiểm tra nếu assigner._id không có trong mảng related_user thì thêm vào
+  if (!this.related_user.includes(this.assigner)) {
+    this.related_user.push(this.assigner);
+  }
+
+  // Kiểm tra nếu reciever._id không có trong mảng related_user thì thêm vào
+  if (!this.related_user.includes(this.reciever)) {
+    this.related_user.push(this.reciever);
+  }
+
+  next();
+});
 const tasksDB = mongoose.model("tasks", taskSchema);
 const projectsDB = mongoose.model("projects", projectSchema);
 

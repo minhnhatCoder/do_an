@@ -25,7 +25,15 @@ exports.createTask = async (req, res) => {
 };
 exports.getTask = async (req, res) => {
   try {
-    const features = new Features(tasksDB.find().populate("reciever", ["first_name", "last_name", "image"]), req.query)
+    const features = new Features(
+      tasksDB
+        .find()
+        .populate("reciever", ["display_name", "image"])
+        .populate("project", ["title"])
+        .populate("assigner", ["display_name", "image"])
+        .populate("related_user", ["display_name", "image"]),
+      req.query
+    )
       .sorting()
       .paginating()
       .searching()
@@ -51,7 +59,12 @@ exports.getTask = async (req, res) => {
 };
 exports.getTaskById = async (req, res) => {
   try {
-    const data = await tasksDB.findById(req.params.id);
+    const data = await tasksDB
+      .findById(req.params.id)
+      .populate("reciever", ["display_name", "image"])
+      .populate("project", ["title"])
+      .populate("assigner", ["display_name", "image"])
+      .populate("related_user", ["display_name", "image"]);
     return res.status(200).json({ status: 200, data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
