@@ -9,6 +9,8 @@ exports.createTask = async (req, res) => {
       attachments: req.body.attachments,
       related_user: req.body.related_user,
       project: req.body.project,
+      start_date: req.body.start_date,
+      end_date: req.body.end_date,
       assigner: req.user_data._id,
       reciever: req.body.reciever,
       priority: req.body.priority,
@@ -39,7 +41,11 @@ exports.getTask = async (req, res) => {
       .searching()
       .filtering();
 
-    const counting = new Features(tasksDB.find(), req.query).sorting().searching().filtering().counting();
+    const counting = new Features(tasksDB.find(), req.query)
+      .sorting()
+      .searching()
+      .filtering()
+      .counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -75,7 +81,9 @@ exports.updateTask = async (req, res) => {
     const data = await tasksDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+    return res
+      .status(200)
+      .json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
@@ -108,9 +116,17 @@ exports.createProject = async (req, res) => {
 };
 exports.getProjects = async (req, res) => {
   try {
-    const features = new Features(projectsDB.find(), req.query).sorting().paginating().searching().filtering();
+    const features = new Features(projectsDB.find(), req.query)
+      .sorting()
+      .paginating()
+      .searching()
+      .filtering();
 
-    const counting = new Features(projectsDB.find(), req.query).sorting().searching().filtering().counting();
+    const counting = new Features(projectsDB.find(), req.query)
+      .sorting()
+      .searching()
+      .filtering()
+      .counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -141,7 +157,9 @@ exports.updateProject = async (req, res) => {
     const data = await projectsDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+    return res
+      .status(200)
+      .json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
