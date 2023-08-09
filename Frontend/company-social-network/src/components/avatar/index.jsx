@@ -3,12 +3,10 @@ import React from "react";
 
 const AvatarUi = ({ data, size = "default" }) => {
   return (
-    <Tooltip title={data?.name || ""} placement="top">
+    <Tooltip title={data?.display_name || ""} placement="top">
       <Avatar
         size={size}
-        src={
-          data?.src || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-        }
+        src={data?.image || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"}
         style={{
           backgroundColor: "#87d068",
         }}

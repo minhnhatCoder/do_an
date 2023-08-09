@@ -5,6 +5,7 @@ const { checkAuth } = require("../../helper/verify");
 route.get("/tasks", controller.getTask);
 route.get("/tasks/:id", controller.getTaskById);
 route.post("/tasks", checkAuth, controller.createTask);
+route.post("/tasks/comment/:id", checkAuth, controller.commentTask);
 route.put("/tasks/:id", controller.updateTask);
 route.delete("/tasks/:id", controller.deleteTask);
 

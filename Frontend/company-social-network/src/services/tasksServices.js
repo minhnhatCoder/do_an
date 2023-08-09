@@ -42,6 +42,10 @@ const Tasks = {
     const url = "/job/tasks" + id;
     return axiosClient.put(url, body);
   },
+  commentTask: (id, body) => {
+    const url = "/job/tasks/comment/" + id;
+    return axiosClient.post(url, body);
+  },
 };
 
 export default Tasks;

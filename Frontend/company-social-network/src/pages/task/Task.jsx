@@ -6,7 +6,7 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import { Button, Input, Tabs, Table, Tag, Space, Radio } from "antd";
+import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar } from "antd";
 import React, { useEffect, useState } from "react";
 import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -16,149 +16,21 @@ import Detail from "./Detail";
 import TasksServices from "../../services/tasksServices";
 import { MdPendingActions } from "react-icons/md";
 import { useRootState } from "../../store";
+import { convertTimeStampToString } from "../../helper/timeHelper";
+import { Link } from "react-router-dom";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState({ title: "", is_mine: "mine" });
+  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1 });
   const [showDetail, setShowDetail] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [show, setShow] = useState(false);
   const currentUser = useRootState((state) => state.userInfo);
-  console.log(filter);
-
-  const options = [
-    {
-      label: "Tất cả",
-      value: "all",
-    },
-    {
-      label: "Của tôi",
-      value: "mine",
-    },
-  ];
-
-  const items = [
-    {
-      key: "1",
-      label: (
-        <div className="flex ">
-          <LuClipboardList className="w-6 h-6 mr-1" />
-          <span>Cần làm</span>
-        </div>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <div className="flex ">
-          <MdPendingActions className="w-6 h-6 mr-1" />
-          <span>Đang làm</span>
-        </div>
-      ),
-    },
-    {
-      key: "3",
-      label: (
-        <div className="flex ">
-          <BiTask className="w-6 h-6 mr-1" />
-          <span>Hoàn thành</span>
-        </div>
-      ),
-    },
-    {
-      key: "4",
-      label: (
-        <div className="flex ">
-          <BiTaskX className="w-6 h-6 mr-1" />
-          <span>Đã hủy</span>
-        </div>
-      ),
-    },
-  ];
-  const onChangeTab = (key) => {
-    console.log(key);
-  };
-
-  const columns = [
-    {
-      title: "Công việc",
-      dataIndex: "name",
-      key: "name",
-      render: (text) => (
-        <a
-          onClick={() => {
-            setShowDetail(true);
-          }}
-        >
-          {text}
-        </a>
-      ),
-    },
-    {
-      title: "Người thực hiện",
-      dataIndex: "age",
-      key: "age",
-    },
-    {
-      title: "Thời hạn",
-      dataIndex: "address",
-      key: "address",
-    },
-    {
-      title: "Ưu tiên",
-      key: "tags",
-      dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: "",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <a>Delete</a>
-        </Space>
-      ),
-    },
-  ];
-  const data = [
-    {
-      key: "1",
-      name: "John Brown",
-      age: 32,
-      address: "New York No. 1 Lake Park",
-      tags: ["nice", "developer"],
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-      address: "London No. 1 Lake Park",
-      tags: ["loser"],
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-      address: "Sydney No. 1 Lake Park",
-      tags: ["cool", "teacher"],
-    },
-  ];
+  const [currentTaskId, setCurrentTaskId] = useState(0);
 
   const getTasks = async (_page) => {
+    setLoading(true);
     try {
       let params = {};
       if (currentProject?._id == 0) {
@@ -166,6 +38,7 @@ const Task = ({ currentProject }) => {
           limit: 10,
           page: _page ? _page : page,
           search: filter.title,
+          status: filter.status,
         };
       } else {
         params = {
@@ -173,6 +46,7 @@ const Task = ({ currentProject }) => {
           page: _page ? _page : page,
           search: filter.display_name,
           "project[eq]": currentProject?._id,
+          status: filter.status,
         };
       }
       if (filter.is_mine == "mine") {
@@ -181,15 +55,28 @@ const Task = ({ currentProject }) => {
         params["related_user[in]"] = [currentUser?._id];
       }
       const res = await TasksServices.getTasks(params);
-      setTasks(res?.data);
+      setTasks(
+        res?.data.map((task) => ({
+          key: task?._id,
+          title: task?.title,
+          reciever: task.reciever,
+          time:
+            convertTimeStampToString(task.start_date, "right") +
+            " - " +
+            convertTimeStampToString(task.end_date, "right"),
+          priority: task.priority,
+          status: task.status,
+        }))
+      );
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     getTasks();
-  }, [currentProject?._id, filter.is_mine]);
+  }, [currentProject?._id, JSON.stringify(filter)]);
   return (
     <div className="w-3/4 p-3">
       <p className="font-bold text-xl">{currentProject?.title}</p>
@@ -205,9 +92,17 @@ const Task = ({ currentProject }) => {
           </div>
           <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
             <Radio.Group
-              options={options}
+              options={[
+                {
+                  label: "Tất cả",
+                  value: "all",
+                },
+                {
+                  label: "Của tôi",
+                  value: "mine",
+                },
+              ]}
               onChange={(e) => {
-                console.log(e);
                 setFilter({ ...filter, is_mine: e.target.value });
               }}
               value={filter?.is_mine}
@@ -218,7 +113,12 @@ const Task = ({ currentProject }) => {
         </div>
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center justify-center gap-2">
-            <Input placeholder="Tìm kiếm..." prefix={<BiSearchAlt />} />
+            <Input
+              placeholder="Tìm kiếm..."
+              prefix={<BiSearchAlt />}
+              value={filter?.title}
+              onChange={(e) => setFilter({ ...filter, title: e.target.value })}
+            />
           </div>
           <Button
             type="primary"
@@ -233,21 +133,124 @@ const Task = ({ currentProject }) => {
       </div>
       <div className="mt-4">
         <Tabs
-          defaultActiveKey="1"
-          items={items}
-          onChange={onChangeTab}
+          defaultActiveKey={1}
+          items={[
+            {
+              key: 1,
+              label: (
+                <div className="flex ">
+                  <LuClipboardList className="w-6 h-6 mr-1" />
+                  <span>Cần làm</span>
+                </div>
+              ),
+            },
+            {
+              key: 2,
+              label: (
+                <div className="flex ">
+                  <MdPendingActions className="w-6 h-6 mr-1" />
+                  <span>Đang làm</span>
+                </div>
+              ),
+            },
+            {
+              key: 3,
+              label: (
+                <div className="flex ">
+                  <BiTask className="w-6 h-6 mr-1" />
+                  <span>Hoàn thành</span>
+                </div>
+              ),
+            },
+            {
+              key: 4,
+              label: (
+                <div className="flex ">
+                  <BiTaskX className="w-6 h-6 mr-1" />
+                  <span>Đã hủy</span>
+                </div>
+              ),
+            },
+          ]}
+          onChange={(e) => {
+            setFilter({ ...filter, status: Number(e) });
+          }}
           centered
         />
 
-        <Table columns={columns} dataSource={data} pagination={false} />
-        <Edit
-          id={0}
-          show={show}
-          setShow={setShow}
-          projectInfo={currentProject}
-          getData={getTasks}
+        <Table
+          loading={loading}
+          columns={[
+            {
+              title: "Công việc",
+              dataIndex: "title",
+              key: "title",
+              render: (text, { key }) => (
+                <a
+                  onClick={() => {
+                    setShowDetail(true);
+                    setCurrentTaskId(key);
+                  }}
+                >
+                  {text}
+                </a>
+              ),
+            },
+            {
+              title: "Người thực hiện",
+              dataIndex: "receiver",
+              key: "receiver",
+              render: (_, { reciever }) => {
+                return (
+                  <div className="flex items-center gap-2">
+                    <Avatar src={reciever?.image} size="large" />
+                    <Link to={`/profile/${reciever?._id}`} className="font-semibold">
+                      {reciever?.display_name}
+                    </Link>
+                  </div>
+                );
+              },
+            },
+            {
+              title: "Thời hạn",
+              dataIndex: "time",
+              key: "time",
+            },
+            {
+              title: "Ưu tiên",
+              key: "priority",
+              dataIndex: "priority",
+              render: (priority) => {
+                switch (priority) {
+                  case 1:
+                    return <Tag color="red">Cao</Tag>;
+                  case 2:
+                    return <Tag color="orange">Trung bình</Tag>;
+                  case 3:
+                    return <Tag color="blue">Thấp</Tag>;
+                  case 4:
+                    return <Tag color="gray">Không ưu tiên</Tag>;
+
+                  default:
+                    return <Tag color="red">Cao</Tag>;
+                }
+              },
+            },
+            {
+              title: "Trạng thái",
+              key: "action",
+              render: (_, record) => (
+                <Space size="middle">
+                  <a>Delete</a>
+                </Space>
+              ),
+            },
+          ]}
+          dataSource={tasks}
+          pagination={false}
         />
-        <Detail id={0} show={showDetail} setShow={setShowDetail} />
+        <Edit id={0} show={show} setShow={setShow} projectInfo={currentProject} getData={getTasks} />
+        <Detail id={currentTaskId} show={showDetail} setShow={setShowDetail} />
       </div>
     </div>
   );

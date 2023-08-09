@@ -1,5 +1,5 @@
-import { Avatar, Modal, Tabs } from "antd";
-import React, { useState } from "react";
+import { Avatar, Empty, Modal, Tabs } from "antd";
+import React, { useEffect, useState } from "react";
 import Priority from "../../components/priority";
 import { HiOutlineUser, HiUsers } from "react-icons/hi2";
 import { MdDateRange } from "react-icons/md";
@@ -10,57 +10,61 @@ import { GoPaperclip } from "react-icons/go";
 import AvatarUi from "../../components/avatar";
 import { AnswerInput, AnswerComment } from "../../components/post/Comment";
 import File from "../../components/file";
+import TasksServices from "../../services/tasksServices";
+import { convertTimeStampToString } from "../../helper/timeHelper";
+import { Link } from "react-router-dom";
+import AvatarGroupUi from "../../components/avatar/group";
 
 const Detail = ({ id, show, setShow }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
-  const items = [
+  const [activeTab, setActiveTab] = useState(1);
+  let status = [
     {
-      key: "1",
-      label: (
-        <div className="flex ">
-          <TbFileDescription className="w-5 h-5 mr-1" />
-          <span>Mô tả</span>
-        </div>
-      ),
+      key: 1,
+      label: "Cần làm",
+      color: "text-blue-500",
     },
     {
-      key: "2",
-      label: (
-        <div className="flex ">
-          <BiCommentDetail className="w-5 h-5 mr-1" />
-          <span>Bình luận</span>
-        </div>
-      ),
+      key: 2,
+      label: "Đang làm",
+      color: "text-orange-500",
     },
     {
-      key: "3",
-      label: (
-        <div className="flex ">
-          <GoPaperclip className="w-5 h-5 mr-1" />
-          <span>Tài liệu đính kèm</span>
-        </div>
-      ),
+      key: 3,
+      label: "Hoàn thành",
+      color: "text-green-500",
     },
     {
-      key: "4",
-      label: (
-        <div className="flex ">
-          <BiAddToQueue className="w-5 h-5 mr-1" />
-          <span>Công việc con</span>
-        </div>
-      ),
+      key: 4,
+      label: "Đã hủy",
+      color: "text-red-500",
     },
   ];
-  const [activeTab, setActiveTab] = useState(1);
   const onChangeTab = (key) => {
     setActiveTab(key);
   };
+
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const res = await TasksServices.getTask(id);
+      setData(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    show && id && getData();
+  }, [show, id]);
+
   return (
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg text-center">Công việc của Bình</p>
+          <p className="font-bold text-lg text-center">{data?.title}</p>
         </div>
       }
       open={show}
@@ -71,18 +75,13 @@ const Detail = ({ id, show, setShow }) => {
     >
       <div className="p-3  min-h-[700px] max-h-[1200px] overflow-y-auto h-[810px]">
         <div className="flex items-center justify-between">
-          <Priority id={1} hasTitle onChange />
+          <Priority id={data.priority} hasTitle onChange />
           <div className="flex items-center justify-center gap-2">
             <div className="flex items-center gap-2">
               <HiUsers className="w-5 h-5" />
               <p className="font-semibold">Người tham gia</p>
             </div>
-            <Avatar.Group>
-              <AvatarUi data={{ name: "Bình" }} />
-              <AvatarUi />
-              <AvatarUi />
-              <Avatar className="bg-gray-400 cursor-pointer">+2</Avatar>
-            </Avatar.Group>
+            <AvatarGroupUi data={data?.related_user} max={3} />
           </div>
         </div>
 
@@ -93,8 +92,8 @@ const Detail = ({ id, show, setShow }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <AvatarUi />
-            <a>Lê Văn Bình</a>
+            <AvatarUi data={data?.assigner} />
+            <Link to={`/profile/${data?.assigner?._id}`}>{data?.assigner?.display_name}</Link>
           </div>
         </div>
         <div className="flex items-center gap-3 mt-5">
@@ -104,8 +103,8 @@ const Detail = ({ id, show, setShow }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <AvatarUi />
-            <a>Lê Văn Bình</a>
+            <AvatarUi data={data?.reciever} />
+            <Link to={`/profile/${data?.reciever?._id}`}>{data?.reciever?.display_name}</Link>
           </div>
         </div>
         <div className="flex items-center gap-3 mt-5">
@@ -115,8 +114,8 @@ const Detail = ({ id, show, setShow }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <p> 01/02/2003</p>
-            <p>- 01/02/2003</p>
+            <p>{convertTimeStampToString(data.start_date, "right")}</p>
+            <p> - {convertTimeStampToString(data.end_date, "right")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 mt-5 mb-3">
@@ -124,18 +123,57 @@ const Detail = ({ id, show, setShow }) => {
             <FiClipboard className="w-5 h-5" />
             <p className="font-semibold">Trạng thái</p>
           </div>
-          <p className="font-bold text-green-500">Đã hoàn thành</p>
+          <p className={`font-bold ${status.find((s) => s?.key == data?.status)?.color}`}>
+            {status.find((s) => s?.key == data?.status)?.label}
+          </p>
         </div>
         <Tabs
           defaultActiveKey="1"
-          items={items}
+          items={[
+            {
+              key: "1",
+              label: (
+                <div className="flex ">
+                  <TbFileDescription className="w-5 h-5 mr-1" />
+                  <span>Mô tả</span>
+                </div>
+              ),
+            },
+            {
+              key: "2",
+              label: (
+                <div className="flex ">
+                  <BiCommentDetail className="w-5 h-5 mr-1" />
+                  <span>Bình luận</span>
+                </div>
+              ),
+            },
+            {
+              key: "3",
+              label: (
+                <div className="flex ">
+                  <GoPaperclip className="w-5 h-5 mr-1" />
+                  <span>Tài liệu đính kèm</span>
+                </div>
+              ),
+            },
+            {
+              key: "4",
+              label: (
+                <div className="flex ">
+                  <BiAddToQueue className="w-5 h-5 mr-1" />
+                  <span>Công việc con</span>
+                </div>
+              ),
+            },
+          ]}
           onChange={onChangeTab}
           centered
         />
 
-        {activeTab == 1 && <DescTab />}
-        {activeTab == 2 && <CommentTab />}
-        {activeTab == 3 && <AttachmentTab />}
+        {activeTab == 1 && <DescTab data={data?.description} />}
+        {activeTab == 2 && <CommentTab id={data?._id} />}
+        {activeTab == 3 && <AttachmentTab data={data?.attachments} />}
         {activeTab == 4 && <SubTaskTab />}
       </div>
     </Modal>
@@ -144,48 +182,89 @@ const Detail = ({ id, show, setShow }) => {
 
 export default Detail;
 
-const DescTab = () => {
-  return <div className="p-3">Đây là mô tả</div>;
+const DescTab = ({ data }) => {
+  if (!data) return <Empty />;
+  return <div className="p-3" dangerouslySetInnerHTML={{ __html: data }} />;
 };
-const CommentTab = () => {
+const CommentTab = ({ id }) => {
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [files, setFiles] = useState([]);
+  const getComments = async () => {
+    setLoading(true);
+    try {
+      const res = await TasksServices.getTask(id);
+      setComments(res.data.comments.sort((a, b) => b.created_at - a.centered_at));
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
+  console.log(comments);
+  const onComment = async () => {
+    setLoading(true);
+    try {
+      await TasksServices.commentTask(id, {
+        content: content,
+        attachments: files,
+      });
+      setContent("");
+      setFiles([]);
+      await getComments();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    getComments();
+  }, []);
   return (
     <div className="p-3 ">
       <div className="max-h-[395px] min-h-[395px] overflow-y-auto">
-        <div className="flex items-start gap-2 mt-2">
-          <Avatar
-            className="border border-black"
-            size={40}
-            src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-          />
-          <div className="flex flex-col w-full">
-            <div className="px-3 py-2 bg-[#f0f2f5] rounded-2xl w-fit">
-              <div className="flex items-center gap-2">
-                <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
-                  Trần Minh Nhật
-                </a>
-                <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">
-                  37 phút
-                </p>
-              </div>
+        {comments?.length > 0 ? (
+          comments.map((comment) => {
+            return (
+              <div className="flex items-start gap-2 mt-2" key={comment?._id}>
+                <Avatar
+                  className="border border-black"
+                  size={40}
+                  src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
+                />
+                <div className="flex flex-col w-full">
+                  <div className="px-3 py-2 bg-[#f0f2f5] rounded-2xl w-fit">
+                    <div className="flex items-center gap-2">
+                      <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
+                        Trần Minh Nhật
+                      </a>
+                      <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">37 phút</p>
+                    </div>
 
-              <p dangerouslySetInnerHTML={{ __html: "hello" }} />
-            </div>
-          </div>
-        </div>
+                    <p dangerouslySetInnerHTML={{ __html: comment?.content }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <Empty />
+        )}
       </div>
       <div>
-        <AnswerInput />
+        <AnswerInput content={content} setContent={setContent} onComment={onComment} loading={loading} />
       </div>
     </div>
   );
 };
-const AttachmentTab = () => {
+const AttachmentTab = ({ data }) => {
+  if (!data) return <Empty />;
   return (
     <div className="p-3 max-h-[450px] min-h-[450px] overflow-y-auto">
-      <File />
+      <File data={data} />
     </div>
   );
 };
-const SubTaskTab = () => {
+const SubTaskTab = ({ data }) => {
+  if (!data) return <Empty />;
   return <div className="p-3"></div>;
 };

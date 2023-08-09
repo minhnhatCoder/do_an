@@ -1,5 +1,6 @@
 const { tasksDB, projectsDB } = require("./model");
 const Features = require("../../libs/feature");
+const dayjs = require("dayjs");
 
 exports.createTask = async (req, res) => {
   try {
@@ -14,6 +15,7 @@ exports.createTask = async (req, res) => {
       assigner: req.user_data._id,
       reciever: req.body.reciever,
       priority: req.body.priority,
+      parent_task: req.body.parent_task,
     });
     const saveTask = await task.save();
     return res.status(200).json({
@@ -38,14 +40,10 @@ exports.getTask = async (req, res) => {
     )
       .sorting()
       .paginating()
-      .searching()
+      .searching("title")
       .filtering();
 
-    const counting = new Features(tasksDB.find(), req.query)
-      .sorting()
-      .searching()
-      .filtering()
-      .counting();
+    const counting = new Features(tasksDB.find(), req.query).sorting().searching("title").filtering().counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -81,9 +79,7 @@ exports.updateTask = async (req, res) => {
     const data = await tasksDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
@@ -96,7 +92,29 @@ exports.deleteTask = async (req, res) => {
     return res.status(400).json({ status: 400, message: error.message });
   }
 };
-
+exports.commentTask = async (req, res) => {
+  try {
+    const data = await tasksDB.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          comments: {
+            created_by: req.user_data._id,
+            content: req.body.content,
+            attachments: req.body.attachments,
+            created_at: dayjs(new Date()).unix(),
+          },
+        },
+      },
+      {
+        new: true,
+      }
+    );
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+};
 exports.createProject = async (req, res) => {
   try {
     const project = new projectsDB({
@@ -116,17 +134,9 @@ exports.createProject = async (req, res) => {
 };
 exports.getProjects = async (req, res) => {
   try {
-    const features = new Features(projectsDB.find(), req.query)
-      .sorting()
-      .paginating()
-      .searching()
-      .filtering();
+    const features = new Features(projectsDB.find(), req.query).sorting().paginating().searching().filtering();
 
-    const counting = new Features(projectsDB.find(), req.query)
-      .sorting()
-      .searching()
-      .filtering()
-      .counting();
+    const counting = new Features(projectsDB.find(), req.query).sorting().searching().filtering().counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -157,9 +167,7 @@ exports.updateProject = async (req, res) => {
     const data = await projectsDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }

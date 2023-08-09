@@ -1,10 +1,11 @@
-import { Avatar } from "antd";
+import { Avatar, Tooltip } from "antd";
 import { Input } from "antd";
 import React, { useState } from "react";
 import { PiArrowBendUpLeftBold, PiPaperPlaneRightFill } from "react-icons/pi";
 import { BsImageFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
 import DetailPost from "./DetailPost";
+import { useRootState } from "../../store";
 const { TextArea } = Input;
 
 const Comment = () => {
@@ -36,16 +37,10 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
 
   return (
     <div className="flex items-start gap-2 mt-2">
-      <Avatar
-        className="border border-black"
-        size={40}
-        src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-      />
+      <Avatar className="border border-black" size={40} src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" />
       <div className="flex flex-col w-full">
         <div className="px-3 py-2 bg-[#f0f2f5] rounded-2xl w-fit">
-          <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
-            Trần Minh Nhật
-          </a>
+          <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">Trần Minh Nhật</a>
           <p dangerouslySetInnerHTML={{ __html: "hello" }} />
         </div>
         <div className="flex items-center gap-3 ml-2">
@@ -57,9 +52,7 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
           >
             Phản hồi
           </p>
-          <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">
-            37 phút
-          </p>
+          <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">37 phút</p>
         </div>
         {hasShowMore && (
           <div className="flex items-center gap-3 mt-2 ml-3">
@@ -67,9 +60,7 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
             <p
               className="font-semibold hover:underline text-sm cursor-pointer"
               onClick={() => {
-                setShow
-                  ? setShow(true)
-                  : setIshowMoreComment(!isShowMoreComment);
+                setShow ? setShow(true) : setIshowMoreComment(!isShowMoreComment);
               }}
             >
               Xem tất cả phản hồi
@@ -88,31 +79,34 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
   );
 };
 
-export const AnswerInput = () => {
-  const [value, setValue] = useState("");
+export const AnswerInput = ({ content, setContent, onComment, loading }) => {
+  const currentUser = useRootState((state) => state.userInfo);
   return (
     <div>
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
-        <Avatar
-          className="border border-black"
-          size={40}
-          src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-        />
+        <Tooltip title={currentUser?.display_name}>
+          <Avatar className="border border-black" size={40} src={currentUser?.image} />
+        </Tooltip>
+
         <div className="flex-1">
           <TextArea
             placeholder="Viết bình luận"
             className="rounded-2xl px-4 py-1"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             autoSize={{
               minRows: 1,
               maxRows: 3,
             }}
+            onKeyDown={(e) => e.key == "Enter" && !loading && onComment()}
           />
         </div>
         <PiPaperPlaneRightFill
           className="w-7 h-7 cursor-pointer"
           color="#1b74e4"
+          onClick={() => {
+            !loading && onComment();
+          }}
         />
       </div>
       <div className="flex gap-4 mt-1 items-center ml-16">

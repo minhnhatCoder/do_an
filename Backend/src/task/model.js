@@ -28,7 +28,14 @@ const taskSchema = new mongoose.Schema({
     required: true,
   },
   comments: {
-    type: Array,
+    type: [
+      {
+        created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+        content: String,
+        attachments: Array,
+        created_at: Number,
+      },
+    ],
     default: [],
   },
   status: {

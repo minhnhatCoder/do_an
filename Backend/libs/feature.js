@@ -93,26 +93,6 @@ module.exports = function (query, queryString) {
     const excludedFields = ["page", "sort", "limit", "search"];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    let queryArr = Object.entries(queryObj).map(([key, value]) => {
-      const operator = Object.keys(value)[0];
-      const fieldValue = value[operator];
-
-      if (operator === "or:in") {
-        const fieldIdValues = fieldValue.split(",").map((v) => {
-          return mongoose.Types.ObjectId.isValid(v) ? mongoose.Types.ObjectId(v) : v;
-        });
-        return {
-          [key]: {
-            $in: fieldIdValues,
-          },
-        };
-      } else if (operator === "eq") {
-        return { [key]: fieldValue };
-      } else {
-        return { [key]: { [`$${operator}`]: fieldValue } };
-      }
-    });
-
     function transformObject(inputObject) {
       const transformedObject = {};
 
@@ -120,16 +100,10 @@ module.exports = function (query, queryString) {
         console.log(inputObject[key]);
         if (key.includes("#")) {
           const [firstKey, secondKey] = key.split("#");
-          transformedObject.or = [
-            { [firstKey]: inputObject[key] },
-            { [secondKey]: inputObject[key] },
-          ];
+          transformedObject.or = [{ [firstKey]: inputObject[key] }, { [secondKey]: inputObject[key] }];
         } else if (key.includes("^")) {
           const [firstKey, secondKey] = key.split("^");
-          transformedObject.and = [
-            { [firstKey]: inputObject[key] },
-            { [secondKey]: inputObject[key] },
-          ];
+          transformedObject.and = [{ [firstKey]: inputObject[key] }, { [secondKey]: inputObject[key] }];
         } else {
           transformedObject[key] = inputObject[key];
         }
@@ -140,10 +114,7 @@ module.exports = function (query, queryString) {
 
     let queryStr = JSON.stringify(transformObject(queryObj));
 
-    queryStr = queryStr.replace(
-      /\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in)\b/g,
-      (match) => "$" + match
-    );
+    queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in)\b/g, (match) => "$" + match);
     this.query = this.query.find(JSON.parse(queryStr));
     console.log(JSON.parse(queryStr));
     return this;
