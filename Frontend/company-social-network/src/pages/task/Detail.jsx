@@ -1,5 +1,5 @@
-import { Avatar, Empty, Modal, Tabs } from "antd";
-import React, { useEffect, useState } from "react";
+import { Avatar, Empty, Modal, Tabs, Tooltip } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import Priority from "../../components/priority";
 import { HiOutlineUser, HiUsers } from "react-icons/hi2";
 import { MdDateRange } from "react-icons/md";
@@ -11,14 +11,18 @@ import AvatarUi from "../../components/avatar";
 import { AnswerInput, AnswerComment } from "../../components/post/Comment";
 import File from "../../components/file";
 import TasksServices from "../../services/tasksServices";
-import { convertTimeStampToString } from "../../helper/timeHelper";
+import commentsServices from "../../services/commentServices";
+import { convertTimeStampToString, timeAgo } from "../../helper/timeHelper";
 import { Link } from "react-router-dom";
 import AvatarGroupUi from "../../components/avatar/group";
+import { useRootState } from "../../store";
 
 const Detail = ({ id, show, setShow }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
+  const currentUser = useRootState((state) => state.userInfo);
+
   let status = [
     {
       key: 1,
@@ -172,7 +176,7 @@ const Detail = ({ id, show, setShow }) => {
         />
 
         {activeTab == 1 && <DescTab data={data?.description} />}
-        {activeTab == 2 && <CommentTab id={data?._id} />}
+        {activeTab == 2 && <CommentTab id={data?._id} currentUser={currentUser} />}
         {activeTab == 3 && <AttachmentTab data={data?.attachments} />}
         {activeTab == 4 && <SubTaskTab />}
       </div>
@@ -186,22 +190,22 @@ const DescTab = ({ data }) => {
   if (!data) return <Empty />;
   return <div className="p-3" dangerouslySetInnerHTML={{ __html: data }} />;
 };
-const CommentTab = ({ id }) => {
+const CommentTab = ({ id, currentUser }) => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState([]);
   const [files, setFiles] = useState([]);
+  const scrollRef = useRef(null);
   const getComments = async () => {
     setLoading(true);
     try {
-      const res = await TasksServices.getTask(id);
-      setComments(res.data.comments.sort((a, b) => b.created_at - a.centered_at));
+      const res = await commentsServices.getComments({ "target[eq]": id, sort: "created_at", limit: 100000 });
+      setComments(res.data);
     } catch (error) {
       console.log(error);
     }
     setLoading(false);
   };
-  console.log(comments);
   const onComment = async () => {
     setLoading(true);
     try {
@@ -219,25 +223,54 @@ const CommentTab = ({ id }) => {
   useEffect(() => {
     getComments();
   }, []);
+  useEffect(() => {
+    if (scrollRef.current) {
+      const innerElement = scrollRef.current.lastChild;
+      if (innerElement) {
+        innerElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, [comments?.length]);
   return (
     <div className="p-3 ">
-      <div className="max-h-[395px] min-h-[395px] overflow-y-auto">
+      <div className="max-h-[395px] min-h-[395px] overflow-y-auto" ref={scrollRef}>
         {comments?.length > 0 ? (
           comments.map((comment) => {
+            if (comment.created_by?._id == currentUser?._id) {
+              return (
+                <div className="flex items-start gap-2 mt-2" key={comment?._id}>
+                  <Avatar className="border border-black" size={40} src={comment?.created_by?.image} />
+                  <div className="flex flex-col w-full">
+                    <div className="px-3 py-2 bg-[#0084ff] rounded-2xl w-fit">
+                      <div className="flex items-center gap-2">
+                        <a className={`font-semibold hover:underline text-white cursor-pointer hover:text-white`}>
+                          {comment?.created_by?.display_name}
+                        </a>
+                        <Tooltip placement="right" title={convertTimeStampToString(comment?.created_at, "right")}>
+                          <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-200">
+                            {timeAgo(comment?.created_at)}
+                          </p>
+                        </Tooltip>
+                      </div>
+
+                      <p className="text-white" dangerouslySetInnerHTML={{ __html: comment?.content }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            }
             return (
               <div className="flex items-start gap-2 mt-2" key={comment?._id}>
-                <Avatar
-                  className="border border-black"
-                  size={40}
-                  src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-                />
+                <Avatar className="border border-black" size={40} src={comment?.created_by?.image} />
                 <div className="flex flex-col w-full">
                   <div className="px-3 py-2 bg-[#f0f2f5] rounded-2xl w-fit">
                     <div className="flex items-center gap-2">
-                      <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
-                        Trần Minh Nhật
+                      <a className={`font-semibold hover:underline text-black cursor-pointer hover:text-black`}>
+                        {comment?.created_by?.display_name}
                       </a>
-                      <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">37 phút</p>
+                      <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">
+                        {timeAgo(comment?.created_at)}
+                      </p>
                     </div>
 
                     <p dangerouslySetInnerHTML={{ __html: comment?.content }} />

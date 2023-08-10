@@ -10,6 +10,7 @@ exports.create = async (req, res) => {
       created_user: req.body.created_user,
       attachments: req.body.attachments,
       related_user: req.body.related_user,
+      created_at: dayjs(new Date()).unix(),
     });
     const savePost = await post.save();
     return res.status(200).json({
@@ -35,10 +36,7 @@ exports.getPost = async (req, res) => {
       .searching()
       .filtering();
 
-    const counting = new Features(
-      postsDB.find().populate("created_user"),
-      req.query
-    )
+    const counting = new Features(postsDB.find().populate("created_user"), req.query)
       .sorting()
       .searching()
       .filtering()
@@ -73,9 +71,7 @@ exports.update = async (req, res) => {
     const data = await postsDB.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
@@ -92,23 +88,17 @@ exports.deletePostById = async (req, res) => {
 exports.likePost = async (req, res) => {
   try {
     const post = await postsDB.findById(req.params.id);
-    const existUserLiked = post.liked_user.find(
-      (item) => item == req.user_data._id
-    );
+    const existUserLiked = post.liked_user.find((item) => item == req.user_data._id);
     if (existUserLiked) {
       await postsDB.findByIdAndUpdate(req.params.id, {
         $pull: { liked_user: req.user_data._id },
       });
-      return res
-        .status(200)
-        .json({ status: 200, message: "Bỏ thích bài viết thành công" });
+      return res.status(200).json({ status: 200, message: "Bỏ thích bài viết thành công" });
     } else {
       await postsDB.findByIdAndUpdate(req.params.id, {
         $push: { liked_user: req.user_data._id },
       });
-      return res
-        .status(200)
-        .json({ status: 200, message: "Thích bài viết thành công" });
+      return res.status(200).json({ status: 200, message: "Thích bài viết thành công" });
     }
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
@@ -129,9 +119,7 @@ exports.answerCommentPost = async (req, res) => {
         },
       }
     );
-    return res
-      .status(200)
-      .json({ status: 200, message: "Trả lời comment bài viết thành công" });
+    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
@@ -147,9 +135,7 @@ exports.commentPost = async (req, res) => {
         },
       },
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Comment bài viết thành công" });
+    return res.status(200).json({ status: 200, message: "Comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }

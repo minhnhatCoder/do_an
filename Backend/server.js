@@ -27,9 +27,7 @@ app.use("/files", require("./src/files/route"));
 app.use("/story", require("./src/post/route"));
 app.use("/job", require("./src/task/route"));
 app.use("/company", require("./src/department/route"));
-// app.use("/product", require("./routes/product-route/productRoute"));
-// app.use("/order", require("./routes/order-route/orderRoute"));
-// app.use("/post", require("./routes/post-route/postRoute"));
+app.use("/comments", require("./src/comment/route"));
 
 app.listen(PORT, () => {
   console.log(`server run on http://localhost:${PORT}`);

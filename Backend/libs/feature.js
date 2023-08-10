@@ -116,7 +116,6 @@ module.exports = function (query, queryString) {
 
     queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in)\b/g, (match) => "$" + match);
     this.query = this.query.find(JSON.parse(queryStr));
-    console.log(JSON.parse(queryStr));
     return this;
   };
   this.counting = () => {

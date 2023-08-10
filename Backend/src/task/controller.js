@@ -1,4 +1,5 @@
 const { tasksDB, projectsDB } = require("./model");
+const { commentsDB } = require("../comment/model");
 const Features = require("../../libs/feature");
 const dayjs = require("dayjs");
 
@@ -16,6 +17,7 @@ exports.createTask = async (req, res) => {
       reciever: req.body.reciever,
       priority: req.body.priority,
       parent_task: req.body.parent_task,
+      created_at: dayjs(new Date()).unix(),
     });
     const saveTask = await task.save();
     return res.status(200).json({
@@ -94,23 +96,26 @@ exports.deleteTask = async (req, res) => {
 };
 exports.commentTask = async (req, res) => {
   try {
-    const data = await tasksDB.findByIdAndUpdate(
+    const comment = new commentsDB({
+      target: req.params.id,
+      created_by: req.user_data._id,
+      content: req.body.content,
+      attachments: req.body.attachments,
+      created_at: dayjs(new Date()).unix(),
+    });
+    const savedComment = await comment.save();
+    await tasksDB.findByIdAndUpdate(
       req.params.id,
       {
         $push: {
-          comments: {
-            created_by: req.user_data._id,
-            content: req.body.content,
-            attachments: req.body.attachments,
-            created_at: dayjs(new Date()).unix(),
-          },
+          savedComment,
         },
       },
       {
         new: true,
       }
     );
-    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Bình luận thành công", data: savedComment });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
