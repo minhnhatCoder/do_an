@@ -39,7 +39,7 @@ const Tasks = {
     return axiosClient.post(url, body);
   },
   updateTask: (id, body) => {
-    const url = "/job/tasks" + id;
+    const url = "/job/tasks/" + id;
     return axiosClient.put(url, body);
   },
   commentTask: (id, body) => {

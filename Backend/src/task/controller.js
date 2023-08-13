@@ -108,7 +108,7 @@ exports.commentTask = async (req, res) => {
       req.params.id,
       {
         $push: {
-          savedComment,
+          comments: savedComment?._id,
         },
       },
       {

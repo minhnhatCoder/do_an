@@ -1,12 +1,16 @@
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Date = ({ title, value, onChange, className, required, disabled, type = "date", allowClear }) => {
-  const [selectedValue, setSelectedValue] = useState(value);
-  const onOk = (value) => {
-    console.log("onOk: ", value);
-  };
+  const [selectedValue, setSelectedValue] = useState(null);
+  useEffect(() => {
+    if (value) {
+      setSelectedValue(dayjs.unix(value)); // Biến đổi value thành đối tượng dayjs
+    } else {
+      setSelectedValue(null);
+    }
+  }, [value]);
   const handleDateChange = (date, dateString) => {
     // Chuyển đổi dateString thành timestamp sử dụng Day.js
     const timestamp = dayjs(dateString).unix();
@@ -29,7 +33,7 @@ const Date = ({ title, value, onChange, className, required, disabled, type = "d
           onChange={handleDateChange}
           value={selectedValue ?? 0}
           allowClear={allowClear}
-          //  format="DD-MM-YYYY"
+          // format="DD-MM-YYYY"
         />
       </div>
     );
@@ -51,7 +55,7 @@ const Date = ({ title, value, onChange, className, required, disabled, type = "d
           allowClear={allowClear}
           //   onOk={onOk}
           onChange={handleDateChange}
-          //  format="DD-MM-YYYY HH:mm:ss"
+          // format="DD-MM-YYYY HH:mm:ss"
           value={selectedValue ?? 0}
         />
       </div>

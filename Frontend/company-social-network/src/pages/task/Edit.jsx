@@ -8,46 +8,80 @@ import SelectPriority from "../../components/Select/Priority";
 import Tasks from "../../services/tasksServices";
 import Toast from "../../components/noti";
 
-const Edit = ({ id, show, setShow, projectInfo, getData }) => {
+const Edit = ({ id, show, setShow, projectId, getData, taskParentId, disableProject }) => {
   const [infoEdit, setInfoEdit] = useState({});
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState([]);
+  const [description, setDescription] = useState("");
   const [relatedUsers, setRelatedUsers] = useState([]);
-  useEffect(() => {
-    if (projectInfo?._id && show) {
-      setInfoEdit({ ...infoEdit, project: projectInfo?._id });
-      setRelatedUsers(projectInfo?.related_user || []);
+
+  const getTask = async () => {
+    setLoading(true);
+    try {
+      const res = await Tasks.getTask(id);
+      setInfoEdit((prev) => ({
+        ...prev,
+        title: res?.data?.title,
+        priority: res?.data?.priority,
+        start_date: res?.data?.start_date,
+        end_date: res?.data?.end_date,
+        related_user: res?.data?.related_user?.map((u) => u?._id),
+        reciever: res?.data?.reciever?._id,
+        project: res?.data?.project?._id,
+      }));
+
+      setDescription((prev) => res?.data?.description);
+      setFiles(res?.data?.attachments);
+    } catch (error) {
+      console.log(error);
     }
-  }, [projectInfo?._id, show]);
+    setLoading(false);
+  };
 
   const onUpdate = async () => {
     setLoading(true);
+    const body = { ...infoEdit, attachments: files, description };
+    if (taskParentId) body.parent_task = taskParentId;
     try {
       let res;
       if (id) {
-        res = await Tasks.updateTask(id, { ...infoEdit, attachments: files });
+        res = await Tasks.updateTask(id, body);
       } else {
-        res = await Tasks.addTask({ ...infoEdit, attachments: files });
-        setShow(false);
-        setFiles([]);
-        setInfoEdit({});
-        getData();
-        setLoading(false);
-        Toast("success", res?.message);
+        res = await Tasks.addTask(body);
       }
+      setShow(false);
+      setFiles([]);
+      setInfoEdit({});
+      getData();
+      setLoading(false);
+      Toast("success", res?.message);
     } catch (error) {
       setLoading(false);
       Toast("error", error?.response?.data?.message || error?.message);
     }
   };
 
+  const getUserRelated = async () => {
+    try {
+      const res = await Tasks.getProject(projectId);
+      setInfoEdit({ ...infoEdit, project: projectId });
+      setRelatedUsers(res?.data?.related_user || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    show && id && getTask();
+  }, [id, show]);
+  useEffect(() => {
+    show && !id && projectId && getUserRelated();
+  }, [projectId, show]);
+
   return (
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg text-center">
-            {id ? "Sửa công việc" : "Tạo công việc"}
-          </p>
+          <p className="font-bold text-lg text-center">{id ? "Sửa công việc" : "Tạo công việc"}</p>
         </div>
       }
       open={show}
@@ -70,9 +104,7 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
             title="Tên công việc"
             value={infoEdit?.title}
             required
-            onChange={(e) =>
-              setInfoEdit({ ...infoEdit, title: e.target.value })
-            }
+            onChange={(e) => setInfoEdit({ ...infoEdit, title: e.target.value })}
           />
           <div className="mt-5 w-full ">
             <SelectPriority
@@ -105,12 +137,7 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
             </div>
           </div>
           <div className="mt-5 w-full">
-            <Editor
-              classname="w-full"
-              title="Mô tả"
-              value={infoEdit?.description}
-              onChange={(e) => setInfoEdit({ ...infoEdit, description: e })}
-            />
+            <Editor classname="w-full" title="Mô tả" value={description || ""} onChange={(e) => setDescription(e)} />
           </div>
           <div className="mt-5">
             <p className="mb-2">Tài liệu</p>
@@ -119,6 +146,7 @@ const Edit = ({ id, show, setShow, projectInfo, getData }) => {
           <SelectProjects
             menuPlacement={"top"}
             title="Dự án"
+            disabled={disableProject}
             required
             className="mt-5"
             value={infoEdit?.project}

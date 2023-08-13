@@ -6,7 +6,7 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar } from "antd";
+import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
 import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -18,6 +18,8 @@ import { MdPendingActions } from "react-icons/md";
 import { useRootState } from "../../store";
 import { convertTimeStampToString } from "../../helper/timeHelper";
 import { Link } from "react-router-dom";
+import { BsTrash } from "react-icons/bs";
+import { GrEdit } from "react-icons/gr";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
@@ -73,6 +75,7 @@ const Task = ({ currentProject }) => {
     }
     setLoading(false);
   };
+  const handleDelete = async (_id) => {};
 
   useEffect(() => {
     getTasks();
@@ -125,7 +128,10 @@ const Task = ({ currentProject }) => {
             icon={<AiOutlinePlus />}
             size={"middle"}
             className="flex items-center justify-center btn-blue"
-            onClick={() => setShow(true)}
+            onClick={() => {
+              setShow(true);
+              setCurrentTaskId("");
+            }}
           >
             Tạo công việc
           </Button>
@@ -237,11 +243,20 @@ const Task = ({ currentProject }) => {
               },
             },
             {
-              title: "Trạng thái",
+              title: "Hành dộng",
               key: "action",
-              render: (_, record) => (
-                <Space size="middle">
-                  <a>Delete</a>
+              render: (_, { key }) => (
+                <Space>
+                  <GrEdit
+                    className="w-5 h-5 cursor-pointer hover:!text-blue-500"
+                    onClick={() => {
+                      setCurrentTaskId(key);
+                      setShow(true);
+                    }}
+                  />
+                  <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete()}>
+                    <BsTrash className="w-5 h-5 cursor-pointer hover:text-blue-500" />
+                  </Popconfirm>
                 </Space>
               ),
             },
@@ -249,8 +264,8 @@ const Task = ({ currentProject }) => {
           dataSource={tasks}
           pagination={false}
         />
-        <Edit id={0} show={show} setShow={setShow} projectInfo={currentProject} getData={getTasks} />
-        <Detail id={currentTaskId} show={showDetail} setShow={setShowDetail} />
+        <Edit id={currentTaskId} show={show} setShow={setShow} projectId={currentProject?._id} getData={getTasks} />
+        <Detail id={currentTaskId} show={showDetail} setShow={setShowDetail} getTasks={getTasks} />
       </div>
     </div>
   );

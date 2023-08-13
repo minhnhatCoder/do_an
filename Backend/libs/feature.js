@@ -97,7 +97,6 @@ module.exports = function (query, queryString) {
       const transformedObject = {};
 
       for (const key in inputObject) {
-        console.log(inputObject[key]);
         if (key.includes("#")) {
           const [firstKey, secondKey] = key.split("#");
           transformedObject.or = [{ [firstKey]: inputObject[key] }, { [secondKey]: inputObject[key] }];
