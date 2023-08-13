@@ -1,4 +1,5 @@
 const postsDB = require("./model");
+const { commentsDB } = require("../comment/model");
 const Features = require("../../libs/feature");
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
@@ -6,10 +7,12 @@ const dayjs = require("dayjs");
 exports.create = async (req, res) => {
   try {
     const post = new postsDB({
+      title: req.body.title,
       content: req.body.content,
       created_user: req.body.created_user,
       attachments: req.body.attachments,
       related_user: req.body.related_user,
+      show_type: req.body.show_type,
       created_at: dayjs(new Date()).unix(),
     });
     const savePost = await post.save();
@@ -27,8 +30,8 @@ exports.getPost = async (req, res) => {
     const features = new Features(
       postsDB
         .find()
-        .populate("created_user", ["first_name", "last_name", "image"])
-        .populate("comments.user_id", ["first_name", "last_name", "image"]),
+        .populate("created_user", ["display_name", "image"])
+        .populate("comments"),
       req.query
     )
       .sorting()
@@ -36,7 +39,7 @@ exports.getPost = async (req, res) => {
       .searching()
       .filtering();
 
-    const counting = new Features(postsDB.find().populate("created_user"), req.query)
+    const counting = new Features(postsDB.find(), req.query)
       .sorting()
       .searching()
       .filtering()
@@ -68,10 +71,16 @@ exports.getPostById = async (req, res) => {
 };
 exports.update = async (req, res) => {
   try {
-    const data = await postsDB.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
+    const data = await postsDB.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, update_at: dayjs(new Date()).unix() },
+      {
+        new: true,
+      }
+    );
+    return res
+      .status(200)
+      .json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
@@ -88,17 +97,23 @@ exports.deletePostById = async (req, res) => {
 exports.likePost = async (req, res) => {
   try {
     const post = await postsDB.findById(req.params.id);
-    const existUserLiked = post.liked_user.find((item) => item == req.user_data._id);
+    const existUserLiked = post.liked_user.find(
+      (item) => item == req.user_data._id
+    );
     if (existUserLiked) {
       await postsDB.findByIdAndUpdate(req.params.id, {
         $pull: { liked_user: req.user_data._id },
       });
-      return res.status(200).json({ status: 200, message: "Bỏ thích bài viết thành công" });
+      return res
+        .status(200)
+        .json({ status: 200, message: "Bỏ thích bài viết thành công" });
     } else {
       await postsDB.findByIdAndUpdate(req.params.id, {
         $push: { liked_user: req.user_data._id },
       });
-      return res.status(200).json({ status: 200, message: "Thích bài viết thành công" });
+      return res
+        .status(200)
+        .json({ status: 200, message: "Thích bài viết thành công" });
     }
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
@@ -119,23 +134,31 @@ exports.answerCommentPost = async (req, res) => {
         },
       }
     );
-    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công" });
+    return res
+      .status(200)
+      .json({ status: 200, message: "Trả lời comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
 };
 exports.commentPost = async (req, res) => {
   try {
+    const comment = new commentsDB({
+      target: req.params.id,
+      created_by: req.user_data._id,
+      content: req.body.content,
+      attachments: req.body.attachments,
+      created_at: dayjs(new Date()).unix(),
+    });
+    const savedComment = await comment.save();
     await postsDB.findByIdAndUpdate(req.params.id, {
       $push: {
-        comments: {
-          user_id: req.user_data._id,
-          content: req.body.content,
-          image: req.body.image,
-        },
+        comments: savedComment?._id,
       },
     });
-    return res.status(200).json({ status: 200, message: "Comment bài viết thành công" });
+    return res
+      .status(200)
+      .json({ status: 200, message: "Comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }

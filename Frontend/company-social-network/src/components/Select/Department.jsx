@@ -46,8 +46,13 @@ const SelectDepartment = ({
         isClearable={isClearable}
         isMulti={isMulti}
         className="w-full"
+        closeMenuOnSelect={!isMulti}
         menuPlacement={menuPlacement}
-        value={options.find((opt) => opt?.value == value) ?? null}
+        value={
+          isMulti
+            ? options.filter((opt) => value?.includes(opt?.value)) ?? []
+            : options.find((opt) => opt?.value == value) ?? null
+        }
         onChange={onChange}
       />
     </div>

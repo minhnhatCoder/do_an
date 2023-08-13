@@ -2,48 +2,23 @@ const mongoose = require("mongoose");
 const dayjs = require("dayjs");
 
 const postSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    default: "",
+  },
   content: {
     type: String,
     require: true,
+  },
+  update_at: {
+    type: Number,
   },
   created_at: {
     type: Number,
     default: dayjs(new Date()).unix(),
   },
-  comments: [
-    {
-      _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: mongoose.Types.ObjectId,
-      },
-      created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-      content: String,
-      image: String,
-      answer_comment: [
-        {
-          _id: {
-            type: mongoose.Schema.Types.ObjectId,
-            default: mongoose.Types.ObjectId,
-          },
-          user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-          content: String,
-          image: String,
-          created_at: {
-            type: Number,
-            default: dayjs(new Date()).unix(),
-          },
-        },
-      ],
-      created_at: {
-        type: Number,
-        default: dayjs(new Date()).unix(),
-      },
-    },
-  ],
-  like_count: {
-    type: Number,
-    default: 0,
-  },
+  show_type: { type: Number, default: 0 },
+  comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "comments" }],
   related_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   liked_user: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   attachments: {
