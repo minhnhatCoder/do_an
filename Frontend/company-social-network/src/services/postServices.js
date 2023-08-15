@@ -14,6 +14,14 @@ const PostServices = {
     const url = "/story/posts";
     return axiosClient.post(url, body);
   },
+  getPosts: (params) => {
+    const url = "/story/posts";
+    return axiosClient.get(url, { params });
+  },
+  likePost: (id) => {
+    const url = "/story/like/" + id;
+    return axiosClient.put(url);
+  },
 };
 
 export default PostServices;

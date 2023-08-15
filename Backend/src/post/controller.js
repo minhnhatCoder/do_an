@@ -31,6 +31,7 @@ exports.getPost = async (req, res) => {
       postsDB
         .find()
         .populate("created_user", ["display_name", "image"])
+        .populate("liked_user", ["display_name", "image"])
         .populate("comments"),
       req.query
     )
@@ -39,11 +40,7 @@ exports.getPost = async (req, res) => {
       .searching()
       .filtering();
 
-    const counting = new Features(postsDB.find(), req.query)
-      .sorting()
-      .searching()
-      .filtering()
-      .counting();
+    const counting = new Features(postsDB.find(), req.query).sorting().searching().filtering().counting();
     const result = await Promise.allSettled([
       features.query,
       counting.query, //count number of user.
@@ -78,9 +75,7 @@ exports.update = async (req, res) => {
         new: true,
       }
     );
-    return res
-      .status(200)
-      .json({ status: 200, message: "Cập nhật thành công", data });
+    return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }
@@ -97,23 +92,29 @@ exports.deletePostById = async (req, res) => {
 exports.likePost = async (req, res) => {
   try {
     const post = await postsDB.findById(req.params.id);
-    const existUserLiked = post.liked_user.find(
-      (item) => item == req.user_data._id
-    );
+    const existUserLiked = post.liked_user.find((item) => item == req.user_data._id);
     if (existUserLiked) {
-      await postsDB.findByIdAndUpdate(req.params.id, {
-        $pull: { liked_user: req.user_data._id },
-      });
-      return res
-        .status(200)
-        .json({ status: 200, message: "Bỏ thích bài viết thành công" });
+      const data = await postsDB.findByIdAndUpdate(
+        req.params.id,
+        {
+          $pull: { liked_user: req.user_data._id },
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json({ status: 200, message: "Bỏ thích bài viết thành công", data });
     } else {
-      await postsDB.findByIdAndUpdate(req.params.id, {
-        $push: { liked_user: req.user_data._id },
-      });
-      return res
-        .status(200)
-        .json({ status: 200, message: "Thích bài viết thành công" });
+      const data = await postsDB.findByIdAndUpdate(
+        req.params.id,
+        {
+          $push: { liked_user: req.user_data._id },
+        },
+        {
+          new: true,
+        }
+      );
+      return res.status(200).json({ status: 200, message: "Thích bài viết thành công", data });
     }
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
@@ -134,9 +135,7 @@ exports.answerCommentPost = async (req, res) => {
         },
       }
     );
-    return res
-      .status(200)
-      .json({ status: 200, message: "Trả lời comment bài viết thành công" });
+    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
@@ -156,9 +155,7 @@ exports.commentPost = async (req, res) => {
         comments: savedComment?._id,
       },
     });
-    return res
-      .status(200)
-      .json({ status: 200, message: "Comment bài viết thành công" });
+    return res.status(200).json({ status: 200, message: "Comment bài viết thành công" });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }

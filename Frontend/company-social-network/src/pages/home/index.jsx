@@ -2,18 +2,42 @@ import { Input, Avatar } from "antd";
 import { BiNews } from "react-icons/bi";
 import { FaPhotoVideo } from "react-icons/fa";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Post from "../../components/post";
 import UploadPost from "../../components/uploadPost";
+import PostServices from "../../services/postServices";
+import { useRootState } from "../../store";
 
 const Home = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const userInfo = useRootState((state) => state.userInfo);
+
+  const getPost = async () => {
+    const params = {
+      "related_user[in]": userInfo?._id,
+      limit: 5,
+      page: 1,
+      sort: "-created_at",
+    };
+    setLoading(false);
+    const res = await PostServices.getPosts(params);
+    setData(res?.data);
+    setLoading(false);
+  };
+  useEffect(() => {
+    getPost();
+  }, []);
+
   return (
     <div className="main-content flex items-start justify-between">
       <div className="w-1/4"></div>
       <div className="w-1/2 flex flex-col gap-4">
-        <InputPost />
+        <InputPost getPost={getPost} />
         {/* post */}
-        <Post />
+        {data?.map((item) => {
+          return <Post key={item._id} post={item} setPost={setData} />;
+        })}
       </div>
       <div className="w-1/4"></div>
     </div>
@@ -21,7 +45,7 @@ const Home = () => {
 };
 
 export default Home;
-export const InputPost = () => {
+export const InputPost = ({ getPost }) => {
   const [isShowCreatePost, setIsShowCreatePost] = useState(false);
   return (
     <div className="py-3 px-5 rounded-lg bg-white box_shadow-light">
@@ -50,7 +74,13 @@ export const InputPost = () => {
           <p className="font-semibold">Cảm xúc</p>
         </div>
       </div>
-      <UploadPost show={isShowCreatePost} setShow={setIsShowCreatePost} />
+      <UploadPost
+        show={isShowCreatePost}
+        setShow={setIsShowCreatePost}
+        cbSuccess={() => {
+          getPost();
+        }}
+      />
     </div>
   );
 };

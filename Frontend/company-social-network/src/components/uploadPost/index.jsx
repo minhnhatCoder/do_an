@@ -8,12 +8,7 @@ import { FaPhotoVideo, FaUsers } from "react-icons/fa";
 import { ImEarth } from "react-icons/im";
 import { HiLocationMarker, HiUsers } from "react-icons/hi";
 import { RiLiveLine } from "react-icons/ri";
-import {
-  AiFillSetting,
-  AiOutlineFileGif,
-  AiOutlineSmile,
-  AiOutlineUpload,
-} from "react-icons/ai";
+import { AiFillSetting, AiOutlineFileGif, AiOutlineSmile, AiOutlineUpload } from "react-icons/ai";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import UploadImage from "../uploadImage";
 import PostServices from "../../services/postServices";
@@ -21,7 +16,7 @@ import Toast from "../noti";
 import SelectDepartment from "../Select/department";
 import SelectUsers from "../Select/Users";
 
-const UploadPost = ({ show, setShow }) => {
+const UploadPost = ({ show, setShow, cbSuccess }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const users = useRootState((state) => state.users);
   const [content, setContent] = useState("");
@@ -61,6 +56,7 @@ const UploadPost = ({ show, setShow }) => {
       setUserRelated([]);
       setType(0);
       setFiles([]);
+      cbSuccess && cbSuccess();
       Toast("success", res.message);
     } catch (err) {
       setLoading(false);
@@ -84,11 +80,7 @@ const UploadPost = ({ show, setShow }) => {
         <div className="flex flex-col gap-2 min-h-[350px] max-h-[500px] overflow-y-auto h-[350px] pr-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Avatar
-                className="border border-black"
-                size={40}
-                src={userInfo?.image}
-              />
+              <Avatar className="border border-black" size={40} src={userInfo?.image} />
               <div>
                 <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
                   {userInfo?.display_name}
@@ -129,9 +121,7 @@ const UploadPost = ({ show, setShow }) => {
                 outline: "none",
                 boxShadow: "none",
               }}
-              placeholder={
-                userInfo?.display_name + " ơi, bạn đang nghĩ gì thể?"
-              }
+              placeholder={userInfo?.display_name + " ơi, bạn đang nghĩ gì thể?"}
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
@@ -177,16 +167,7 @@ const UploadPost = ({ show, setShow }) => {
   );
 };
 
-const UserRelated = ({
-  show,
-  setShow,
-  userRelated,
-  setUserRelated,
-  deptRelated,
-  setDeptRelated,
-  type,
-  setType,
-}) => {
+const UserRelated = ({ show, setShow, userRelated, setUserRelated, deptRelated, setDeptRelated, type, setType }) => {
   return (
     <Modal
       title={

@@ -31,6 +31,18 @@ const postSchema = new mongoose.Schema({
     require: true,
   },
 });
+
+postSchema.pre("save", async function (next) {
+  // Kiểm tra nếu assigner._id không có trong mảng related_user thì thêm vào
+  if (!this.related_user.includes(this.created_user)) {
+    this.related_user.push(this.created_user);
+  }
+
+  next();
+});
+
 const postsDB = mongoose.model("post", postSchema);
+// Middleware kiểm tra trước khi lưu (pre-save middleware)
+
 
 module.exports = postsDB;

@@ -21,7 +21,7 @@ const DetailPost = ({ show, setShow }) => {
       width={750}
     >
       <div>
-        <div className="flex flex-col gap-2 min-h-[700px] max-h-[1000px] overflow-y-auto h-[350px] p-3">
+        <div className="flex flex-col gap-2 min-h-[700px] max-h-[1000px] overflow-y-auto h-[350px] p-3 hide-scroll">
           <img
             src="https://gaixinhbikini.com/wp-content/uploads/2022/09/52322459440_fa16f4c604_o.jpg"
             className="w-full h-[450px] bg-contain rounded-lg"
@@ -36,9 +36,7 @@ const DetailPost = ({ show, setShow }) => {
                 Bạn, Ngô Văn Trung, Lê Văn Bình và 18 người khác
               </p>
             </div>
-            <p className="font-light text-sm text-gray-500 hover:underline cursor-pointer">
-              6 bình luận
-            </p>
+            <p className="font-light text-sm text-gray-500 hover:underline cursor-pointer">6 bình luận</p>
           </div>
           <div className="flex items-center justify-center gap-4 mt-3 border-t border-b border-gray-300 py-2">
             <div className="flex items-center justify-center gap-2 cursor-pointer w-1/3 p-2 hover:bg-gray-100 rounded-lg">

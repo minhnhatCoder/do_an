@@ -23,6 +23,29 @@ const convertTimeStampToString = (timeStamp, position) => {
   return dayjs(timeStamp * 1000).format("DD/MM/YYYY") || null;
 };
 
+const getFullTimeFormatted = (timeStamp, hasTime) => {
+  return `Ngày ${getDayOfTimeStamp(timeStamp)} tháng ${getMonthOfTimeStamp(timeStamp)} năm ${getYearOfTimeStamp(timeStamp)} ${hasTime ? `${getHourOfTimeStamp(timeStamp)}:${getMinuteOfTimeStamp(timeStamp)}` : ""}`
+}
+const getMonthOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).month() || null;
+};
+const getDayOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).date() || null;
+};
+const getYearOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).year() || null;
+};
+const getHourOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).hour() || null;
+};
+const getMinuteOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).minute() || null;
+};
+const getSecondOfTimeStamp = (timeStamp) => {
+  return dayjs(timeStamp * 1000).second() || null;
+};
+
+
 function timeAgo(timestamp) {
   const now = new Date();
   const fromTime = new Date(timestamp * 1000);
@@ -53,4 +76,4 @@ function timeAgo(timestamp) {
   }
 }
 
-export { convertTimeStampToString, timeAgo };
+export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp };
