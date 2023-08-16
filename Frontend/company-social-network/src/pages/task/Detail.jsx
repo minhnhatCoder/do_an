@@ -29,7 +29,6 @@ const Detail = ({ id, show, setShow, getTasks }) => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
   const currentUser = useRootState((state) => state.userInfo);
-  console.log(getTasks);
 
   const onChangeTab = (key) => {
     setActiveTab(key);

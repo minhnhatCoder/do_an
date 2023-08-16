@@ -36,7 +36,7 @@ const Home = () => {
         <InputPost getPost={getPost} />
         {/* post */}
         {data?.map((item) => {
-          return <Post key={item._id} post={item} setPost={setData} />;
+          return <Post key={item._id} post={item} setPost={setData} posts={data} />;
         })}
       </div>
       <div className="w-1/4"></div>

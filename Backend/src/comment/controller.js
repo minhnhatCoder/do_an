@@ -14,7 +14,14 @@ const dayjs = require("dayjs");
 exports.getComments = async (req, res) => {
   try {
     const features = new Features(
-      commentsDB.find().populate("answers").populate("created_by", ["display_name", "image"]),
+      commentsDB.find().populate({
+        path: 'answers',
+        populate: {
+          path: 'created_by',
+          model: 'users',
+          select: 'display_name image',
+        },
+      }).populate("created_by", ["display_name", "image"]),
       req.query
     )
       .sorting()
@@ -40,7 +47,7 @@ exports.getComments = async (req, res) => {
     return res.status(400).json({ status: 400, message: error.message });
   }
 };
-exports.getComment = async (req, res) => {};
-exports.postComment = async (req, res) => {};
-exports.putComment = async (req, res) => {};
-exports.deleteComment = async (req, res) => {};
+exports.getComment = async (req, res) => { };
+exports.postComment = async (req, res) => { };
+exports.putComment = async (req, res) => { };
+exports.deleteComment = async (req, res) => { };

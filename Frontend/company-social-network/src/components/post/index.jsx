@@ -14,22 +14,18 @@ import { FaUsers } from "react-icons/fa";
 import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
 
-const Post = ({ post, setPost }) => {
+const Post = ({ post, setPost, posts }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
   const userInfo = useRootState((state) => state.userInfo);
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
-      const newLikedUsers = data?.liked_user?.includes(userInfo?._id)
-        ? [...post.liked_user, { _id: userInfo?._id, display_name: userInfo?.display_name, image: userInfo?.image }]
-        : post.liked_user?.filter((u) => u?._id == userInfo?._id);
-      console.log(newLikedUsers);
       setPost((prev) =>
         prev?.map((p) => {
           if (p?._id == post?._id) {
             return {
               ...p,
-              liked_user: newLikedUsers,
+              liked_user: data?.liked_user,
             };
           } else {
             return p;
@@ -61,6 +57,11 @@ const Post = ({ post, setPost }) => {
         );
       }
     }
+  };
+
+  const onComment = (id) => {
+    post.comments.push(id);
+    setPost([...posts]);
   };
 
   return (
@@ -132,7 +133,9 @@ const Post = ({ post, setPost }) => {
           <div />
         )}
         {post?.comments?.length > 0 ? (
-          <p className="font-light text-sm text-gray-500 hover:underline cursor-pointer">6 bình luận</p>
+          <p className="font-light text-sm text-gray-500 hover:underline cursor-pointer">
+            {post?.comments?.length} bình luận
+          </p>
         ) : (
           <div />
         )}
@@ -142,7 +145,7 @@ const Post = ({ post, setPost }) => {
           className="flex items-center justify-center gap-2 cursor-pointer w-1/3 p-2 hover:bg-gray-100 rounded-lg"
           onClick={onLikePost}
         >
-          {post?.liked_user?.includes(userInfo?._id) ? (
+          {post?.liked_user?.find((u) => u?._id == userInfo?._id) ? (
             <AiTwotoneLike className="w-7 h-7" color="#1b74e4" />
           ) : (
             <AiOutlineLike className="w-7 h-7" color="#606770" />
@@ -160,7 +163,7 @@ const Post = ({ post, setPost }) => {
         </div>
       </div>
       {/* commnet */}
-      <Comment />
+      <Comment id={post?._id} onCommentSuccess={onComment} />
       <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} />
     </div>
   );

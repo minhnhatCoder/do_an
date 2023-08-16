@@ -1,28 +1,76 @@
 import { Avatar, Tooltip } from "antd";
 import { Input } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PiArrowBendUpLeftBold, PiPaperPlaneRightFill } from "react-icons/pi";
 import { BsImageFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
 import DetailPost from "./DetailPost";
 import { useRootState } from "../../store";
+import PostServices from "../../services/postServices";
+import CommentServices from "../../services/commentServices";
+import { timeAgo } from "../../helper/timeHelper";
+
 const { TextArea } = Input;
 
-const Comment = () => {
+const Comment = ({ id, onCommentSuccess }) => {
   const [show, setShow] = useState(false);
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
+  const getComments = async () => {
+    const res = await CommentServices.getComments({ "target[eq]": id, sort: "-created_at", limit: 1 });
+    setComments(res.data);
+  };
+  const onComment = async () => {
+    setLoading(true);
+    const body = {
+      content,
+      attachments,
+    };
+    try {
+      const res = await PostServices.commentPost(id, body);
+      setComments([...comments, res?.data]);
+      setContent("");
+      setAttachments([]);
+      onCommentSuccess && onCommentSuccess(res?.data?._id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getComments();
+  }, []);
   return (
     <div className="mt-2">
-      <p
-        className="font-semibold hover:underline text-sm cursor-pointer"
-        onClick={() => {
-          setShow(true);
-        }}
-      >
-        Xem thêm bình luận
-      </p>
-      <AnswerComment setShow={setShow} hasShowMore />
+      {comments?.length > 0 && (
+        <p
+          className="font-semibold hover:underline text-sm cursor-pointer"
+          onClick={() => {
+            setShow(true);
+          }}
+        >
+          Xem thêm bình luận
+        </p>
+      )}
+
+      {comments?.map((comment) => {
+        return (
+          <AnswerComment
+            setShow={setShow}
+            hasShowMore
+            comment={comment}
+            key={comment?._id}
+            setComments={setComments}
+            comments={comments}
+          />
+        );
+      })}
+
       <div className="w-full">
-        <AnswerInput />
+        <AnswerInput loading={loading} content={content} setContent={setContent} onComment={onComment} />
       </div>
       <DetailPost show={show} setShow={setShow} />
     </div>
@@ -31,17 +79,43 @@ const Comment = () => {
 
 export default Comment;
 
-export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
+export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, setComments, comments, noReply }) => {
   const [isAnswerComment, setIsAnswerComment] = useState(false);
   const [isShowMoreComment, setIshowMoreComment] = useState(false);
-
+  const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const onComment = async () => {
+    setLoading(true);
+    const body = {
+      content,
+      attachments,
+    };
+    try {
+      const res = await PostServices.answerCommentPost(comment?._id, body);
+      const newComments = comments.map((c) => {
+        if (c?._id == comment?._id) {
+          return { ...c, answers: [...c.answers, res?.data] };
+        } else return c;
+      });
+      setComments(newComments);
+      setContent("");
+      setAttachments([]);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex items-start gap-2 mt-2">
-      <Avatar className="border border-black" size={40} src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1" />
+      <Avatar className="border border-black" size={40} src={comment?.created_by?.image} />
       <div className="flex flex-col w-full">
         <div className="px-3 py-2 bg-[#f0f2f5] rounded-2xl w-fit">
-          <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">Trần Minh Nhật</a>
-          <p dangerouslySetInnerHTML={{ __html: "hello" }} />
+          <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
+            {comment?.created_by?.display_name}
+          </a>
+          <p dangerouslySetInnerHTML={{ __html: comment?.content }} />
         </div>
         <div className="flex items-center gap-3 ml-2">
           <p
@@ -52,9 +126,11 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
           >
             Phản hồi
           </p>
-          <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">37 phút</p>
+          <p className="font-semibold hover:underline text-xs cursor-pointer text-gray-500">
+            {timeAgo(comment?.created_at)}
+          </p>
         </div>
-        {hasShowMore && (
+        {hasShowMore && comment?.answers?.length > 0 && (
           <div className="flex items-center gap-3 mt-2 ml-3">
             <PiArrowBendUpLeftBold className="rotate-180" />
             <p
@@ -67,11 +143,13 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost }) => {
             </p>
           </div>
         )}
-        {isShowMoreComment && <AnswerComment />}
+        {comment?.answers?.map((comment) => {
+          return <AnswerComment comment={comment} key={comment?._id} noReply />;
+        })}
 
         {isAnswerComment && (
           <div className="w-full">
-            <AnswerInput />
+            <AnswerInput loading={loading} content={content} setContent={setContent} onComment={onComment} />
           </div>
         )}
       </div>

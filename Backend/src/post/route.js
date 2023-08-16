@@ -10,7 +10,7 @@ route.delete("/posts/:id", controller.deletePostById);
 route.put("/like/:id", checkAuth, controller.likePost);
 route.put("/comment/:id", checkAuth, controller.commentPost);
 route.put(
-  "/comment/:id/answer/:ans_id",
+  "/comment/:id/answer",
   checkAuth,
   controller.answerCommentPost
 );

@@ -9,11 +9,11 @@
 
 import axiosClient from "../helper/Http";
 
-const Tasks = {
+const CommentServices = {
   getComments: (params) => {
     const url = "/comments";
     return axiosClient.get(url, { params });
   },
 };
 
-export default Tasks;
+export default CommentServices;

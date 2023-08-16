@@ -113,7 +113,7 @@ exports.likePost = async (req, res) => {
         {
           new: true,
         }
-      );
+      ).populate('liked_user', ["display_name", "image"]);
       return res.status(200).json({ status: 200, message: "Thích bài viết thành công", data });
     }
   } catch (error) {
@@ -123,19 +123,24 @@ exports.likePost = async (req, res) => {
 
 exports.answerCommentPost = async (req, res) => {
   try {
-    await postsDB.updateOne(
-      { _id: req.params.id, "comments._id": req.params.ans_id },
-      {
-        $push: {
-          "comments.$.answer_comment": {
-            user_id: req.user_data._id,
-            content: req.body.content,
-            image: req.body.image,
-          },
-        },
-      }
-    );
-    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công" });
+    const comment = new commentsDB({
+      target: req.params.id,
+      created_by: req.user_data._id,
+      content: req.body.content,
+      attachments: req.body.attachments,
+      created_at: dayjs(new Date()).unix(),
+    });
+    const savedComment = await comment.save();
+    const populatedComment = await commentsDB
+      .findById(savedComment._id)
+      .populate('created_by', ["display_name", "image"])
+      .exec();
+    await commentsDB.findByIdAndUpdate(req.params.id, {
+      $push: {
+        answers: savedComment?._id,
+      },
+    });
+    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công", data: populatedComment });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
@@ -150,12 +155,16 @@ exports.commentPost = async (req, res) => {
       created_at: dayjs(new Date()).unix(),
     });
     const savedComment = await comment.save();
+    const populatedComment = await commentsDB
+      .findById(savedComment._id)
+      .populate('created_by', ["display_name", "image"])
+      .exec();
     await postsDB.findByIdAndUpdate(req.params.id, {
       $push: {
         comments: savedComment?._id,
       },
     });
-    return res.status(200).json({ status: 200, message: "Comment bài viết thành công" });
+    return res.status(200).json({ status: 200, message: "Comment bài viết thành công", data: populatedComment });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
