@@ -78,7 +78,7 @@ const Comment = ({ id, onCommentSuccess }) => {
 
 export default Comment;
 
-export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, setComments, comments }) => {
+export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) => {
   const [isAnswerComment, setIsAnswerComment] = useState(false);
   const [isShowMoreComment, setIshowMoreComment] = useState(false);
   const [content, setContent] = useState("");
@@ -121,7 +121,7 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, set
           <p
             className="font-semibold hover:underline text-sm cursor-pointer"
             onClick={() => {
-              isDetailPost ? true : setIsAnswerComment(!isAnswerComment);
+              setIsAnswerComment(!isAnswerComment);
             }}
           >
             Phản hồi
@@ -139,7 +139,7 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, set
                 setIshowMoreComment(!isShowMoreComment);
               }}
             >
-              Xem tất cả phản hồi
+              {isShowMoreComment ? "Thu gọn phản hồi" : " Xem tất cả phản hồi"}
             </p>
           </div>
         )}
@@ -180,7 +180,12 @@ export const AnswerInput = ({ content, setContent, onComment, loading }) => {
               minRows: 1,
               maxRows: 3,
             }}
-            onKeyDown={(e) => e.key == "Enter" && !loading && onComment()}
+            onKeyDown={(e) => {
+              if (e?.key == "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                !loading && onComment();
+              }
+            }}
           />
         </div>
         <PiPaperPlaneRightFill

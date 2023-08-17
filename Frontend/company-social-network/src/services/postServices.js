@@ -26,6 +26,10 @@ const PostServices = {
     const url = "/story/posts";
     return axiosClient.get(url, { params });
   },
+  getPost: (id) => {
+    const url = "/story/posts/" + id;
+    return axiosClient.get(url);
+  },
   likePost: (id) => {
     const url = "/story/like/" + id;
     return axiosClient.put(url);

@@ -164,7 +164,7 @@ const Post = ({ post, setPost, posts }) => {
       </div>
       {/* comment */}
       <Comment id={post?._id} onCommentSuccess={onComment} />
-      <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} />
+      <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} data={post?.liked_user} />
     </div>
   );
 };

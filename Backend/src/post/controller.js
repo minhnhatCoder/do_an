@@ -60,7 +60,8 @@ exports.getPost = async (req, res) => {
 };
 exports.getPostById = async (req, res) => {
   try {
-    const data = await postsDB.findById(req.params.id);
+    const data = await postsDB.findById(req.params.id).populate("created_user", ["display_name", "image"])
+      .populate("liked_user", ["display_name", "image"]);
     return res.status(200).json({ status: 200, data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
