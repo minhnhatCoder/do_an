@@ -59,7 +59,6 @@ const Comment = ({ id, onCommentSuccess }) => {
       {comments?.map((comment) => {
         return (
           <AnswerComment
-            setShow={setShow}
             hasShowMore
             comment={comment}
             key={comment?._id}
@@ -72,14 +71,14 @@ const Comment = ({ id, onCommentSuccess }) => {
       <div className="w-full">
         <AnswerInput loading={loading} content={content} setContent={setContent} onComment={onComment} />
       </div>
-      <DetailPost show={show} setShow={setShow} />
+      <DetailPost show={show} setShow={setShow} id={id} />
     </div>
   );
 };
 
 export default Comment;
 
-export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, setComments, comments, noReply }) => {
+export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, setComments, comments }) => {
   const [isAnswerComment, setIsAnswerComment] = useState(false);
   const [isShowMoreComment, setIshowMoreComment] = useState(false);
   const [content, setContent] = useState("");
@@ -99,6 +98,7 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, set
         } else return c;
       });
       setComments(newComments);
+      setIshowMoreComment(true);
       setContent("");
       setAttachments([]);
     } catch (error) {
@@ -136,16 +136,20 @@ export const AnswerComment = ({ setShow, hasShowMore, isDetailPost, comment, set
             <p
               className="font-semibold hover:underline text-sm cursor-pointer"
               onClick={() => {
-                setShow ? setShow(true) : setIshowMoreComment(!isShowMoreComment);
+                setIshowMoreComment(!isShowMoreComment);
               }}
             >
               Xem tất cả phản hồi
             </p>
           </div>
         )}
-        {comment?.answers?.map((comment) => {
-          return <AnswerComment comment={comment} key={comment?._id} noReply />;
-        })}
+        {isShowMoreComment && (
+          <div>
+            {comment?.answers?.map((comment) => {
+              return <AnswerComment comment={comment} key={comment?._id} noReply />;
+            })}
+          </div>
+        )}
 
         {isAnswerComment && (
           <div className="w-full">

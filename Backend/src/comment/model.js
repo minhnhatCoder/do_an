@@ -6,13 +6,13 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-
+const autopopulate = require("mongoose-autopopulate");
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
 
 const commentSchema = new mongoose.Schema({
   target: { type: mongoose.Schema.Types.ObjectId },
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users", autopopulate: true },
   content: {
     type: String,
     default: "",
@@ -26,9 +26,10 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     default: dayjs(new Date()).unix(),
   },
-  answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "comments" }],
+  answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "comments", autopopulate: true }],
 });
 
+commentSchema.plugin(autopopulate);
 const commentsDB = mongoose.model("comments", commentSchema);
 
 module.exports = { commentsDB };

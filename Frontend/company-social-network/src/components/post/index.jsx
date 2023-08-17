@@ -162,7 +162,7 @@ const Post = ({ post, setPost, posts }) => {
           <a className="font-semibold text-gray-500">Chia sẻ</a>
         </div>
       </div>
-      {/* commnet */}
+      {/* comment */}
       <Comment id={post?._id} onCommentSuccess={onComment} />
       <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} />
     </div>

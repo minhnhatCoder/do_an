@@ -5,8 +5,12 @@ import { AiOutlineLike, AiTwotoneLike } from "react-icons/ai";
 import { GoCommentDiscussion } from "react-icons/go";
 import { AnswerComment, AnswerInput } from "./Comment";
 
-const DetailPost = ({ show, setShow }) => {
+const DetailPost = ({ show, setShow, id }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const getPost = async () => {
+    setLoading(true);
+  };
   return (
     <Modal
       title={
