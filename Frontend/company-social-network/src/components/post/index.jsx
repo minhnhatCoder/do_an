@@ -13,10 +13,13 @@ import { HiUsers } from "react-icons/hi";
 import { FaUsers } from "react-icons/fa";
 import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
+import DetailPost from "./DetailPost";
 
 const Post = ({ post, setPost, posts }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
   const userInfo = useRootState((state) => state.userInfo);
+  const [show, setShow] = useState(false);
+  const [id, setId] = useState(0);
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
@@ -116,7 +119,14 @@ const Post = ({ post, setPost, posts }) => {
         <FiMoreHorizontal className="w-8 h-8" />
       </div>
       <div className="flex items-center justify-around mt-3">
-        <img src={post?.attachments?.[0]?.url} className="w-full h-[450px] bg-contain rounded-lg object-cover" />
+        <img
+          src={post?.attachments?.[0]?.url}
+          className="w-full h-[450px] bg-contain rounded-lg object-cover cursor-pointer"
+          onClick={() => {
+            setId(post?._id);
+            setShow(true);
+          }}
+        />
       </div>
       <div className="flex items-center justify-between mt-4">
         {post?.liked_user?.length > 0 ? (
@@ -165,6 +175,7 @@ const Post = ({ post, setPost, posts }) => {
       {/* comment */}
       <Comment id={post?._id} onCommentSuccess={onComment} />
       <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} data={post?.liked_user} />
+      <DetailPost show={show} setShow={setShow} id={id} />
     </div>
   );
 };

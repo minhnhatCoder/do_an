@@ -9,6 +9,7 @@ import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
 import CommentServices from "../../services/commentServices";
 import { timeAgo } from "../../helper/timeHelper";
+import UploadImage from "../uploadImage";
 
 const { TextArea } = Input;
 
@@ -69,7 +70,14 @@ const Comment = ({ id, onCommentSuccess }) => {
       })}
 
       <div className="w-full">
-        <AnswerInput loading={loading} content={content} setContent={setContent} onComment={onComment} />
+        <AnswerInput
+          loading={loading}
+          content={content}
+          setContent={setContent}
+          onComment={onComment}
+          files={attachments}
+          setFiles={setAttachments}
+        />
       </div>
       <DetailPost show={show} setShow={setShow} id={id} />
     </div>
@@ -153,7 +161,14 @@ export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) =
 
         {isAnswerComment && (
           <div className="w-full">
-            <AnswerInput loading={loading} content={content} setContent={setContent} onComment={onComment} />
+            <AnswerInput
+              loading={loading}
+              content={content}
+              setContent={setContent}
+              onComment={onComment}
+              files={attachments}
+              setFiles={setAttachments}
+            />
           </div>
         )}
       </div>
@@ -161,7 +176,7 @@ export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) =
   );
 };
 
-export const AnswerInput = ({ content, setContent, onComment, loading }) => {
+export const AnswerInput = ({ content, setContent, onComment, loading, files, setFiles }) => {
   const currentUser = useRootState((state) => state.userInfo);
   return (
     <div>
@@ -196,9 +211,15 @@ export const AnswerInput = ({ content, setContent, onComment, loading }) => {
           }}
         />
       </div>
-      <div className="flex gap-4 mt-1 items-center ml-16">
-        <BsImageFill className="w-5 h-5 cursor-pointer" color="#1b74e4" />
+      <div className="flex gap-4 mt-1 ml-16">
         <MdEmojiEmotions className="w-5 h-5 cursor-pointer" color="#1b74e4" />
+        <div className="flex-1">
+          <UploadImage
+            files={files ?? []}
+            setFiles={setFiles}
+            customButton={<BsImageFill className="w-5 h-5 cursor-pointer" color="#1b74e4" />}
+          />
+        </div>
       </div>
     </div>
   );

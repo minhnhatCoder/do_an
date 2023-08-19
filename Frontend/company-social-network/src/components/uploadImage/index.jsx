@@ -15,7 +15,7 @@ import Toast from "../noti";
 import _ from "lodash";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
-const UploadImage = ({ files, setFiles, type }) => {
+const UploadImage = ({ files, setFiles, type, customButton }) => {
   const [loading, setLoading] = useState(false);
   const handleChange = async (info) => {
     setLoading(true);
@@ -102,9 +102,13 @@ const UploadImage = ({ files, setFiles, type }) => {
           );
         }}
       >
-        <Button className={`btn-outlined  `} icon={loading ? <Spin /> : <AiOutlineUpload className="w-5 h-5" />}>
-          Upload
-        </Button>
+        {customButton ? (
+          customButton
+        ) : (
+          <Button className={`btn-outlined  `} icon={loading ? <Spin /> : <AiOutlineUpload className="w-5 h-5" />}>
+            Upload
+          </Button>
+        )}
       </Upload>
     );
 };

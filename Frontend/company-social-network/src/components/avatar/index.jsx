@@ -4,13 +4,7 @@ import React from "react";
 const AvatarUi = ({ data, size = "default" }) => {
   return (
     <Tooltip title={data?.display_name || ""} placement="top">
-      <Avatar
-        size={size}
-        src={data?.image || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"}
-        style={{
-          backgroundColor: "#87d068",
-        }}
-      />
+      <Avatar size={size} src={data?.image || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"} />
     </Tooltip>
   );
 };

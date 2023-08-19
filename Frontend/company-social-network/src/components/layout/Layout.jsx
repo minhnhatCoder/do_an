@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillHome, AiOutlineSetting } from "react-icons/ai";
 import { IoIosPeople, IoMdNotificationsOutline } from "react-icons/io";
 import { BsChatDots } from "react-icons/bs";
@@ -20,10 +20,10 @@ const Layout = ({ children }) => {
       icon: <IoIosPeople className="w-8 h-8" color="#28526e" />,
       link: "/friends",
     },
-    { icon: <BsChatDots className="w-8 h-8" color="#28526e" />, link: "/" },
+    { icon: <BsChatDots className="w-8 h-8" color="#28526e" />, link: "/chat" },
     { icon: <BiTask className="w-8 h-8" color="#28526e" />, link: "/tasks" },
   ]);
-  const [menuActive, setMenuActive] = useState(0);
+  const [menuActive, setMenuActive] = useState("/");
   const items = [
     {
       key: "1",
@@ -78,6 +78,10 @@ const Layout = ({ children }) => {
       </Link>
     ),
   });
+
+  useEffect(() => {
+    setMenuActive(menuItems?.find((m) => location?.pathname == m?.link)?.link ?? "/");
+  }, [location?.pathname]);
   if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot") {
     return <div>{children}</div>;
   } else
@@ -109,10 +113,10 @@ const Layout = ({ children }) => {
                 <div
                   key={index}
                   className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
-                    index == menuActive ? "border-b-[#28526e]" : "border-b-white"
+                    item?.link == menuActive ? "border-b-[#28526e]" : "border-b-white"
                   } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
                   onClick={() => {
-                    setMenuActive(index);
+                    setMenuActive(item?.link);
                   }}
                 >
                   <Link to={item.link}>{item.icon}</Link>
@@ -139,7 +143,7 @@ const Layout = ({ children }) => {
               }}
             >
               <div className="flex items-center justify-center gap-2 cursor-pointer">
-                <Avatar className="border border-black" size={40} src={userInfo?.image || ""} />
+                <Avatar className="border " size={40} src={userInfo?.image || ""} />
                 <p className="font-bold">{userInfo?.display_name}</p>
               </div>
             </Dropdown>

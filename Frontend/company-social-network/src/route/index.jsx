@@ -13,6 +13,7 @@ import Register from "../pages/register";
 // import MoviesCategory from "../pages/MoviesCategory/MoviesCategory";
 // import Login from "../pages/LoginPage/Login";
 import ProtectedRoute from "./ProtectedRoute";
+import Messenger from "../pages/messenger";
 
 const RootRoute = () => {
   return (
@@ -23,6 +24,7 @@ const RootRoute = () => {
             <Route exact path="/" element={<HomePage />} />
             <Route exact path="/friends" element={<Friends />} />
             <Route exact path="/tasks" element={<Tasks />} />
+            <Route exact path="/chat/:id?" element={<Messenger />} />
             <Route exact path="/profile/:id" element={<Profile />} />
           </Route>
 
