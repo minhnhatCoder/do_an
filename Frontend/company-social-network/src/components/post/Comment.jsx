@@ -10,6 +10,8 @@ import PostServices from "../../services/postServices";
 import CommentServices from "../../services/commentServices";
 import { timeAgo } from "../../helper/timeHelper";
 import UploadImage from "../uploadImage";
+import UploadUi from "../uploadFiles";
+import { AiOutlinePaperClip } from "react-icons/ai";
 
 const { TextArea } = Input;
 
@@ -176,15 +178,14 @@ export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) =
   );
 };
 
-export const AnswerInput = ({ content, setContent, onComment, loading, files, setFiles }) => {
+export const AnswerInput = ({ content, setContent, onComment, loading, files, setFiles, isUploadFile }) => {
   const currentUser = useRootState((state) => state.userInfo);
   return (
     <div>
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
         <Tooltip title={currentUser?.display_name}>
-          <Avatar className="border border-black" size={40} src={currentUser?.image} />
+          <Avatar className="border " size={40} src={currentUser?.image} />
         </Tooltip>
-
         <div className="flex-1">
           <TextArea
             placeholder="Viết bình luận"
@@ -212,13 +213,21 @@ export const AnswerInput = ({ content, setContent, onComment, loading, files, se
         />
       </div>
       <div className="flex gap-4 mt-1 ml-16">
-        <MdEmojiEmotions className="w-5 h-5 cursor-pointer" color="#1b74e4" />
+        <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
         <div className="flex-1">
-          <UploadImage
-            files={files ?? []}
-            setFiles={setFiles}
-            customButton={<BsImageFill className="w-5 h-5 cursor-pointer" color="#1b74e4" />}
-          />
+          {isUploadFile ? (
+            <UploadUi
+              files={files ?? []}
+              setFiles={setFiles}
+              customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
+            />
+          ) : (
+            <UploadImage
+              files={files ?? []}
+              setFiles={setFiles}
+              customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -11,6 +11,9 @@ import React from "react";
 import { BsSearch } from "react-icons/bs";
 import { FiEdit } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import Message from "./message";
+import { BiSolidMessageDetail } from "react-icons/bi";
+import Info from "./info";
 
 const Messenger = () => {
   const navigate = useNavigate();
@@ -42,7 +45,11 @@ const Messenger = () => {
             ))}
           </div>
         </div>
-        <div className="h-[calc(100vh-235px)] overflow-y-scroll" id="style-3">
+        <div className="flex items-center gap-2 mb-2 px-4">
+          <BiSolidMessageDetail className="w-5 h-5 text-neutral-400" />
+          <p className="text-neutral-400 ">Tất cả tin nhắn</p>
+        </div>
+        <div className="h-[calc(100vh-265px)] overflow-y-scroll" id="scroll-custom">
           {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]?.map((u, index) => (
             <div
               className="px-4 py-2 hover:bg-[#ebebef] flex items-center justify-between cursor-pointer"
@@ -79,26 +86,8 @@ const Messenger = () => {
           ))}
         </div>
       </div>
-      <div className="w-2/4 h-[calc(100vh-75px)] border-l border-r">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <img
-                className="w-12 h-12 rounded-full border"
-                src="https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2023/1/3/1134251/Cha-Eun-Woo2.jpeg"
-                alt=""
-              />
-              <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
-            </div>
-            <div>
-              <p className="text-black font-semibold ">Bình Đẹp trai</p>
-              <p className="text-green-500 w-56 text-sm">Đang hoạt động</p>
-            </div>
-          </div>
-          <div className="w-max flex items-center gap-2"></div>
-        </div>
-      </div>
-      <div className="w-1/4 h-[calc(100vh-75px)]"></div>
+      <Message />
+      <Info />
     </div>
   );
 };

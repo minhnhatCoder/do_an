@@ -7,7 +7,7 @@ import Toast from "../noti";
 import _ from "lodash";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
-const UploadUi = ({ files, setFiles }) => {
+const UploadUi = ({ files, setFiles, customBtnUpload }) => {
   const [loading, setLoading] = useState(false);
   const handleChange = async (info) => {
     setLoading(true);
@@ -51,12 +51,16 @@ const UploadUi = ({ files, setFiles }) => {
         );
       }}
     >
-      <Button
-        className={`btn-outlined  hover:!text-blue-500 !font-normal`}
-        icon={loading ? <Spin /> : <AiOutlineUpload className="w-5 h-5" />}
-      >
-        Upload
-      </Button>
+      {customBtnUpload ? (
+        customBtnUpload
+      ) : (
+        <Button
+          className={`btn-outlined  hover:!text-blue-500 !font-normal`}
+          icon={loading ? <Spin /> : <AiOutlineUpload className="w-5 h-5" />}
+        >
+          Upload
+        </Button>
+      )}
     </Upload>
   );
 };
