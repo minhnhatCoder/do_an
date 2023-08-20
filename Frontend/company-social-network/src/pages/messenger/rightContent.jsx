@@ -11,6 +11,7 @@ import Message from "./message";
 import Info from "./info";
 import { useParams } from "react-router-dom";
 import ConversationsServices from "../../services/conversationServies";
+import { Empty } from "antd";
 
 const RightContent = () => {
   const { id } = useParams();
@@ -29,13 +30,19 @@ const RightContent = () => {
       setLoading(false);
     }
   };
-  console.log(conversation);
   useEffect(() => {
     getConversation();
   }, [id]);
+  if (!id) {
+    return (
+      <div className="flex w-3/4 items-center justify-center">
+        <Empty description="Vui lòng chọn một cuộc hội thoai" />
+      </div>
+    );
+  }
   return (
     <div className="flex w-3/4">
-      <Message conversation={conversation} />
+      <Message conversation={conversation} getConversation={getConversation} />
       <Info conversation={conversation} />
     </div>
   );

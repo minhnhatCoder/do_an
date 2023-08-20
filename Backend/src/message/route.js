@@ -18,6 +18,6 @@ route.post("/", checkAuth, controller.postConversation);
 route.put("/:id", checkAuth, controller.putConversation);
 route.delete("/:id", checkAuth, controller.deleteConversation);
 
-route.post("/:id/message", checkAuth, controller.postConversation);
+route.post("/:id/message", checkAuth, controller.sendMessage);
 
 module.exports = route;

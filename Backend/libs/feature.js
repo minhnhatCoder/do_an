@@ -104,7 +104,7 @@ module.exports = function (query, queryString) {
           const [firstKey, secondKey] = key.split("^");
           transformedObject.and = [{ [firstKey]: inputObject[key] }, { [secondKey]: inputObject[key] }];
         } else {
-          transformedObject[key] = inputObject[key] == "null" ? null : inputObject[key];
+          transformedObject[key] = inputObject[key] == "null" ? null : inputObject[key] == 'true' ? true : inputObject[key] == "false" ? false : inputObject[key];
         }
       }
       return transformedObject;
@@ -112,9 +112,8 @@ module.exports = function (query, queryString) {
 
     let queryStr = JSON.stringify(transformObject(queryObj));
 
-    queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in|ne|all)\b/g, (match) => "$" + match);
+    queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex|elemMatch|eq|options|or|and|in|ne|all|exists)\b/g, (match) => "$" + match);
     this.query = this.query.find(JSON.parse(queryStr));
-    console.log(JSON.parse(queryStr))
     return this;
   };
   this.counting = () => {

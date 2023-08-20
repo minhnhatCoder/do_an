@@ -76,4 +76,16 @@ function timeAgo(timestamp) {
   }
 }
 
-export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp };
+function formatTimestamp(timestamp) {
+  const currentDate = dayjs();
+  const inputDate = dayjs(timestamp * 1000);
+
+  // Check if the input date is from the same day
+  if (inputDate.isSame(currentDate, 'day')) {
+    return inputDate.format('hh:mm A');
+  } else {
+    return inputDate.format('DD/MM/YYYY');
+  }
+}
+
+export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp, formatTimestamp };

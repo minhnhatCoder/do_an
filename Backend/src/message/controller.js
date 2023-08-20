@@ -8,13 +8,14 @@
  */
 
 const { conversationsDB } = require("./model");
+const { commentsDB } = require("../comment/model");
 const Features = require("../../libs/feature");
 const dayjs = require("dayjs");
 
 exports.getConversations = async (req, res) => {
     try {
         const features = new Features(
-            conversationsDB.find(),
+            conversationsDB.find().populate("participants", ["display_name", "image"]),
             req.query
         )
             .sorting()
@@ -101,3 +102,30 @@ exports.deleteConversation = async (req, res) => {
     }
 };
 
+///////////message//////////////
+exports.sendMessage = async (req, res) => {
+    try {
+        const comment = new commentsDB({
+            target: req.params.id,
+            created_by: req.user_data._id,
+            content: req.body.content,
+            attachments: req.body.attachments,
+            read_receipts: [req.user_data._id],
+            created_at: dayjs(new Date()).unix(),
+        });
+        const savedComment = await comment.save();
+
+        await conversationsDB.findOneAndUpdate(
+            { _id: req.params.id },
+            { $push: { attachments: { $each: req.body.attachments } }, last_message: savedComment?._id },
+            { new: true }
+        );
+        return res.status(200).json({
+            status: 200,
+            data: savedComment,
+            message: "Gửi tin nhắn thành công",
+        });
+    } catch (error) {
+        return res.status(400).json({ status: 400, message: error.message });
+    }
+}

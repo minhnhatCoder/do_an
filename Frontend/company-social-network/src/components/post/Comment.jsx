@@ -12,6 +12,7 @@ import { timeAgo } from "../../helper/timeHelper";
 import UploadImage from "../uploadImage";
 import UploadUi from "../uploadFiles";
 import { AiOutlinePaperClip } from "react-icons/ai";
+import Toast from "../noti";
 
 const { TextArea } = Input;
 
@@ -26,6 +27,9 @@ const Comment = ({ id, onCommentSuccess }) => {
     setComments(res.data);
   };
   const onComment = async () => {
+    if (!content?.trim()) {
+      return Toast("error", "Nội dung không được để trống!");
+    }
     setLoading(true);
     const body = {
       content,
@@ -95,6 +99,9 @@ export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) =
   const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(false);
   const onComment = async () => {
+    if (!content?.trim()) {
+      return Toast("error", "Nội dung không được để trống!");
+    }
     setLoading(true);
     const body = {
       content,
