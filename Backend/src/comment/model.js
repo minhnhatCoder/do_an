@@ -13,6 +13,7 @@ const dayjs = require("dayjs");
 const commentSchema = new mongoose.Schema({
   target: { type: mongoose.Schema.Types.ObjectId },
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: "users", autopopulate: true },
+  read_receipts: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   content: {
     type: String,
     default: "",
@@ -23,6 +24,10 @@ const commentSchema = new mongoose.Schema({
     default: [],
   },
   created_at: {
+    type: Number,
+    default: dayjs(new Date()).unix(),
+  },
+  updated_at: {
     type: Number,
     default: dayjs(new Date()).unix(),
   },

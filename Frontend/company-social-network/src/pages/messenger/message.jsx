@@ -11,27 +11,38 @@ import { AiOutlineMore } from "react-icons/ai";
 import { HiOutlinePhone, HiOutlineVideoCamera } from "react-icons/hi";
 import { AnswerInput } from "../../components/post/Comment";
 import AvatarUi from "../../components/avatar";
+import { Link, useParams } from "react-router-dom";
+import ConversationsServices from "../../services/conversationServies";
+import { useRootState } from "../../store";
 
-const Message = () => {
+const Message = ({ conversation }) => {
+  const { id } = useParams();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setmessages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [attachments, setAttachments] = useState([]);
+  const userInfo = useRootState((state) => state.userInfo);
+
   const onSendMessage = () => {};
   return (
-    <div className="w-2/4 h-[calc(100vh-75px)] border-l border-r">
+    <div className="w-2/3 h-[calc(100vh-75px)] border-l border-r">
       <div className="p-4 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="relative">
             <img
               className="w-12 h-12 rounded-full border"
-              src="https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2023/1/3/1134251/Cha-Eun-Woo2.jpeg"
+              src={conversation?.participants?.find((p) => p?._id != userInfo?._id)?.image}
               alt=""
             />
             <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
           </div>
           <div>
-            <p className="text-black font-semibold ">Bình Đẹp trai</p>
+            <Link
+              className="text-gray-700 text-base font-semibold cursor-pointer block hover:underline"
+              to={`/profile/${conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id}`}
+            >
+              {conversation?.participants?.find((p) => p?._id != userInfo?._id)?.display_name}
+            </Link>
             <p className="text-green-500 w-56 text-sm">Đang hoạt động</p>
           </div>
         </div>

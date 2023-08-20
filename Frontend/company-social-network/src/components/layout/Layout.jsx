@@ -9,6 +9,7 @@ import Toast from "../../components/noti";
 import { Avatar, Badge, Dropdown, AutoComplete, Input } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRootState } from "../../store";
+import { LOCAL_STORAGE_USER_KEY } from "../../constant";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -42,9 +43,16 @@ const Layout = ({ children }) => {
     {
       key: "3",
       label: (
-        <Link className="font-semibold" to="/login">
+        <p
+          className="font-semibold"
+          onClick={() => {
+            localStorage.removeItem(LOCAL_STORAGE_USER_KEY);
+            Toast("success", "Đăng xuất thành công");
+            navigate("/login");
+          }}
+        >
           Đăng xuất
-        </Link>
+        </p>
       ),
       icon: <FiLogOut className="w-5 h-5" />,
     },

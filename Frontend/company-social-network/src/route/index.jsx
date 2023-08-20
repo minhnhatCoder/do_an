@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import Menu from "../components/Menu/MainMenu";
 // import Footer from "../components/Footer/Footer";
@@ -15,7 +15,7 @@ import Register from "../pages/register";
 import ProtectedRoute from "./ProtectedRoute";
 import Messenger from "../pages/messenger";
 
-const RootRoute = () => {
+const RootRoute = ({ setToken, token }) => {
   return (
     <BrowserRouter>
       <Layout>
@@ -28,7 +28,7 @@ const RootRoute = () => {
             <Route exact path="/profile/:id" element={<Profile />} />
           </Route>
 
-          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/login" element={<Login {...{ setToken }} />} />
           <Route exact path="/register" element={<Register />} />
         </Routes>
       </Layout>

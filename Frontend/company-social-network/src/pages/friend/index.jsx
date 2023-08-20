@@ -8,22 +8,39 @@ import { RxAvatar } from "react-icons/rx";
 import DepartmentServices from "../../services/deptServices";
 import UserServices from "../../services/user";
 import _ from "lodash";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 import Edit from "./Edit";
 import { Text } from "../../components/input";
 import Toast from "../../components/noti";
 import { useRootState } from "../../store";
+import ConversationsServices from "../../services/conversationServies";
 
 const Friends = () => {
   const [depts, setDepts] = useState([]);
+  const navigate = useNavigate();
   const setStoreDepts = useRootState((state) => state.setDepts);
-
+  const userInfo = useRootState((state) => state.userInfo);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({ depts_name: "", dept_id: 0, display_name: "", position_id: 0 });
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [show, setShow] = useState(false);
+  const onMessage = async (params) => {
+    try {
+      const res = await ConversationsServices.getConversations(params);
+      if (res?.data?.length > 0) {
+        navigate("/chat/" + res?.data?.[0]?._id);
+      } else {
+        const newConversation = await ConversationsServices.postConversation({
+          participants: params["participants[all]"],
+        });
+        navigate("/chat/" + newConversation?.data?._id);
+      }
+    } catch (error) {
+      console.log(error?.message);
+    }
+  };
 
   const [tabs, setTabs] = useState([
     { title: "Thành viên trong tổ chức" },
@@ -73,11 +90,23 @@ const Friends = () => {
       title: "",
       dataIndex: "",
       width: 50,
-      render: (value) => {
+      render: (value, { key }) => {
         const items = [
           {
             key: "1",
-            label: <a className="font-semibold">Nhắn tin</a>,
+            label: (
+              <p
+                className="font-semibold"
+                onClick={() => {
+                  onMessage({
+                    "participants[all]": [userInfo?._id, key],
+                    "type:eq": "personal",
+                  });
+                }}
+              >
+                Nhắn tin
+              </p>
+            ),
             icon: <AiOutlineMessage className="w-5 h-5" />,
           },
           {

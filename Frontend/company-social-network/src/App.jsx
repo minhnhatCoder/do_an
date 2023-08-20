@@ -3,14 +3,15 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import RootRoute from "./route";
 import UserServices from "./services/user";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import jwt_decode from "jwt-decode";
 import { LOCAL_STORAGE_USER_KEY } from "./constant";
 import { useRootState } from "./store";
 import DepartmentServices from "./services/deptServices";
+import { useNavigate } from "react-router-dom";
 
 function App() {
-  const token = localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null;
+  const [token, setToken] = useState(localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null);
   const setUserInfo = useRootState((state) => state.setUserInfo);
   const setUsers = useRootState((state) => state.setUsers);
   const setDepts = useRootState((state) => state.setDepts);
@@ -55,7 +56,7 @@ function App() {
   }, [token]);
   return (
     <div>
-      <RootRoute />
+      <RootRoute {...{ setToken, token }} />
       <ToastContainer />
     </div>
   );

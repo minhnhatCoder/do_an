@@ -7,16 +7,42 @@
  * Change Log: <press Ctrl + alt + c write changelog>
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsSearch } from "react-icons/bs";
 import { FiEdit } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Message from "./message";
 import { BiSolidMessageDetail } from "react-icons/bi";
 import Info from "./info";
+import ConversationsServices from "../../services/conversationServies";
+import { useRootState } from "../../store";
+import RightContent from "./rightContent";
 
 const Messenger = () => {
   const navigate = useNavigate();
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const userInfo = useRootState((state) => state.userInfo);
+  const { id } = useParams();
+  const getConversations = async () => {
+    try {
+      const params = {
+        sort: "-last_message.created_at",
+        ["participants:in"]: [userInfo?._id],
+        ["last_message:ne"]: "null",
+      };
+      setLoading(true);
+      const res = await ConversationsServices.getConversations(params);
+      setConversations(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getConversations();
+  }, []);
   return (
     <div className="flex items-center">
       <div className="w-1/4 h-[calc(100vh-75px)] py-4">
@@ -86,8 +112,7 @@ const Messenger = () => {
           ))}
         </div>
       </div>
-      <Message />
-      <Info />
+      <RightContent />
     </div>
   );
 };

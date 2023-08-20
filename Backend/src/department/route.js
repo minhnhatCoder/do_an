@@ -12,16 +12,16 @@ const controller = require("./controller");
 const { checkAuth } = require("../../helper/verify");
 
 ///////Phòng ban///////////
-route.get("/depts", controller.getDept);
-route.get("/depts/:id", controller.getDeptById);
-route.post("/depts/", controller.createDept);
-route.put("/depts/:id", controller.updateDept);
+route.get("/depts", checkAuth, controller.getDept);
+route.get("/depts/:id", checkAuth, controller.getDeptById);
+route.post("/depts/", checkAuth, controller.createDept);
+route.put("/depts/:id", checkAuth, controller.updateDept);
 route.delete("/depts/:id", controller.deleteDept);
 ////////vị trí/////////////
-route.get("/positions", controller.getPosition);
-route.get("/positions/:id", controller.getPositionById);
-route.post("/positions/", controller.createPosition);
-route.put("/positions/:id", controller.updatePosition);
-route.delete("/positions/:id", controller.deletePosition);
+route.get("/positions", checkAuth, controller.getPosition);
+route.get("/positions/:id", checkAuth, controller.getPositionById);
+route.post("/positions/", checkAuth, controller.createPosition);
+route.put("/positions/:id", checkAuth, controller.updatePosition);
+route.delete("/positions/:id", checkAuth, controller.deletePosition);
 
 module.exports = route;

@@ -10,7 +10,7 @@ const route = require("express").Router();
 const controller = require("./controller");
 const { checkAuth } = require("../../helper/verify");
 
-route.get("/", controller.getComments);
+route.get("/", checkAuth, controller.getComments);
 // route.get("/:id", controller.getComment);
 // route.post("/", checkAuth, controller.postComment);
 // route.put("/:id", controller.putComment);

@@ -2,17 +2,17 @@ const route = require("express").Router();
 const controller = require("./controller");
 const { checkAuth } = require("../../helper/verify");
 
-route.get("/tasks", controller.getTask);
-route.get("/tasks/:id", controller.getTaskById);
+route.get("/tasks", checkAuth, controller.getTask);
+route.get("/tasks/:id", checkAuth, controller.getTaskById);
 route.post("/tasks", checkAuth, controller.createTask);
 route.post("/tasks/comment/:id", checkAuth, controller.commentTask);
-route.put("/tasks/:id", controller.updateTask);
-route.delete("/tasks/:id", controller.deleteTask);
+route.put("/tasks/:id", checkAuth, controller.updateTask);
+route.delete("/tasks/:id", checkAuth, controller.deleteTask);
 
-route.get("/projects", controller.getProjects);
-route.get("/projects/:id", controller.getProject);
+route.get("/projects", checkAuth, controller.getProjects);
+route.get("/projects/:id", checkAuth, controller.getProject);
 route.post("/projects", checkAuth, controller.createProject);
-route.put("/projects/:id", controller.updateProject);
-route.delete("/projects/:id", controller.deleteProject);
+route.put("/projects/:id", checkAuth, controller.updateProject);
+route.delete("/projects/:id", checkAuth, controller.deleteProject);
 
 module.exports = route;

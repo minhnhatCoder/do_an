@@ -61,7 +61,7 @@ const DetailPost = ({ show, setShow, id }) => {
 
   const getComments = async () => {
     const res = await CommentServices.getComments({ "target[eq]": id, sort: "-created_at", limit: 10 });
-    setComments(res.data);
+    setComments(res.data.sort((a, b) => a.created_at - b.created_at));
   };
   const onComment = async () => {
     const body = {

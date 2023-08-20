@@ -5,7 +5,7 @@ import Auth from "../../services/authServices";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
 import Toast from "../../components/noti";
 
-const Login = () => {
+const Login = ({ setToken }) => {
   const navigate = useNavigate();
   const [data, setData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -15,10 +15,11 @@ const Login = () => {
       setLoading(true);
       const res = await Auth.login(data);
       localStorage.setItem(LOCAL_STORAGE_USER_KEY, res.data.token);
+      setToken(res.data.token);
       navigate("/");
       Toast("success", res.data.message);
     } catch (error) {
-      Toast("error", error.response.data.message);
+      Toast("error", error.message);
     }
   };
   return (
