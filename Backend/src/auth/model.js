@@ -46,6 +46,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: 1,
   },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "users", default: [] }],
+  friend_requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "friend_requests", default: [] }],
   department: { type: mongoose.Schema.Types.ObjectId, ref: "Department", required: true },
   position: { type: mongoose.Schema.Types.ObjectId, ref: "Position", required: true },
   employee_id: {

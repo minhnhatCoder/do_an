@@ -17,7 +17,8 @@ route.get("/:id", checkAuth, controller.getConversation);
 route.post("/", checkAuth, controller.postConversation);
 route.put("/:id", checkAuth, controller.putConversation);
 route.delete("/:id", checkAuth, controller.deleteConversation);
-
+///message/////
 route.post("/:id/message", checkAuth, controller.sendMessage);
+route.put("/:id/read",checkAuth,controller.readAllMessage)
 
 module.exports = route;

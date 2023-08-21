@@ -24,6 +24,10 @@ const ConversationsServices = {
     sendMessage: (id, body) => {
         const url = `/conversations/${id}/message`;
         return axiosClient.post(url, body);
+    },
+    readAllMessages: (id) => {
+        const url = `/conversations/${id}/read`;
+        return axiosClient.put(url);
     }
 }
 

@@ -73,10 +73,21 @@ const Message = ({ conversation, getConversation }) => {
     setMessages([]);
     setPage(1);
     getMessages(true);
+    readAllMessages();
   }, [id]);
   useEffect(() => {
     id && getMessages();
   }, [page]);
+  const readAllMessages = async () => {
+    setLoading(true);
+    try {
+      await ConversationsServices.readAllMessages(id);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      Toast("error", error?.message);
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {

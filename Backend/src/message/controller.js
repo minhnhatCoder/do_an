@@ -129,3 +129,20 @@ exports.sendMessage = async (req, res) => {
         return res.status(400).json({ status: 400, message: error.message });
     }
 }
+
+exports.readAllMessage = async (req, res) => {
+    try {
+        await commentsDB.updateMany({ target: req.params.id }, {
+            $addToSet: { read_receipts: req.user_data._id }
+        })
+        return res.status(200).json({
+            status: 200,
+            message: "Đã đọc tất cả tin nhắn thành công",
+        });
+    } catch (error) {
+        return res.status(200).json({
+            status: 200,
+            message: error.message,
+        });
+    }
+}

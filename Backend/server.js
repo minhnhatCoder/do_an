@@ -29,6 +29,7 @@ app.use("/job", require("./src/task/route"));
 app.use("/company", require("./src/department/route"));
 app.use("/comments", require("./src/comment/route"));
 app.use("/conversations", require("./src/message/route"));
+app.use("/friend_requests", require("./src/friend_request/route"));
 
 app.listen(PORT, () => {
   console.log(`server run on http://localhost:${PORT}`);
