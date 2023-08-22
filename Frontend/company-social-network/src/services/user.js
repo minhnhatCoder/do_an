@@ -26,6 +26,14 @@ const User = {
     const url = "/social/users/" + id;
     return axiosClient.put(url, body);
   },
+  sendFriendRequest: (body) => {
+    const url = "/friend_requests";
+    return axiosClient.post(url, body);
+  },
+  approveFriendRequest: (id, body) => {
+    const url = "/friend_requests/" + id;
+    return axiosClient.put(url, body);
+  }
 };
 
 export default User;

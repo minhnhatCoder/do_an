@@ -40,26 +40,27 @@ const Post = ({ post, setPost, posts }) => {
     }
   };
   const handleShowLikedUser = () => {
-    if (post?.liked_user?.length < 2) {
-      return post?.liked_user?.[0]?.display_name;
-    } else {
-      const filterMax2Peple = post?.liked_user?.post?.liked_user
-        ?.filter((u) => u?._id != userInfo?._id)
-        ?.filter((_, index) => {
-          return index < 2;
-        })
-        ?.map((u) => u.display_name);
-      if (post?.liked_user?.length?.includes(userInfo?._id)) {
-        return (
-          `Bạn,` + filterMax2Peple.toString() + post?.liked_user?.length > 3 &&
-          `và ${post?.liked_user?.length - 3} người khác`
-        );
-      } else {
-        return (
-          filterMax2Peple.toString() + post?.liked_user?.length > 2 && `và ${post?.liked_user?.length - 3} người khác`
-        );
-      }
-    }
+    return "liked_user";
+    // if (post?.liked_user?.length < 2) {
+    //   return post?.liked_user?.[0]?.display_name;
+    // } else {
+    //   const filterMax2Peple = post?.liked_user?.post?.liked_user
+    //     ?.filter((u) => u?._id != userInfo?._id)
+    //     ?.filter((_, index) => {
+    //       return index < 2;
+    //     })
+    //     ?.map((u) => u.display_name);
+    //   if (post?.liked_user?.includes(userInfo?._id)) {
+    //     return (
+    //       `Bạn,` + filterMax2Peple?.toString() + post?.liked_user?.length > 3 &&
+    //       `và ${post?.liked_user?.length - 3} người khác`
+    //     );
+    //   } else {
+    //     return (
+    //       filterMax2Peple?.toString() + post?.liked_user?.length > 2 && `và ${post?.liked_user?.length - 3} người khác`
+    //     );
+    //   }
+    // }
   };
 
   const onComment = (id) => {

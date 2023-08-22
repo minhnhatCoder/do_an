@@ -12,7 +12,6 @@ exports.getUsers = async (req, res) => {
       usersDB.find().populate("department", ["name"]).populate("position", ["name"]),
       req.query
     )
-
       .sorting()
       .paginating()
       .searching("display_name")
@@ -62,7 +61,22 @@ exports.getUser = async (req, res) => {
       // Nếu giá trị đầu vào không phải là ObjectId, tìm theo employee_id (mã nhân viên)
       query = { employee_id: req.params.id };
     }
-    const data = await usersDB.find(query).populate("department", ["name"]).populate("position", ["name"]);
+    const data = await usersDB.find(query).populate("department", ["name"]).populate("position", ["name"]).populate({
+      path: 'friends',
+      select: 'display_name image',
+      populate: [
+        { path: 'department', select: 'name' },
+        { path: 'position', select: 'name' },
+      ],
+    }).populate({
+      path: 'friend_requests', populate: [{
+        path: "sender", select: "display_name image", populate: [
+          { path: 'department', select: 'name' },
+          { path: 'position', select: 'name' },
+        ],
+      }]
+    })
+   
     return res.status(200).json({
       status: 200,
       data: data[0],

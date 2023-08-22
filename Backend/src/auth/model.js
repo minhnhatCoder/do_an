@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
 const { Position } = require("../department/model");
+const autopopulate = require("mongoose-autopopulate");
+
 
 const userSchema = new mongoose.Schema({
   display_name: {
@@ -47,7 +49,7 @@ const userSchema = new mongoose.Schema({
     default: 1,
   },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "users", default: [] }],
-  friend_requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "friend_requests", default: [] }],
+  friend_requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "friend_request", default: [] }],
   department: { type: mongoose.Schema.Types.ObjectId, ref: "Department", required: true },
   position: { type: mongoose.Schema.Types.ObjectId, ref: "Position", required: true },
   employee_id: {

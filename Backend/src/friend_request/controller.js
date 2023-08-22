@@ -92,7 +92,7 @@ exports.putFriendRequest = async (req, res) => {
                     $pull: { friend_requests: friendRequest._id }
                 }
             );
-        } else if (req.body.status == "cancelled") {
+        } else if (req.body.status == "rejected") {
             await usersDB.findOneAndUpdate(
                 { _id: friendRequest.receiver },
                 { $pull: { friend_requests: friendRequest._id } }
@@ -101,6 +101,7 @@ exports.putFriendRequest = async (req, res) => {
                 { _id: friendRequest.sender },
                 { $pull: { friend_requests: friendRequest._id } }
             );
+
         }
 
         return res.status(200).json({

@@ -26,6 +26,10 @@
   @apply bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-5 rounded cursor-pointer;
 }
 
+.btn-red {
+  @apply bg-red-500 hover:bg-red-400 text-white font-bold py-1 px-5 rounded cursor-pointer;
+}
+
 .btn-outlined {
   @apply  hover:text-gray-600 hover:border-blue-500 text-gray-800 font-bold py-1 px-5 rounded cursor-pointer border;
 }

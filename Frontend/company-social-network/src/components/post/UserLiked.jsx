@@ -3,9 +3,21 @@ import { BsPersonPlusFill, BsMessenger } from "react-icons/bs";
 import React from "react";
 import { AiTwotoneLike } from "react-icons/ai";
 import { useRootState } from "../../store";
+import UserServices from "../../services/user";
+import Toast from "../noti";
 
 const UserLiked = ({ show, setShow, data }) => {
   const userInfo = useRootState((state) => state.userInfo);
+  const sendRequestFriend = async (id) => {
+    try {
+      const res = await UserServices.sendFriendRequest({
+        receiver: id,
+      });
+      Toast("success", res?.message);
+    } catch (error) {
+      Toast("error", error?.message);
+    }
+  };
 
   return (
     <Modal
@@ -26,24 +38,25 @@ const UserLiked = ({ show, setShow, data }) => {
             <div className="flex items-center justify-between" key={u?._id}>
               <div className="flex items-center gap-2">
                 <Avatar className="border border-black" size={40} src={u?.image} />
-                <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
-                  {u?.display_name}
-                </a>
+                <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">{u?._id}</a>
               </div>
-              {userInfo?._id != u?._id && (
+              {userInfo?._id == u?._id ? null : userInfo?.friends?.includes(u?._id) ? (
                 <Button type="primary" icon={<BsMessenger />} size="large" className="flex items-center justify-center">
                   Nhắn tin
                 </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<BsPersonPlusFill />}
+                  size="large"
+                  className="flex items-center justify-center"
+                  onClick={() => {
+                    sendRequestFriend(u?._id);
+                  }}
+                >
+                  Thêm bạn bè
+                </Button>
               )}
-
-              {/* <Button
-          type="primary"
-          icon={<BsPersonPlusFill />}
-          size="large"
-          className="flex items-center justify-center"
-        >
-          Thêm bạn bè
-        </Button> */}
             </div>
           );
         })}

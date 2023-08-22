@@ -9,17 +9,18 @@
 
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
+const autopopulate = require("mongoose-autopopulate");
 
 const friendRequestSchema = new mongoose.Schema({
     status: { type: String, required: true, default: "pending" },
     sender: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: "users", },
     created_at: {
         type: Number,
         default: dayjs(new Date()).unix(),
     },
 
 });
-
+friendRequestSchema.plugin(autopopulate);
 const friendRequestsDB = mongoose.model("friend_request", friendRequestSchema);
 module.exports = { friendRequestsDB }

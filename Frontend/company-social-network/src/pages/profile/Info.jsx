@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BsFillPersonFill, BsPencil, BsFillTelephoneFill, BsFillBriefcaseFill } from "react-icons/bs";
 import { AiFillInfoCircle } from "react-icons/ai";
 import _ from "lodash";
-import { Text } from "../../components/input";
+import { Date, Text } from "../../components/input";
 import { Input } from "antd";
 import { convertTimeStampToString } from "../../helper/timeHelper";
 import UserServices from "../../services/user";
@@ -118,12 +118,7 @@ const Info = ({ userInfo }) => {
             <div className="w-1/5 text-neutral-500 text-lg font-medium">Ngày sinh</div>
             <div className="w-4/5">
               {isEditInfo ? (
-                <Input
-                  value={infoEdit?.birth}
-                  onChange={(e) => {
-                    setInfoEdit({ ...infoEdit, birth: e.target.value });
-                  }}
-                />
+                <Date type="date" value={infoEdit?.birth} onChange={(e) => setInfoEdit({ ...infoEdit, birth: e })} />
               ) : (
                 <p className="font-bold">{convertTimeStampToString(infoEdit?.birth) || "(Chưa cập nhật)"}</p>
               )}
