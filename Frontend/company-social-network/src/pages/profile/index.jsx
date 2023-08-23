@@ -39,6 +39,11 @@ const Profile = () => {
   ];
   const [isOpenUploadAvatar, setIsOpenUploadAvatar] = useState(false);
   const [imageUrl, setImageUrl] = useState();
+  const [user, setUser] = useState({});
+  const getUserInfo = async () => {
+    const data = await UserServices.getUser(id);
+    setUser(data.data);
+  };
 
   const handleChange = async (info) => {
     setLoading(true);
@@ -105,6 +110,10 @@ const Profile = () => {
     setTabActive(key);
   };
 
+  useEffect(() => {
+    getUserInfo();
+  }, [id]);
+
   return (
     <div className="main-content !pt-0">
       <div className="w-2/3 mx-auto bg-white rounded-b-lg h-max">
@@ -116,28 +125,30 @@ const Profile = () => {
           <div className="w-56 h-56 rounded-full  absolute -bottom-7 left-1/2 -translate-x-1/2 ">
             <div className="relative">
               <img
-                src={userInfo?.image}
+                src={user?.image}
                 className="w-56 h-56 rounded-full border-4 border-white cursor-pointer object-cover"
               />
-              <div
-                className="absolute bottom-5 right-5 p-2 rounded-full bg-gray-200 cursor-pointer"
-                onClick={() => {
-                  setIsOpenUploadAvatar(true);
-                }}
-              >
-                <AiFillCamera className="w-6 h-6" />
-              </div>
+              {userInfo?._id == id || userInfo?.employee_id == id ? (
+                <div
+                  className="absolute bottom-5 right-5 p-2 rounded-full bg-gray-200 cursor-pointer"
+                  onClick={() => {
+                    setIsOpenUploadAvatar(true);
+                  }}
+                >
+                  <AiFillCamera className="w-6 h-6" />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
-        <p className="mt-10 font-bold text-center text-3xl">{userInfo?.display_name}</p>
+        <p className="mt-10 font-bold text-center text-3xl">{user?.display_name}</p>
         <p className="mt-3 text-center font-semibold">Đại ca giang hồ</p>
         <div className="mt-4 pl-3">
           <Tabs defaultActiveKey={1} items={items} onChange={onChangeTab} />
         </div>
       </div>
-      {tabActive == 1 && <TimeLine userInfo={userInfo} />}
-      {tabActive == 2 && <Info userInfo={userInfo} />}
+      {tabActive == 1 && <TimeLine userInfo={user} setTabActive={setTabActive} />}
+      {tabActive == 2 && <Info userInfo={user} />}
       {tabActive == 3 && <Friend />}
       {tabActive == 4 && <Image />}
 

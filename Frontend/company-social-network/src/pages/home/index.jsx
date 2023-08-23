@@ -14,6 +14,7 @@ const Home = () => {
   const userInfo = useRootState((state) => state.userInfo);
 
   const getPost = async () => {
+    setLoading(true);
     const params = {
       "related_user[in]": userInfo?._id,
       limit: 5,
@@ -45,18 +46,16 @@ const Home = () => {
 };
 
 export default Home;
-export const InputPost = ({ getPost }) => {
+export const InputPost = ({ getPost, upLoadToFriend }) => {
   const [isShowCreatePost, setIsShowCreatePost] = useState(false);
+  const userInfo = useRootState((state) => state.userInfo);
+
   return (
     <div className="py-3 px-5 rounded-lg bg-white box_shadow-light">
       <div className="flex items-center justify-center gap-3 pb-3 border-b-2 border-gray-200">
-        <Avatar
-          className="border border-black"
-          size={40}
-          src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-        />
+        <Avatar className="border border-black" size={40} src={userInfo?.image} />
         <Input
-          placeholder="Nhật ơi, bạn đang nghĩ gì?"
+          placeholder={`${userInfo?.display_name} ơi, bạn đang nghĩ gì?`}
           className="flex-1 rounded-full bg-gray-50"
           onClick={() => {
             setIsShowCreatePost(true);
@@ -75,6 +74,7 @@ export const InputPost = ({ getPost }) => {
         </div>
       </div>
       <UploadPost
+        upLoadToFriend={upLoadToFriend}
         show={isShowCreatePost}
         setShow={setIsShowCreatePost}
         cbSuccess={() => {

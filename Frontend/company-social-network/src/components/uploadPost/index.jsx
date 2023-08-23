@@ -1,5 +1,5 @@
 import { Avatar, Modal, Radio, Spin, Upload } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRootState } from "../../store";
 import Button from "../button";
 import { BiSolidLock } from "react-icons/bi";
@@ -16,7 +16,7 @@ import Toast from "../noti";
 import SelectDepartment from "../Select/department";
 import SelectUsers from "../Select/Users";
 
-const UploadPost = ({ show, setShow, cbSuccess }) => {
+const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const users = useRootState((state) => state.users);
   const [content, setContent] = useState("");
@@ -64,6 +64,10 @@ const UploadPost = ({ show, setShow, cbSuccess }) => {
     }
   };
 
+  useEffect(() => {
+    upLoadToFriend && setType(2);
+  }, [upLoadToFriend]);
+
   return (
     <Modal
       title={
@@ -87,6 +91,7 @@ const UploadPost = ({ show, setShow, cbSuccess }) => {
                   {userInfo?.display_name}
                 </a>
                 <Button
+                  disabled={upLoadToFriend}
                   className="btn-gray !text-sm !font-semibold !px-2"
                   icon={
                     type == 0 ? (

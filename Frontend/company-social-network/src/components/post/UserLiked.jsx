@@ -5,9 +5,12 @@ import { AiTwotoneLike } from "react-icons/ai";
 import { useRootState } from "../../store";
 import UserServices from "../../services/user";
 import Toast from "../noti";
+import ConversationsServices from "../../services/conversationServies";
+import { useNavigate } from "react-router-dom";
 
 const UserLiked = ({ show, setShow, data }) => {
   const userInfo = useRootState((state) => state.userInfo);
+  const navigate = useNavigate();
   const sendRequestFriend = async (id) => {
     try {
       const res = await UserServices.sendFriendRequest({
@@ -16,6 +19,21 @@ const UserLiked = ({ show, setShow, data }) => {
       Toast("success", res?.message);
     } catch (error) {
       Toast("error", error?.message);
+    }
+  };
+  const onMessage = async (params) => {
+    try {
+      const res = await ConversationsServices.getConversations(params);
+      if (res?.data?.length > 0) {
+        navigate("/chat/" + res?.data?.[0]?._id);
+      } else {
+        const newConversation = await ConversationsServices.postConversation({
+          participants: params["participants[all]"],
+        });
+        navigate("/chat/" + newConversation?.data?._id);
+      }
+    } catch (error) {
+      console.log(error?.message);
     }
   };
 
@@ -38,10 +56,18 @@ const UserLiked = ({ show, setShow, data }) => {
             <div className="flex items-center justify-between" key={u?._id}>
               <div className="flex items-center gap-2">
                 <Avatar className="border border-black" size={40} src={u?.image} />
-                <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">{u?._id}</a>
+                <a className="font-semibold hover:underline text-black cursor-pointer hover:text-black">
+                  {u?.display_name}
+                </a>
               </div>
-              {userInfo?._id == u?._id ? null : userInfo?.friends?.includes(u?._id) ? (
-                <Button type="primary" icon={<BsMessenger />} size="large" className="flex items-center justify-center">
+              {userInfo?._id == u?._id ? null : userInfo?.friends?.find((f) => u?._id == f?._id) ? (
+                <Button
+                  type="primary"
+                  icon={<BsMessenger />}
+                  size="large"
+                  className="flex items-center justify-center"
+                  onClick={() => onMessage({ "participants[all]": [userInfo?._id, u?._id], "type:eq": "personal" })}
+                >
                   Nhắn tin
                 </Button>
               ) : (

@@ -10,6 +10,7 @@ import Toast from "../../components/noti";
 import { useRootState } from "../../store";
 
 const Info = ({ userInfo }) => {
+  const currentUser = useRootState((state) => state.userInfo);
   const [isEditInfo, setIsEditInfo] = useState(false);
   const [isEditContact, setIsEditContact] = useState(false);
   const [isEditJob, setIsEditJob] = useState(false);
@@ -45,41 +46,45 @@ const Info = ({ userInfo }) => {
             </div>
             <p className="font-bold text-lg">Thông tin cá nhân</p>
           </div>
-          {!isEditInfo ? (
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => {
-                setIsEditInfo(true);
-              }}
-            >
-              <BsPencil className="w-5 h-5 text-blue-500" />
-              <p className="text-blue-500">Chỉnh sửa</p>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                className="btn-gray !px-7"
-                onClick={() => {
-                  setIsEditInfo(false);
-                  setInfoEdit({
-                    ...infoEdit,
-                    display_name: initInfoEdit?.display_name,
-                    birth: initInfoEdit?.birth,
-                    address: initInfoEdit?.address,
-                  });
-                }}
-              >
-                Hủy
-              </button>
-              <button
-                className="btn-green !px-7"
-                onClick={() => {
-                  setIsEditInfo(false);
-                  updateUserInfo();
-                }}
-              >
-                Lưu
-              </button>
+          {userInfo?._id == currentUser?._id && (
+            <div>
+              {!isEditInfo ? (
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    setIsEditInfo(true);
+                  }}
+                >
+                  <BsPencil className="w-5 h-5 text-blue-500" />
+                  <p className="text-blue-500">Chỉnh sửa</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    className="btn-gray !px-7"
+                    onClick={() => {
+                      setIsEditInfo(false);
+                      setInfoEdit({
+                        ...infoEdit,
+                        display_name: initInfoEdit?.display_name,
+                        birth: initInfoEdit?.birth,
+                        address: initInfoEdit?.address,
+                      });
+                    }}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="btn-green !px-7"
+                    onClick={() => {
+                      setIsEditInfo(false);
+                      updateUserInfo();
+                    }}
+                  >
+                    Lưu
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -149,41 +154,45 @@ const Info = ({ userInfo }) => {
             </div>
             <p className="font-bold text-lg">Thông tin liên hệ</p>
           </div>
-          {!isEditContact ? (
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => {
-                setIsEditContact(true);
-              }}
-            >
-              <BsPencil className="w-5 h-5 text-blue-500" />
-              <p className="text-blue-500">Chỉnh sửa</p>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                className="btn-gray !px-7"
-                onClick={() => {
-                  setIsEditContact(false);
-                  setInfoEdit({
-                    ...infoEdit,
-                    display_name: initInfoEdit?.display_name,
-                    birth: initInfoEdit?.birth,
-                    address: initInfoEdit?.address,
-                  });
-                }}
-              >
-                Hủy
-              </button>
-              <button
-                className="btn-green !px-7"
-                onClick={() => {
-                  setIsEditContact(false);
-                  updateUserInfo();
-                }}
-              >
-                Lưu
-              </button>
+          {userInfo?._id == currentUser._id && (
+            <div>
+              {!isEditContact ? (
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    setIsEditContact(true);
+                  }}
+                >
+                  <BsPencil className="w-5 h-5 text-blue-500" />
+                  <p className="text-blue-500">Chỉnh sửa</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    className="btn-gray !px-7"
+                    onClick={() => {
+                      setIsEditContact(false);
+                      setInfoEdit({
+                        ...infoEdit,
+                        display_name: initInfoEdit?.display_name,
+                        birth: initInfoEdit?.birth,
+                        address: initInfoEdit?.address,
+                      });
+                    }}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="btn-green !px-7"
+                    onClick={() => {
+                      setIsEditContact(false);
+                      updateUserInfo();
+                    }}
+                  >
+                    Lưu
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -227,35 +236,39 @@ const Info = ({ userInfo }) => {
             </div>
             <p className="font-bold text-lg">Công việc</p>
           </div>
-          {!isEditJob ? (
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => {
-                setIsEditJob(true);
-              }}
-            >
-              <BsPencil className="w-5 h-5 text-blue-500" />
-              <p className="text-blue-500">Chỉnh sửa</p>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                className="btn-gray !px-7"
-                onClick={() => {
-                  setIsEditJob(false);
-                  //
-                }}
-              >
-                Hủy
-              </button>
-              <button
-                className="btn-green !px-7"
-                onClick={() => {
-                  setIsEditJob(false);
-                }}
-              >
-                Lưu
-              </button>
+          {userInfo?._id == currentUser._id && (
+            <div>
+              {!isEditJob ? (
+                <div
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    setIsEditJob(true);
+                  }}
+                >
+                  <BsPencil className="w-5 h-5 text-blue-500" />
+                  <p className="text-blue-500">Chỉnh sửa</p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    className="btn-gray !px-7"
+                    onClick={() => {
+                      setIsEditJob(false);
+                      //
+                    }}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="btn-green !px-7"
+                    onClick={() => {
+                      setIsEditJob(false);
+                    }}
+                  >
+                    Lưu
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Post from "../../components/post";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { BsFillBriefcaseFill } from "react-icons/bs";
@@ -7,8 +7,31 @@ import { AiOutlineMail, AiFillPhone } from "react-icons/ai";
 import { FaBirthdayCake, FaMapMarkerAlt } from "react-icons/fa";
 import { InputPost } from "../home";
 import { convertTimeStampToString } from "../../helper/timeHelper";
+import { useRootState } from "../../store";
+import PostServices from "../../services/postServices";
+import { useNavigate } from "react-router-dom";
 
-const TimeLine = ({ userInfo }) => {
+const TimeLine = ({ userInfo, setTabActive }) => {
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const currentUser = useRootState((state) => state.userInfo);
+  const getPost = async () => {
+    setLoading(true);
+    const params = {
+      "related_user[in]": currentUser?._id,
+      limit: 5,
+      page: 1,
+      sort: "-created_at",
+    };
+    setLoading(false);
+    const res = await PostServices.getPosts(params);
+    setData(res?.data);
+    setLoading(false);
+  };
+  useEffect(() => {
+    getPost();
+  }, [userInfo?._id]);
   return (
     <div className="w-2/3 mx-auto mt-3">
       <div className="flex gap-3">
@@ -83,26 +106,43 @@ const TimeLine = ({ userInfo }) => {
           </div>
           <div className="w-full bg-white rounded-lg p-3 mt-3 pb-8">
             <div className="flex justify-between">
-              <p className="font-bold text-lg">Bạn bè (12)</p>
-              <a className="text-blue-500 hover:text-orange-500 cursor-pointer">Xem tất cả bạn bè</a>
+              <p className="font-bold text-lg">Bạn bè ({userInfo?.friends?.length})</p>
+              <a
+                className="text-blue-500 hover:text-orange-500 cursor-pointer"
+                onClick={() => {
+                  setTabActive(3);
+                }}
+              >
+                Xem tất cả bạn bè
+              </a>
             </div>
-            <div className="flex gap-3 mt-3 flex-wrap">
-              <div className="w-[110px] h-[110px] cursor-pointer relative">
-                <img
-                  src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                  className="w-[110px] h-[110px] cursor-pointer"
-                />
-                <div className="absolute bottom-0 bg-[#0000009c] left-0 right-0 text-center text-white">
-                  Lê Văn Bình
-                </div>
-              </div>
+
+            <div className="flex gap-3 mt-3 flex-wrap min-h-[150px]">
+              {userInfo?.friends
+                ?.filter((f, i) => i < 5)
+                ?.map((friend) => (
+                  <div
+                    className="w-[110px] h-[110px] cursor-pointer relative"
+                    key={friend?._id}
+                    onClick={() => {
+                      navigate(`/profile/${friend?._id}`);
+                    }}
+                  >
+                    <img src={friend?.image} className="w-[110px] h-[110px] cursor-pointer" />
+                    <div className="absolute bottom-0 bg-[#0000009c] left-0 right-0 text-center text-white">
+                      {friend?.display_name}
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
         <div className="w-2/3">
-          <InputPost />
-          <div className="mt-3">
-            <Post />
+          <InputPost getPost={getPost} upLoadToFriend={userInfo?._id != currentUser?._id} />
+          <div className="mt-3 flex flex-col gap-3">
+            {data?.map((item) => {
+              return <Post key={item._id} post={item} setPost={setData} posts={data} />;
+            })}
           </div>
         </div>
       </div>

@@ -8,9 +8,11 @@ import { useParams } from "react-router-dom";
 import UserServices from "../../services/user";
 import Toast from "../../components/noti";
 import { Empty, Spin } from "antd";
+import { useRootState } from "../../store";
 
 const Friend = () => {
   const { id } = useParams();
+  const currentUser = useRootState((state) => state.userInfo);
   const [friends, setFriends] = useState([]);
   const [friendRequests, setFriendRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,17 +65,19 @@ const Friend = () => {
             <p className="font-bold text-2xl">Bạn bè</p>
             <span className="text-sm text-neutral-500 mt-2">{friends?.length ?? 0} bạn bè</span>
           </div>
-          <p
-            className="font-semibold text-blue-500 hover:text-orange-500 cursor-pointer"
-            onClick={() => {
-              setIsFriendTab(!isFriendTab);
-            }}
-          >
-            {isFriendTab ? "Lời mời kết bạn" : "Danh sách bạn bè"}
-          </p>
+          {currentUser?._id == id && (
+            <p
+              className="font-semibold text-blue-500 hover:text-orange-500 cursor-pointer"
+              onClick={() => {
+                setIsFriendTab(!isFriendTab);
+              }}
+            >
+              {isFriendTab ? "Lời mời kết bạn" : "Danh sách bạn bè"}
+            </p>
+          )}
         </div>
         {isFriendTab ? (
-          <div className="flex items-start justify-start gap-3 flex-wrap mt-7">
+          <div className="flex items-start justify-start gap-3 flex-wrap mt-7 min-h-[500px]">
             {friends?.length > 0 ? (
               friends?.map((friend, index) => {
                 return (
@@ -104,11 +108,13 @@ const Friend = () => {
                 );
               })
             ) : (
-              <Empty />
+              <div className="w-full h-full flex items-center justify-center">
+                <Empty />
+              </div>
             )}
           </div>
         ) : (
-          <div className="flex items-start justify-start gap-3 flex-wrap mt-7">
+          <div className="flex items-start justify-start gap-3 flex-wrap mt-7 min-h-[500px]">
             {friendRequests?.length > 0 ? (
               friendRequests?.map((friendRequest, index) => {
                 return (
@@ -153,7 +159,9 @@ const Friend = () => {
                 );
               })
             ) : (
-              <Empty />
+              <div className="w-full h-full flex items-center justify-center">
+                <Empty />
+              </div>
             )}
           </div>
         )}
