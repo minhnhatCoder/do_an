@@ -60,7 +60,9 @@ exports.getPost = async (req, res) => {
 };
 exports.getPostById = async (req, res) => {
   try {
-    const data = await postsDB.findById(req.params.id).populate("created_user", ["display_name", "image"])
+    const data = await postsDB
+      .findById(req.params.id)
+      .populate("created_user", ["display_name", "image"])
       .populate("liked_user", ["display_name", "image"]);
     return res.status(200).json({ status: 200, data });
   } catch (error) {
@@ -95,26 +97,30 @@ exports.likePost = async (req, res) => {
     const post = await postsDB.findById(req.params.id);
     const existUserLiked = post.liked_user.find((item) => item == req.user_data._id);
     if (existUserLiked) {
-      const data = await postsDB.findByIdAndUpdate(
-        req.params.id,
-        {
-          $pull: { liked_user: req.user_data._id },
-        },
-        {
-          new: true,
-        }
-      );
+      const data = await postsDB
+        .findByIdAndUpdate(
+          req.params.id,
+          {
+            $pull: { liked_user: req.user_data._id },
+          },
+          {
+            new: true,
+          }
+        )
+        .populate("liked_user", ["display_name", "image"]);
       return res.status(200).json({ status: 200, message: "Bỏ thích bài viết thành công", data });
     } else {
-      const data = await postsDB.findByIdAndUpdate(
-        req.params.id,
-        {
-          $push: { liked_user: req.user_data._id },
-        },
-        {
-          new: true,
-        }
-      ).populate('liked_user', ["display_name", "image"]);
+      const data = await postsDB
+        .findByIdAndUpdate(
+          req.params.id,
+          {
+            $push: { liked_user: req.user_data._id },
+          },
+          {
+            new: true,
+          }
+        )
+        .populate("liked_user", ["display_name", "image"]);
       return res.status(200).json({ status: 200, message: "Thích bài viết thành công", data });
     }
   } catch (error) {
@@ -134,14 +140,16 @@ exports.answerCommentPost = async (req, res) => {
     const savedComment = await comment.save();
     const populatedComment = await commentsDB
       .findById(savedComment._id)
-      .populate('created_by', ["display_name", "image"])
+      .populate("created_by", ["display_name", "image"])
       .exec();
     await commentsDB.findByIdAndUpdate(req.params.id, {
       $push: {
         answers: savedComment?._id,
       },
     });
-    return res.status(200).json({ status: 200, message: "Trả lời comment bài viết thành công", data: populatedComment });
+    return res
+      .status(200)
+      .json({ status: 200, message: "Trả lời comment bài viết thành công", data: populatedComment });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });
   }
@@ -158,7 +166,7 @@ exports.commentPost = async (req, res) => {
     const savedComment = await comment.save();
     const populatedComment = await commentsDB
       .findById(savedComment._id)
-      .populate('created_by', ["display_name", "image"])
+      .populate("created_by", ["display_name", "image"])
       .exec();
     await postsDB.findByIdAndUpdate(req.params.id, {
       $push: {
