@@ -12,6 +12,7 @@ import { BsFillPostcardHeartFill } from "react-icons/bs";
 import { AiFillCamera, AiOutlineUpload } from "react-icons/ai";
 import Toast from "../../components/noti";
 import { Text, TextArea } from "../../components/input";
+import PostServices from "../../services/postServices";
 
 const Profile = () => {
   const [tabActive, setTabActive] = useState(1);
@@ -40,6 +41,7 @@ const Profile = () => {
   const [isOpenUploadAvatar, setIsOpenUploadAvatar] = useState(false);
   const [imageUrl, setImageUrl] = useState();
   const [user, setUser] = useState({});
+  const [images, setImages] = useState([]);
   const getUserInfo = async () => {
     const data = await UserServices.getUser(id);
     setUser(data.data);
@@ -110,9 +112,27 @@ const Profile = () => {
     setTabActive(key);
   };
 
+  const getPost = async () => {
+    setLoading(true);
+    const params = {
+      "related_user[in]": [user?._id],
+      limit: 9999,
+      page: 1,
+      sort: "-created_at",
+    };
+    setLoading(false);
+    const res = await PostServices.getPosts(params);
+    const imgList = res?.data?.map((p) => p?.attachments.map((a) => ({ ...a, post_id: p?._id }))).flat(Infinity);
+    setImages(imgList);
+    setLoading(false);
+  };
+
   useEffect(() => {
     getUserInfo();
   }, [id]);
+  useEffect(() => {
+    getPost();
+  }, [user?._id]);
 
   return (
     <div className="main-content !pt-0">
@@ -147,10 +167,10 @@ const Profile = () => {
           <Tabs defaultActiveKey={1} items={items} onChange={onChangeTab} />
         </div>
       </div>
-      {tabActive == 1 && <TimeLine userInfo={user} setTabActive={setTabActive} />}
+      {tabActive == 1 && <TimeLine userInfo={user} setTabActive={setTabActive} images={images} />}
       {tabActive == 2 && <Info userInfo={user} />}
       {tabActive == 3 && <Friend />}
-      {tabActive == 4 && <Image />}
+      {tabActive == 4 && <Image images={images} />}
 
       <Modal
         title={

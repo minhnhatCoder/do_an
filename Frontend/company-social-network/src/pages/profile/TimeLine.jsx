@@ -11,7 +11,7 @@ import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
 import { useNavigate } from "react-router-dom";
 
-const TimeLine = ({ userInfo, setTabActive }) => {
+const TimeLine = ({ userInfo, setTabActive, images }) => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -77,31 +77,12 @@ const TimeLine = ({ userInfo, setTabActive }) => {
               <p className="font-bold text-lg">Ảnh</p>
               <a className="text-blue-500 hover:text-orange-500 cursor-pointer">Xem tất cả</a>
             </div>
-            <div className="flex items-center justify-center gap-3 mt-3 flex-wrap">
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
-              <img
-                src="https://hinhnen4k.com/wp-content/uploads/2023/02/anh-gai-xinh-vn-2.jpg"
-                className="w-[110px] h-[110px] cursor-pointer"
-              />
+            <div className="flex items-center gap-3 mt-3 flex-wrap">
+              {images
+                ?.filter((_, idx) => idx < 4)
+                ?.map((img) => (
+                  <img key={img?._id} src={img?.url} className="w-[110px] h-[110px] cursor-pointer object-cover" />
+                ))}
             </div>
           </div>
           <div className="w-full bg-white rounded-lg p-3 mt-3 pb-8">

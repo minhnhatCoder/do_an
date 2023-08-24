@@ -10,4 +10,5 @@ route.get("/users/:id", checkAuth, controller.getUser);
 route.put("/users/:id", checkAuth, controller.updateUser);
 route.delete("/users/:id", checkRole, controller.deleteUser);
 
+
 module.exports = route;

@@ -40,22 +40,23 @@ const DetailPost = ({ show, setShow, id }) => {
     if (post?.liked_user?.length < 2) {
       return post?.liked_user?.[0]?.display_name;
     } else {
-      const filterMax2Peple = post?.liked_user?.post?.liked_user
-        ?.filter((u) => u?._id != userInfo?._id)
-        ?.filter((_, index) => {
-          return index < 2;
+      let newUser = post?.liked_user
+        ?.sort((a, b) => {
+          if (a._id === userInfo?._id && b._id !== userInfo?._id) {
+            return -1; // a nằm trước b
+          } else if (a._id !== userInfo?._id && b._id === userInfo?._id) {
+            return 1; // b nằm trước a
+          }
+          return 0; // giữ nguyên thứ tự
         })
-        ?.map((u) => u.display_name);
-      if (post?.liked_user?.length?.includes(userInfo?._id)) {
-        return (
-          `Bạn,` + filterMax2Peple.toString() + post?.liked_user?.length > 3 &&
-          `và ${post?.liked_user?.length - 3} người khác`
-        );
-      } else {
-        return (
-          filterMax2Peple?.toString() + post?.liked_user?.length > 2 && `và ${post?.liked_user?.length - 3} người khác`
-        );
-      }
+        ?.map((u) => {
+          if (u?._id == userInfo?._id) {
+            return "Bạn";
+          } else return u?.display_name;
+        });
+      const newContent = newUser.splice(0, 2)?.toString();
+      const extraContent = newUser?.length > 2 ? `và ${newUser.length - 2} người khác đã thích bài viết` : "";
+      return newContent + extraContent;
     }
   };
 
