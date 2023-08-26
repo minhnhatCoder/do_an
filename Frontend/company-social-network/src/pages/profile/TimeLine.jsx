@@ -19,7 +19,7 @@ const TimeLine = ({ userInfo, setTabActive, images }) => {
   const getPost = async () => {
     setLoading(true);
     const params = {
-      "related_user[in]": [currentUser?._id, userInfo?._id],
+      "related_user[all]": [currentUser?._id, userInfo?._id],
       limit: 5,
       page: 1,
       sort: "-created_at",

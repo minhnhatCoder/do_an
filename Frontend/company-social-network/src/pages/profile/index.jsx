@@ -13,11 +13,13 @@ import { AiFillCamera, AiOutlineUpload } from "react-icons/ai";
 import Toast from "../../components/noti";
 import { Text, TextArea } from "../../components/input";
 import PostServices from "../../services/postServices";
+import _ from "lodash";
 
 const Profile = () => {
   const [tabActive, setTabActive] = useState(1);
   const { id } = useParams();
   const userInfo = useRootState((state) => state.userInfo);
+  const userList = useRootState((state) => state.users);
   const setUserInfo = useRootState((state) => state.setUserInfo);
   const [loading, setLoading] = useState(false);
   const items = [
@@ -39,9 +41,12 @@ const Profile = () => {
     },
   ];
   const [isOpenUploadAvatar, setIsOpenUploadAvatar] = useState(false);
-  const [imageUrl, setImageUrl] = useState();
+  const [image, setImage] = useState({});
   const [user, setUser] = useState({});
   const [images, setImages] = useState([]);
+  const [content, setContent] = useState("");
+  const [imageType, setImageType] = useState(1);
+
   const getUserInfo = async () => {
     const data = await UserServices.getUser(id);
     setUser(data.data);
@@ -56,18 +61,38 @@ const Profile = () => {
       formData.get("files");
       const res = await UploadServices.uploadImage(formData);
       setLoading(false);
-      setImageUrl(res?.files?.[0].url);
+      setImage(res?.files?.[0]);
     } catch (error) {
       setLoading(false);
     }
   };
 
   const handleUpdateAvatar = async () => {
+    if (_.isEmpty(image)) {
+      return Toast("error", "Vui lòng chọn ảnh");
+    }
     setLoading(true);
+    let res;
     try {
-      const res = await UserServices.updateUser(id, { image: imageUrl });
+      if (imageType == 1) {
+        res = await UserServices.updateUser(user?._id, { image: image?.url });
+      } else {
+        res = await UserServices.updateUser(user?._id, { cover_image: image?.url });
+      }
+      await PostServices.uploadPost({
+        title: `vừa cập nhật ảnh ${imageType == 1 ? "đại diện" : "bìa"} của ${
+          user?.gender == "Nam" ? "anh ấy" : "cô ấy"
+        }`,
+        content,
+        created_user: userInfo?._id,
+        attachments: image,
+        show_type: 0,
+        related_user: userList?.map((u) => u?._id),
+      });
       setUserInfo(res.data);
-      setImageUrl(null);
+      getUserInfo();
+      setImage({});
+      getPost();
       setLoading(false);
       setIsOpenUploadAvatar(false);
       Toast("success", res?.message);
@@ -138,10 +163,7 @@ const Profile = () => {
     <div className="main-content !pt-0">
       <div className="w-2/3 mx-auto bg-white rounded-b-lg h-max">
         <div className="w-full h-[350px] relative ">
-          <img
-            src="https://kynguyenlamdep.com/wp-content/uploads/2022/06/anh-gai-xinh-cuc-dep.jpg"
-            className="w-full h-[350px] object-cover"
-          />
+          <img src={user?.cover_image} className="w-full h-[350px] object-cover" />
           <div className="w-56 h-56 rounded-full  absolute -bottom-7 left-1/2 -translate-x-1/2 ">
             <div className="relative">
               <img
@@ -153,6 +175,7 @@ const Profile = () => {
                   className="absolute bottom-5 right-5 p-2 rounded-full bg-gray-200 cursor-pointer"
                   onClick={() => {
                     setIsOpenUploadAvatar(true);
+                    setImageType(1);
                   }}
                 >
                   <AiFillCamera className="w-6 h-6" />
@@ -160,6 +183,18 @@ const Profile = () => {
               ) : null}
             </div>
           </div>
+          {userInfo?._id == id || userInfo?.employee_id == id ? (
+            <div
+              className="absolute bottom-3 right-2 bg-[#0000006e] hover:bg-[#000000a4] rounded-md flex items-center justify-center gap-2 w-max p-2 cursor-pointer"
+              onClick={() => {
+                setIsOpenUploadAvatar(true);
+                setImageType(2);
+              }}
+            >
+              <AiFillCamera className="w-6 h-6 text-white" />
+              <p className="text-white font-bold">Cập nhật ảnh bìa</p>
+            </div>
+          ) : null}
         </div>
         <p className="mt-10 font-bold text-center text-3xl">{user?.display_name}</p>
         <p className="mt-3 text-center font-semibold">Đại ca giang hồ</p>
@@ -175,11 +210,16 @@ const Profile = () => {
       <Modal
         title={
           <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-            <p className="font-bold text-lg text-center">Cập nhật ảnh đại diện</p>
+            <p className="font-bold text-lg text-center">
+              {imageType == 1 ? "Cập nhật ảnh đại diện" : "Cập nhật ảnh bìa"}
+            </p>
           </div>
         }
         open={isOpenUploadAvatar}
         onOk={() => {
+          setIsOpenUploadAvatar(false);
+        }}
+        onCancel={() => {
           setIsOpenUploadAvatar(false);
         }}
         footer={[
@@ -188,7 +228,7 @@ const Profile = () => {
             className="btn-gray mr-2 rounded-lg"
             onClick={() => {
               setIsOpenUploadAvatar(false);
-              setImageUrl(null);
+              setImage({});
             }}
           >
             Hủy bỏ
@@ -208,7 +248,14 @@ const Profile = () => {
       >
         <Spin tip="Loading..." spinning={loading}>
           <div className="flex items-center justify-center w-full h-96 flex-col">
-            {imageUrl && <TextArea title={"Mô tả"} classname="mb-4 w-96" />}
+            {image?.url && (
+              <TextArea
+                title={"Mô tả"}
+                className="mb-4 w-96"
+                value={content}
+                onChange={(e) => setContent(e?.target?.value)}
+              />
+            )}
             <Upload
               name="avatar"
               // listType="picture-circle"
@@ -218,8 +265,8 @@ const Profile = () => {
               onChange={handleChange}
               maxCount={1}
             >
-              {imageUrl ? (
-                <img src={imageUrl} alt="avatar" className="w-56 h-56 rounded-full object-cover" />
+              {image?.url ? (
+                <img src={image?.url} alt="avatar" className="w-56 h-56 rounded-full object-cover" />
               ) : (
                 <button className="btn-blue flex items-center justify-center gap-2">
                   <AiOutlineUpload className="w-5 h-5" /> Chọn ảnh

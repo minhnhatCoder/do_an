@@ -11,9 +11,9 @@ import { Input } from "antd";
 import React from "react";
 
 const { TextArea } = Input;
-const Text = ({ title, value, onChange, classname, required, disabled, rows = 3 }) => {
+const Text = ({ title, value, onChange, className, required, disabled, rows = 3 }) => {
   return (
-    <div className={classname}>
+    <div className={className}>
       {title && (
         <p className="mb-2">
           {title}

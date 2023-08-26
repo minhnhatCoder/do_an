@@ -16,7 +16,7 @@ const Home = () => {
   const getPost = async () => {
     setLoading(true);
     const params = {
-      "related_user[in]": userInfo?._id,
+      "related_user[all]": userInfo?._id,
       limit: 5,
       page: 1,
       sort: "-created_at",
