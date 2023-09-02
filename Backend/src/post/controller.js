@@ -1,8 +1,10 @@
 const postsDB = require("./model");
 const { commentsDB } = require("../comment/model");
+const usersDB = require("../auth/model");
 const Features = require("../../libs/feature");
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
+const NotificationDB = require("../noti/model");
 
 exports.create = async (req, res) => {
   try {
@@ -121,6 +123,13 @@ exports.likePost = async (req, res) => {
           }
         )
         .populate("liked_user", ["display_name", "image"]);
+      if (req.user_data._id != post?.created_user) {
+        const user = await usersDB.findById(req.user_data._id);
+        await NotificationDB.findByIdAndUpdate(post?.like_noti, {
+          content: `${user?.display_name} đã thích bài viết của bạn`,
+          is_read: false,
+        });
+      }
       return res.status(200).json({ status: 200, message: "Thích bài viết thành công", data });
     }
   } catch (error) {
@@ -147,6 +156,24 @@ exports.answerCommentPost = async (req, res) => {
         answers: savedComment?._id,
       },
     });
+    const post = await postsDB.findById(req.params.id);
+    const user = await usersDB.findById(req.user_data._id);
+    // Danh sách các người nhận (ví dụ)
+    const recipients = post?.related_user.filter((u) => u != req.user_data._id); // Thay thế bằng danh sách người nhận thực tế
+
+    // Tạo thông báo cho mỗi người nhận
+    for (const recipientId of recipients) {
+      const notification = new NotificationDB({
+        recipient: recipientId,
+        content: `${user?.display_name} đã bình luận bài viết`,
+        type: "post",
+        related_id: req.params.id,
+        created_at: dayjs(new Date()).unix(),
+      });
+
+      await notification.save();
+    }
+
     return res
       .status(200)
       .json({ status: 200, message: "Trả lời comment bài viết thành công", data: populatedComment });
@@ -173,6 +200,23 @@ exports.commentPost = async (req, res) => {
         comments: savedComment?._id,
       },
     });
+    const post = await postsDB.findById(req.params.id);
+    const user = await usersDB.findById(req.user_data._id);
+    // Danh sách các người nhận (ví dụ)
+    const recipients = post?.related_user.filter((u) => u != req.user_data._id); // Thay thế bằng danh sách người nhận thực tế
+
+    // Tạo thông báo cho mỗi người nhận
+    for (const recipientId of recipients) {
+      const notification = new NotificationDB({
+        recipient: recipientId,
+        content: `${user?.display_name} đã bình luận bài viết`,
+        type: "post",
+        related_id: req.params.id,
+        created_at: dayjs(new Date()).unix(),
+      });
+
+      await notification.save();
+    }
     return res.status(200).json({ status: 200, message: "Comment bài viết thành công", data: populatedComment });
   } catch (error) {
     return res.status(400).json({ status: "400", message: error.message });

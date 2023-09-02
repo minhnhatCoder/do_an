@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { AiFillHome, AiOutlineSetting } from "react-icons/ai";
 import { IoIosPeople, IoMdNotificationsOutline } from "react-icons/io";
-import { BsChatDots } from "react-icons/bs";
+import { BsChatDots, BsCheckAll } from "react-icons/bs";
 import { BiTask, BiSearchAlt } from "react-icons/bi";
 import { FiLogOut } from "react-icons/fi";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaRegUserCircle, FaUsers, FaUsersSlash } from "react-icons/fa";
 import Toast from "../../components/noti";
-import { Avatar, Badge, Dropdown, AutoComplete, Input } from "antd";
+import { Avatar, Badge, Dropdown, AutoComplete, Input, Popover, Empty } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRootState } from "../../store";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
+import UserServices from "../../services/user";
+import NotificationServices from "../../services/notiServices";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -59,29 +61,92 @@ const Layout = ({ children }) => {
   ];
   const [options, setOptions] = useState([]);
   const [search, setSearch] = useState("");
-  const onSearch = async () => {
+  const onSearch = async (searchText) => {
     try {
-      // const {
-      //   data: { data },
-      // } = await Products.getProducts(params);
-      await setOptions([]);
+      if (searchText.length < 3) return;
+      const params = {
+        limit: 9999,
+        page: 1,
+        search: searchText,
+        "_id[ne]": userInfo?._id,
+      };
+      const res = await UserServices.getUsers(params);
+      const friends = res?.data?.filter((u) => userInfo?.friends.find((i) => i?._id == u?._id));
+      const stranger = res?.data?.filter((u) => (userInfo?.friends.find((i) => i?._id == u?._id) ? false : true));
+      setOptions(
+        !searchText
+          ? []
+          : [
+              {
+                label: renderTitle("Bạn bè", friends?.length),
+                options: friends.map((item) =>
+                  renderItem({
+                    id: item._id,
+                    display_name: item.display_name,
+                    image: item.image,
+                    position: {
+                      dept: item?.department?.name,
+                      role: item?.position?.name,
+                    },
+                  })
+                ),
+              },
+              {
+                label: renderTitle("Người lạ", stranger?.length),
+                options: stranger.map((item) =>
+                  renderItem({
+                    id: item._id,
+                    display_name: item.display_name,
+                    image: item.image,
+                    position: {
+                      dept: item?.department?.name,
+                      role: item?.position?.name,
+                    },
+                  })
+                ),
+              },
+            ]
+      );
+
       return;
     } catch (error) {
       Toast("error", error.message);
     }
   };
 
-  const renderTitle = (item) => ({
+  const onSelect = () => {
+    setSearch("");
+  };
+
+  const renderTitle = (title, count) => (
+    <div className="flex items-center gap-2">
+      {title == "Bạn bè" ? (
+        <FaUsers className="w-5 h-5 text-neutral-500" />
+      ) : (
+        <FaUsersSlash className="w-5 h-5 text-neutral-500" />
+      )}
+      <p>
+        {title} <span className="text-blue-500">({count})</span>
+      </p>
+    </div>
+  );
+
+  const renderItem = (item) => ({
     value: item.name,
     label: (
-      <Link to={`/user/${item.id}`}>
-        <div className="flex items-center justify-center gap-2 cursor-pointer">
+      <Link to={`/profile/${item.id}`}>
+        <div className="flex items-center gap-2 cursor-pointer">
           <Avatar
             className="border border-black"
             size={40}
-            src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
+            src={item?.image || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"}
           />
-          <p className="font-bold">Trần Minh Nhật</p>
+          <div>
+            <p className="font-bold">{item?.display_name}</p>
+            <p className="text-xs text-neutral-400">
+              {item?.position?.role}-{item?.position?.dept}
+            </p>
+          </div>
         </div>
       </Link>
     ),
@@ -105,13 +170,21 @@ const Layout = ({ children }) => {
               options={options}
               className="w-72"
               onSearch={onSearch}
-              dropdownMatchSelectWidth={500}
+              dropdownMatchSelectWidth={450}
               allowClear
               defaultValue=""
               onClear={() => setOptions([])}
+              onSelect={onSelect}
               // autoComplete
             >
-              <Input size="large" placeholder="Tìm kiếm..." className="rounded-full" prefix={<BiSearchAlt />} />
+              <Input
+                size="large"
+                placeholder="Tìm kiếm..."
+                className="rounded-full"
+                prefix={<BiSearchAlt className="w-6 h-6" />}
+                value={search}
+                onChange={(e) => setSearch(e)}
+              />
             </AutoComplete>
           </div>
 
@@ -133,17 +206,7 @@ const Layout = ({ children }) => {
             })}
           </div>
           <div className="flex items-center justify-center gap-4">
-            <Dropdown
-              trigger={"click"}
-              placement="bottom"
-              menu={{
-                items,
-              }}
-            >
-              <Badge count={99} overflowCount={99} offset={[0, 0]}>
-                <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
-              </Badge>
-            </Dropdown>
+            <NotificationCO />
 
             <Dropdown
               menu={{
@@ -163,3 +226,124 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
+
+const NotificationCO = () => {
+  const [notis, setNotis] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const userInfo = useRootState((state) => state.userInfo);
+  const [open, setOpen] = useState(false);
+  const getNotis = async () => {
+    try {
+      setLoading(true);
+      const res = await NotificationServices.getNotis({
+        page,
+        "recipient[eq]": userInfo?._id,
+        "is_read[eq]": "false",
+        sort: "-created_at",
+      });
+      if (page == 1) {
+        setNotis(res?.data);
+      } else {
+        setNotis([...notis, ...res.data]);
+      }
+
+      setHasMore([...notis, res?.data]?.length < res?.count);
+      setCount(res?.count);
+      setLoading(false);
+    } catch (error) {
+      console.log(error?.message);
+      setLoading(false);
+    }
+  };
+  const onReadNoti = async (id) => {
+    try {
+      setLoading(true);
+      const res = await NotificationServices.readNoti(id);
+      setNotis(
+        notis.map((n) => {
+          if (n?._id == id) {
+            return { ...n, is_read: true };
+          } else return n;
+        })
+      );
+      setCount(count - 1);
+      setLoading(false);
+    } catch (error) {
+      console.log(error?.message);
+      setLoading(false);
+    }
+  };
+  const onReadAllNoti = async (id) => {
+    try {
+      setLoading(true);
+      const res = await NotificationServices.readAllNoti();
+      setNotis([]);
+      setCount(0);
+      setLoading(false);
+      Toast("success", res?.message);
+    } catch (error) {
+      console.log(error?.message);
+      setLoading(false);
+    }
+  };
+
+  const handleShowNotis = () => {
+    return (
+      <div className="w-96 min-h-[350px] max-h-[550px] overflow-auto flex flex-col relative">
+        {notis?.length > 0 ? (
+          notis?.map((noti) => {
+            return (
+              <div
+                key={noti?._id}
+                className="flex items-center justify-between p-3 hover:bg-neutral-100 cursor-pointer"
+              >
+                <p className={`${noti?.is_read ? "" : "font-bold"}`}>{noti?.content}</p>
+                {noti?.is_read ? (
+                  <BsCheckAll className="w-6 h-6 text-blue-500 cursor-pointer" />
+                ) : (
+                  <BsCheckAll
+                    className="w-6 h-6 text-neutral-400 cursor-pointer hover:text-blue-500"
+                    onClick={() => onReadNoti(noti?._id)}
+                  />
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <Empty />
+        )}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    getNotis();
+  }, [page]);
+  useEffect(() => {
+    !open && setNotis(notis?.filter((noti) => !noti?.is_read));
+  }, [open]);
+
+  return (
+    <Popover
+      content={handleShowNotis()}
+      title={
+        <div className="flex items-center justify-between">
+          <p className="font-bold text-base">Thông báo</p>
+          <p className="text-blue-500 hover:text-orange-500 cursor-pointer text-xs" onClick={onReadAllNoti}>
+            Đọc tất cả thông báo
+          </p>
+        </div>
+      }
+      trigger="click"
+      placement="bottom"
+      open={open}
+    >
+      <Badge count={count} overflowCount={99} offset={[0, 0]} onClick={() => setOpen(!open)}>
+        <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
+      </Badge>
+    </Popover>
+  );
+};

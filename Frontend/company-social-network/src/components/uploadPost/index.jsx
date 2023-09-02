@@ -82,7 +82,7 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
       onCancel={() => setShow(false)}
     >
       <Spin spinning={loading}>
-        <div className="flex flex-col gap-2 min-h-[350px] max-h-[700px] overflow-y-auto h-[500px] pr-2">
+        <div className="flex flex-col gap-2 min-h-[350px] max-h-[700px] overflow-y-auto pr-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar className="border border-black" size={40} src={userInfo?.image} />

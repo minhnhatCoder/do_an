@@ -6,14 +6,16 @@ import Friend from "./Friend";
 import Image from "./Image";
 import UserServices from "../../services/user";
 import UploadServices from "../../services/upload";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useRootState } from "../../store";
-import { BsFillPostcardHeartFill } from "react-icons/bs";
+import { BsFillPostcardHeartFill, BsMessenger, BsPersonPlusFill } from "react-icons/bs";
 import { AiFillCamera, AiOutlineUpload } from "react-icons/ai";
 import Toast from "../../components/noti";
 import { Text, TextArea } from "../../components/input";
 import PostServices from "../../services/postServices";
 import _ from "lodash";
+import ConversationsServices from "../../services/conversationServies";
+import { BiSolidUserX, BiUserCheck, BiUserX } from "react-icons/bi";
 
 const Profile = () => {
   const [tabActive, setTabActive] = useState(1);
@@ -21,6 +23,7 @@ const Profile = () => {
   const userInfo = useRootState((state) => state.userInfo);
   const userList = useRootState((state) => state.users);
   const setUserInfo = useRootState((state) => state.setUserInfo);
+  const resetUserInfo = useRootState((state) => state.resetUserInfo);
   const [loading, setLoading] = useState(false);
   const items = [
     {
@@ -46,6 +49,7 @@ const Profile = () => {
   const [images, setImages] = useState([]);
   const [content, setContent] = useState("");
   const [imageType, setImageType] = useState(1);
+  const navigate = useNavigate();
 
   const getUserInfo = async () => {
     const data = await UserServices.getUser(id);
@@ -114,24 +118,57 @@ const Profile = () => {
     return isJpgOrPng && isLt2M;
   };
 
-  // const itemsUser = [
-  //   {
-  //     key: "1",
-  //     label: <p className="font-semibold">Xem trang cá nhân</p>,
-  //     icon: (
-  //       <AiFillCamera
-  //         className="border border-black"
-  //         size={32}
-  //         src="https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-  //       />
-  //     ),
-  //   },
-  //   {
-  //     key: "2",
-  //     label: <a className="font-semibold">Xem bài viết</a>,
-  //     icon: <BsFillPostcardHeartFill className="w-5 h-5" />,
-  //   },
-  // ];
+  const sendRequestFriend = async (id) => {
+    try {
+      const res = await UserServices.sendFriendRequest({
+        receiver: id,
+      });
+      await resetUserInfo();
+      getUserInfo();
+      Toast("success", res?.message);
+    } catch (error) {
+      Toast("error", error?.message);
+    }
+  };
+  const unSendRequestFriend = async (id) => {
+    try {
+      const res = await UserServices.deleteFriendRequest(id);
+      await resetUserInfo();
+      getUserInfo();
+      Toast("success", res?.message);
+    } catch (error) {
+      Toast("error", error?.message);
+    }
+  };
+
+  const onMessage = async (params) => {
+    try {
+      const res = await ConversationsServices.getConversations(params);
+      if (res?.data?.length > 0) {
+        navigate("/chat/" + res?.data?.[0]?._id);
+      } else {
+        const newConversation = await ConversationsServices.postConversation({
+          participants: params["participants[all]"],
+        });
+        navigate("/chat/" + newConversation?.data?._id);
+      }
+    } catch (error) {
+      console.log(error?.message);
+    }
+  };
+
+  const onApproversRequest = async (_id, body) => {
+    setLoading(true);
+    try {
+      const res = await UserServices.approveFriendRequest(_id, body);
+      await resetUserInfo();
+      setLoading(false);
+      Toast("success", res.message);
+    } catch (error) {
+      setLoading(false);
+      Toast("error", error.message);
+    }
+  };
 
   const onChangeTab = (key) => {
     setTabActive(key);
@@ -198,6 +235,98 @@ const Profile = () => {
         </div>
         <p className="mt-10 font-bold text-center text-3xl">{user?.display_name}</p>
         <p className="mt-3 text-center font-semibold">Đại ca giang hồ</p>
+        <div className="flex items-center justify-center gap-3 mt-2">
+          {userInfo?._id == user?._id ? null : userInfo?.friends?.find((f) => user?._id == f?._id) ? (
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                icon={<BiUserCheck />}
+                size="large"
+                className="flex items-center justify-center"
+                onClick={() => {}}
+              >
+                Bạn bè
+              </Button>
+            </div>
+          ) : userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id) ? (
+            <div>
+              {userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id)
+                ?.receiver == userInfo?._id ? (
+                <div className="flex items-center justify-center gap-3">
+                  <Button
+                    type="primary"
+                    icon={<BsPersonPlusFill />}
+                    size="large"
+                    className="flex items-center justify-center"
+                    onClick={() => {
+                      onApproversRequest(
+                        userInfo?.friend_requests?.find(
+                          (r) => r?.sender?._id == user?._id && r?.receiver == userInfo?._id
+                        )?._id,
+                        { status: "approved" }
+                      );
+                    }}
+                  >
+                    Chấp nhận
+                  </Button>
+                  <Button
+                    danger
+                    icon={<BiUserX />}
+                    size="large"
+                    className="flex items-center justify-center !bg-red-500"
+                    onClick={() => {
+                      onApproversRequest(
+                        userInfo?.friend_requests?.find(
+                          (r) => r?.sender?._id == user?._id && r?.receiver == userInfo?._id
+                        )?._id,
+                        { status: "rejected" }
+                      );
+                    }}
+                  >
+                    Từ chối
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  danger
+                  icon={<BiSolidUserX className="w-6 h-6" />}
+                  size="large"
+                  className="flex items-center justify-center"
+                  onClick={() => {
+                    unSendRequestFriend(
+                      userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id)
+                        ?._id
+                    );
+                  }}
+                >
+                  Xóa lời mời
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button
+              type="primary"
+              icon={<BsPersonPlusFill />}
+              size="large"
+              className="flex items-center justify-center"
+              onClick={() => {
+                sendRequestFriend(user?._id);
+              }}
+            >
+              Thêm bạn bè
+            </Button>
+          )}
+          {userInfo?._id != user?._id && (
+            <Button
+              icon={<BsMessenger />}
+              size="large"
+              className="flex items-center justify-center"
+              onClick={() => onMessage({ "participants[all]": [userInfo?._id, user?._id], "type:eq": "personal" })}
+            >
+              Nhắn tin
+            </Button>
+          )}
+        </div>
+
         <div className="mt-4 pl-3">
           <Tabs defaultActiveKey={1} items={items} onChange={onChangeTab} />
         </div>

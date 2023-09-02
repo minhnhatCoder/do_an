@@ -33,7 +33,11 @@ const User = {
   approveFriendRequest: (id, body) => {
     const url = "/friend_requests/" + id;
     return axiosClient.put(url, body);
-  }
+  },
+  deleteFriendRequest: (id) => {
+    const url = "/friend_requests/" + id;
+    return axiosClient.delete(url);
+  },
 };
 
 export default User;
