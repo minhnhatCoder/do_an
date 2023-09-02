@@ -9,6 +9,8 @@ export const useRootState = create(
       users: [],
       depts: [],
       positions: [],
+      usersOnline: [],
+      setUsersOnline: (usersOnline) => set({ usersOnline: usersOnline }),
       setUserInfo: (user) => set({ userInfo: user }),
       setUsers: (users) => set({ users: users }),
       setDepts: (depts) => set({ depts: depts }),

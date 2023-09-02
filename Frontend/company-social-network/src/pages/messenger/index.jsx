@@ -18,7 +18,7 @@ import ConversationsServices from "../../services/conversationServies";
 import { useRootState } from "../../store";
 import RightContent from "./rightContent";
 import { formatTimestamp } from "../../helper/timeHelper";
-import { Empty, Spin } from "antd";
+import { Empty, Spin, Tooltip } from "antd";
 
 const Messenger = () => {
   const navigate = useNavigate();
@@ -29,6 +29,24 @@ const Messenger = () => {
   const [activeConversation, setActiveConversation] = useState(0);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
+  const usersOnline = useRootState((state) => state?.usersOnline);
+
+  const onMessage = async (params) => {
+    try {
+      const res = await ConversationsServices.getConversations(params);
+      if (res?.data?.length > 0) {
+        navigate("/chat/" + res?.data?.[0]?._id);
+      } else {
+        const newConversation = await ConversationsServices.postConversation({
+          participants: params["participants[all]"],
+        });
+        navigate("/chat/" + newConversation?.data?._id);
+      }
+    } catch (error) {
+      console.log(error?.message);
+    }
+  };
+
   const getConversations = async () => {
     try {
       const params = {
@@ -69,13 +87,21 @@ const Messenger = () => {
             <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem thêm</p>
           </div>
           <div className="flex items-center gap-3">
-            {[1, 2, 3, 4, 5]?.map((u, index) => (
+            {usersOnline?.map((u, index) => (
               <div className="relative" key={index}>
-                <img
-                  className="w-12 h-12 rounded-full border"
-                  src="https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2023/1/3/1134251/Cha-Eun-Woo2.jpeg"
-                  alt=""
-                />
+                <Tooltip title={u?.display_name}>
+                  <img
+                    className="w-12 h-12 rounded-full border"
+                    src={u?.image}
+                    alt=""
+                    onClick={() =>
+                      onMessage({
+                        "participants[all]": [userInfo?._id, u?._id],
+                        "type:eq": "personal",
+                      })
+                    }
+                  />
+                </Tooltip>
                 <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
               </div>
             ))}
