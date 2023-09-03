@@ -42,7 +42,6 @@ const io = new Server(server, {
 });
 
 let users = [];
-console.log(users);
 
 const addUser = (userId, socketId) => {
   !users.some((user) => user.userId === userId) && users.push({ userId, socketId });
@@ -67,12 +66,17 @@ io.on("connection", (socket) => {
   });
 
   //send and get message
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-    const user = getUser(receiverId);
-    io.to(user.socketId).emit("getMessage", {
-      senderId,
-      text,
-    });
+  socket.on("sendMessage", ({ roomId, data }) => {
+    io.to(roomId).emit("getMessage", data);
+  });
+
+  //join the room
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+  });
+  //leave the room
+  socket.on("leaveRoom", (roomId) => {
+    socket.leave(roomId);
   });
 
   //when disconnect

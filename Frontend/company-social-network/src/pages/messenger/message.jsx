@@ -19,8 +19,11 @@ import CommentServices from "../../services/commentServices";
 import { getFileName, isImageFile } from "../../helper/fileHelper";
 import { formatTimestamp } from "../../helper/timeHelper";
 import { Image, Spin } from "antd";
+import useSocketStore from "../../store/socketStore";
 
-const Message = ({ conversation, getConversation }) => {
+const Message = ({ conversation, getConversation, setConversations, conversations }) => {
+  const usersOnline = useRootState((state) => state?.usersOnline);
+  const socket = useSocketStore((state) => state?.socket);
   const { id } = useParams();
   const [content, setContent] = useState("");
   const [loadingSend, setLoadingSend] = useState(false);
@@ -32,6 +35,7 @@ const Message = ({ conversation, getConversation }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const scrollRef = useRef(null);
   const [hasMore, setHasMore] = useState(false);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
 
   const getMessages = async (isNewId) => {
     setLoading(true);
@@ -63,7 +67,7 @@ const Message = ({ conversation, getConversation }) => {
       setAttachments([]);
       setContent("");
       setLoadingSend(false);
-      setMessages([...messages, res?.data]);
+      socket?.emit("sendMessage", { roomId: id, data: res?.data });
     } catch (error) {
       setLoadingSend(false);
       Toast("error", error?.message);
@@ -78,13 +82,40 @@ const Message = ({ conversation, getConversation }) => {
   useEffect(() => {
     id && getMessages();
   }, [page]);
+  useEffect(() => {
+    if (id && socket) {
+      socket?.emit("joinRoom", id);
+    }
+  }, [id, socket]);
+
+  useEffect(() => {
+    socket &&
+      socket?.on("getMessage", (mess) => {
+        setArrivalMessage(mess);
+      });
+  }, [socket]);
+
+  useEffect(() => {
+    arrivalMessage && arrivalMessage?.target == id && setMessages([...messages, arrivalMessage]);
+  }, [arrivalMessage]);
+
   const readAllMessages = async () => {
-    setLoading(true);
     try {
       await ConversationsServices.readAllMessages(id);
-      setLoading(false);
+      if (!conversations?.find((c) => c?._id == id)?.last_message?.read_receipts?.includes(userInfo?._id)) {
+        setConversations &&
+          setConversations(
+            conversations?.map((c) => {
+              if (c._id == id) {
+                return {
+                  ...c,
+                  last_message: { ...c.last_message, read_receipts: [...c.last_message.read_receipts, userInfo?._id] },
+                };
+              } else return c;
+            })
+          );
+      }
     } catch (error) {
-      setLoading(false);
       Toast("error", error?.message);
     }
   };
@@ -99,6 +130,9 @@ const Message = ({ conversation, getConversation }) => {
   }, [messages?.length]);
 
   const handleScroll = () => {
+    if (!messages?.find((m) => m?.last_message?.read_receipts?.includes(userInfo?._id))) {
+      readAllMessages();
+    }
     if (scrollRef.current.scrollTop === 0 && hasMore) {
       setPage(page + 1);
     }
@@ -117,7 +151,13 @@ const Message = ({ conversation, getConversation }) => {
               }
               alt=""
             />
-            <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+            {usersOnline?.find(
+              (on) =>
+                on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
+                conversation?.participants?.every((p) => p?._id == userInfo?._id)
+            ) ? (
+              <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+            ) : null}
           </div>
           <div>
             <Link
@@ -130,7 +170,15 @@ const Message = ({ conversation, getConversation }) => {
               {conversation?.participants?.find((p) => p?._id != userInfo?._id)?.display_name ||
                 conversation?.participants?.[0]?.display_name}
             </Link>
-            <p className="text-green-500 w-56 text-sm">Đang hoạt động</p>
+            {usersOnline?.find(
+              (on) =>
+                on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
+                conversation?.participants?.every((p) => p?._id == userInfo?._id)
+            ) ? (
+              <p className="text-green-500 w-56 text-sm">Đang hoạt động</p>
+            ) : (
+              <p className="text-red-500 w-56 text-sm">Đang offline</p>
+            )}
           </div>
         </div>
         <div className="w-max flex items-center gap-4">

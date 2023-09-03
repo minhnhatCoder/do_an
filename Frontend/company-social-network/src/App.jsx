@@ -60,6 +60,12 @@ function App() {
       getPositions();
       setSocket(io("http://localhost:5000"));
     }
+    return () => {
+      // User leaves room
+      socket.disconnect();
+
+      socket.off();
+    };
   }, [token]);
 
   useEffect(() => {

@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 import ConversationsServices from "../../services/conversationServies";
 import { Empty } from "antd";
 
-const RightContent = () => {
+const RightContent = ({ setConversations, conversations }) => {
   const { id } = useParams();
   const [conversation, setConversation] = useState({});
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,12 @@ const RightContent = () => {
   }
   return (
     <div className="flex w-3/4">
-      <Message conversation={conversation} getConversation={getConversation} />
+      <Message
+        conversation={conversation}
+        getConversation={getConversation}
+        setConversations={setConversations}
+        conversations={conversations}
+      />
       <Info conversation={conversation} />
     </div>
   );

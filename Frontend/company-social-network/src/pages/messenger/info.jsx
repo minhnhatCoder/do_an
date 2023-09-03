@@ -18,6 +18,8 @@ import { getFileName, isImageFile } from "../../helper/fileHelper";
 
 const Info = ({ conversation }) => {
   const userInfo = useRootState((state) => state.userInfo);
+  const usersOnline = useRootState((state) => state?.usersOnline);
+
   return (
     <div className="w-1/3 h-[calc(100vh-75px)] overflow-y-auto">
       <div className="p-4 border-b flex items-center justify-center gap-2">
@@ -36,7 +38,13 @@ const Info = ({ conversation }) => {
                 }
                 alt="Large avatar"
               />
-              <span className="bottom-0 left-14 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
+              {usersOnline?.find(
+                (on) =>
+                  on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
+                  conversation?.participants?.every((p) => p?._id == userInfo?._id)
+              ) ? (
+                <span className="bottom-0 left-14 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
+              ) : null}
             </div>
           </div>
           <div className="mt-2">
@@ -50,7 +58,15 @@ const Info = ({ conversation }) => {
               {conversation?.participants?.find((p) => p?._id != userInfo?._id)?.display_name ||
                 conversation?.participants?.[0]?.display_name}
             </Link>
-            <p className="text-gray-400 text-xs text-center">Đang hoạt động</p>
+            <p className="text-gray-400 text-xs text-center">
+              {usersOnline?.find(
+                (on) =>
+                  on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
+                  conversation?.participants?.every((p) => p?._id == userInfo?._id)
+              )
+                ? "Đang hoạt động"
+                : "Đang offline"}
+            </p>
           </div>
         </>
       ) : (

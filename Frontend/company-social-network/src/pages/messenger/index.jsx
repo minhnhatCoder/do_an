@@ -19,6 +19,7 @@ import { useRootState } from "../../store";
 import RightContent from "./rightContent";
 import { formatTimestamp } from "../../helper/timeHelper";
 import { Empty, Spin, Tooltip } from "antd";
+import useSocketStore from "../../store/socketStore";
 
 const Messenger = () => {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ const Messenger = () => {
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const usersOnline = useRootState((state) => state?.usersOnline);
+  const socket = useSocketStore((state) => state?.socket);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
 
   const onMessage = async (params) => {
     try {
@@ -71,6 +74,23 @@ const Messenger = () => {
   useEffect(() => {
     setActiveConversation(id);
   }, [id]);
+
+  useEffect(() => {
+    socket &&
+      socket?.on("getMessage", (mess) => {
+        setArrivalMessage(mess);
+      });
+  }, [socket]);
+
+  useEffect(() => {
+    setConversations(
+      conversations?.map((c) => {
+        if (c?._id == arrivalMessage?.target) {
+          return { ...c, last_message: arrivalMessage };
+        } else return c;
+      })
+    );
+  }, [arrivalMessage]);
   return (
     <div className="flex items-center">
       <div className="w-1/4 h-[calc(100vh-75px)] py-4">
@@ -83,28 +103,35 @@ const Messenger = () => {
         </div>
         <div className="mb-3 px-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-neutral-400 cursor-pointer">Đang online</p>
-            <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem thêm</p>
+            <p className="text-neutral-400 cursor-pointer">Bạn bè</p>
+            {userInfo?.friends?.length > 5 && (
+              <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem thêm</p>
+            )}
           </div>
           <div className="flex items-center gap-3">
-            {usersOnline?.map((u, index) => (
-              <div className="relative" key={index}>
-                <Tooltip title={u?.display_name}>
-                  <img
-                    className="w-12 h-12 rounded-full border"
-                    src={u?.image}
-                    alt=""
-                    onClick={() =>
-                      onMessage({
-                        "participants[all]": [userInfo?._id, u?._id],
-                        "type:eq": "personal",
-                      })
-                    }
-                  />
-                </Tooltip>
-                <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
-              </div>
-            ))}
+            {userInfo?.friends?.map((u, index) => {
+              if (index < 6)
+                return (
+                  <div className="relative" key={index}>
+                    <Tooltip title={u?.display_name}>
+                      <img
+                        className="w-12 h-12 rounded-full border"
+                        src={u?.image}
+                        alt=""
+                        onClick={() =>
+                          onMessage({
+                            "participants[all]": [userInfo?._id, u?._id],
+                            "type:eq": "personal",
+                          })
+                        }
+                      />
+                    </Tooltip>
+                    {usersOnline?.find((on) => on?._id == u?._id) ? (
+                      <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+                    ) : null}
+                  </div>
+                );
+            })}
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2 px-4">
@@ -134,7 +161,13 @@ const Messenger = () => {
                       }
                       alt=""
                     />
-                    <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+                    {usersOnline?.find(
+                      (on) =>
+                        on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
+                        conversation?.participants?.every((p) => p?._id == userInfo?._id)
+                    ) ? (
+                      <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+                    ) : null}
                   </div>
                   <div>
                     <p className="text-black font-semibold text-base ">
@@ -181,7 +214,7 @@ const Messenger = () => {
           </div>
         </Spin>
       </div>
-      <RightContent />
+      <RightContent setConversations={setConversations} conversations={conversations} />
     </div>
   );
 };
