@@ -14,16 +14,27 @@ import { FaUsers } from "react-icons/fa";
 import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
 import DetailPost from "./DetailPost";
+import useSocketStore from "../../store/socketStore";
+import dayjs from "dayjs";
 
 const Post = ({ post, setPost, posts }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
+  const socket = useSocketStore((state) => state.socket);
   const userInfo = useRootState((state) => state.userInfo);
   const [show, setShow] = useState(false);
   const [id, setId] = useState(0);
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
-      console.log(data);
+      if (data?.liked_user?.find((u) => u?._id == userInfo?._id) && userInfo?._id != post?.created_user?._id) {
+        socket.emit("sendNotification", {
+          userIds: [post?.created_user?._id],
+          data: {
+            content: `${userInfo?.display_name} đã thích bài viết của bạn`,
+          },
+        });
+      }
+
       setPost((prev) =>
         prev?.map((p) => {
           if (p?._id == post?._id) {

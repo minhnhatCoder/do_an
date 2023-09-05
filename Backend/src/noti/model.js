@@ -9,6 +9,10 @@
 
 const mongoose = require("mongoose");
 const dayjs = require("dayjs");
+const { getUser, users } = require("../../untils/users")
+const { handleSocket } = require("../../untils/socketHandler");
+
+const io = handleSocket();
 
 // Định nghĩa schema thông báo
 const notificationSchema = new mongoose.Schema({
@@ -37,7 +41,22 @@ const notificationSchema = new mongoose.Schema({
   },
 });
 
+
+// // bắn thông báo cho user
+// notificationSchema.post('save', async function (doc) {
+//   // Lấy thông báo sau khi đã lưu
+//   const notification = await Notification.findById(doc._id).populate('recipient');
+
+//   // Bắn socket thông báo cho người nhận
+//   if (notification.recipient) {
+//     const socketId = getUser(notification.recipient._id.toString())?.socketId
+//     io.to(socketId).emit('getNotification', notification);
+//   }
+// });
+
+
 // Tạo mô hình thông báo từ schema
 const Notification = mongoose.model("notification", notificationSchema);
 
+module.exports = { notificationSchema }
 module.exports = Notification;

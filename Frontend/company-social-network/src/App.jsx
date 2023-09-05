@@ -63,7 +63,6 @@ function App() {
     return () => {
       // User leaves room
       socket.disconnect();
-
       socket.off();
     };
   }, [token]);

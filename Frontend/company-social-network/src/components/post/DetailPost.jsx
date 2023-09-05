@@ -7,9 +7,11 @@ import { AnswerComment, AnswerInput } from "./Comment";
 import PostServices from "../../services/postServices";
 import { useRootState } from "../../store";
 import CommentServices from "../../services/commentServices";
+import useSocketStore from "../../store/socketStore";
 
 const DetailPost = ({ show, setShow, id }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
+  const socket = useSocketStore((state) => state.socket);
   const [loading, setLoading] = useState(false);
   const [post, setPost] = useState({});
   const userInfo = useRootState((state) => state.userInfo);

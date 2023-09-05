@@ -15,8 +15,11 @@ import PostServices from "../../services/postServices";
 import Toast from "../noti";
 import SelectDepartment from "../Select/department";
 import SelectUsers from "../Select/Users";
+import useSocketStore from "../../store/socketStore";
+import dayjs from "dayjs";
 
 const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
+  const socket = useSocketStore((state) => state.socket);
   const userInfo = useRootState((state) => state.userInfo);
   const users = useRootState((state) => state.users);
   const [content, setContent] = useState("");
@@ -43,12 +46,29 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
             : type == 1
             ? [userInfo?._id]
             : type == 2
-            ? []
+            ? userInfo?.friends?.map((u) => u?._id)
             : type == 3
             ? deptRelated
             : userRelated,
       });
-
+      socket.emit("sendNotification", {
+        userIds:
+          type == 0
+            ? users?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
+            : type == 1
+            ? [userInfo?._id]?.filter((u) => u != userInfo?._id)
+            : type == 2
+            ? userInfo?.friends?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
+            : type == 3
+            ? users
+                ?.filter((u) => deptRelated?.includes(u?.department?._id))
+                ?.map((u) => u?._id)
+                ?.filter((u) => u != userInfo?._id)
+            : userRelated?.filter((u) => u != userInfo?._id),
+        data: {
+          content: `${userInfo?.display_name} đã tạo bài viết mới`,
+        },
+      });
       setShow(false);
       setLoading(false);
       setContent("");

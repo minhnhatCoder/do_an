@@ -7,6 +7,8 @@ const connectDB = require("./connection");
 const { uploads } = require("./untils/multer");
 const http = require("http");
 const { Server } = require("socket.io");
+const { handleSocket } = require("./untils/socketHandler");
+const { notificationSchema } = require("./src/noti/model")
 
 //PORT
 const PORT = process.env.PORT || 9000;
@@ -34,6 +36,8 @@ app.use("/notifications", require("./src/noti/route"));
 
 ///socket handle
 const server = http.createServer(app);
+
+// handleSocket(server)
 
 const io = new Server(server, {
   cors: {
@@ -70,6 +74,15 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("getMessage", data);
   });
 
+  //send noti
+  socket.on("sendNotification", ({ userIds, data }) => {
+    userIds.forEach(userId => {
+      const socketId = getUser(userId)?.socketId
+      io.to(socketId).emit("getNotification", data);
+    });
+
+  });
+
   //join the room
   socket.on("joinRoom", (roomId) => {
     socket.join(roomId);
@@ -79,6 +92,7 @@ io.on("connection", (socket) => {
     socket.leave(roomId);
   });
 
+
   //when disconnect
   socket.on("disconnect", () => {
     console.log("a user disconnected!");
@@ -87,7 +101,9 @@ io.on("connection", (socket) => {
   });
 });
 
+
 ///server connect
 server.listen(PORT, () => {
   console.log(`server run on http://localhost:${PORT}`);
 });
+

@@ -12,6 +12,7 @@ import { useRootState } from "../../store";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
 import UserServices from "../../services/user";
 import NotificationServices from "../../services/notiServices";
+import useSocketStore from "../../store/socketStore";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -235,6 +236,7 @@ const NotificationCO = () => {
   const [hasMore, setHasMore] = useState(false);
   const userInfo = useRootState((state) => state.userInfo);
   const [open, setOpen] = useState(false);
+  const socket = useSocketStore((state) => state.socket);
   const getNotis = async () => {
     try {
       setLoading(true);
@@ -289,6 +291,15 @@ const NotificationCO = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (socket) {
+      socket?.on("getNotification", (data) => {
+        Toast("info", data?.content);
+        getNotis();
+      });
+    }
+  }, [socket]);
 
   const handleShowNotis = () => {
     return (
