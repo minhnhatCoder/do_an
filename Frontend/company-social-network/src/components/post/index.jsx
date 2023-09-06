@@ -26,7 +26,7 @@ const Post = ({ post, setPost, posts }) => {
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
-      if (data?.liked_user?.find((u) => u?._id == userInfo?._id) && userInfo?._id != post?.created_user?._id) {
+      if (post?.created_user?._id != userInfo?._id && data?.liked_user?.find((u) => u?._id == userInfo?._id)) {
         socket.emit("sendNotification", {
           userIds: [post?.created_user?._id],
           data: {
@@ -77,6 +77,14 @@ const Post = ({ post, setPost, posts }) => {
 
   const onComment = (id) => {
     post.comments.push(id);
+    if (post?.created_user?._id != userInfo?._id) {
+      socket.emit("sendNotification", {
+        userIds: [post?.created_user?._id],
+        data: {
+          content: `${userInfo?.display_name} đã bình luận bài viết`,
+        },
+      });
+    }
     setPost([...posts]);
   };
 

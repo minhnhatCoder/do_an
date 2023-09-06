@@ -2,6 +2,9 @@ const { tasksDB, projectsDB } = require("./model");
 const { commentsDB } = require("../comment/model");
 const Features = require("../../libs/feature");
 const dayjs = require("dayjs");
+const usersDB = require("../auth/model");
+const NotificationDB = require("../noti/model");
+
 
 exports.createTask = async (req, res) => {
   try {
@@ -78,9 +81,30 @@ exports.getTaskById = async (req, res) => {
 };
 exports.updateTask = async (req, res) => {
   try {
-    const data = await tasksDB.findByIdAndUpdate(req.params.id, req.body, {
+    const { noti_content, ...rest } = req.body;
+    const data = await tasksDB.findByIdAndUpdate(req.params.id, { ...rest }, {
       new: true,
     });
+    if (noti_content) {
+      const task = await tasksDB.findById(req.params.id);
+      const user = await usersDB.findById(req.user_data._id);
+      // Danh sách các người nhận (ví dụ)
+      const recipients = task?.related_user.filter((u) => u != req.user_data._id); // Thay thế bằng danh sách người nhận thực tế
+
+      // Tạo thông báo cho mỗi người nhận
+      for (const recipientId of recipients) {
+        const notification = new NotificationDB({
+          recipient: recipientId,
+          content: `${user?.display_name} ${noti_content}`,
+          type: "task",
+          related_id: req.params.id,
+          created_at: dayjs(new Date()).unix(),
+        });
+
+        await notification.save();
+      }
+    }
+
     return res.status(200).json({ status: 200, message: "Cập nhật thành công", data });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
@@ -115,6 +139,23 @@ exports.commentTask = async (req, res) => {
         new: true,
       }
     );
+    const task = await tasksDB.findById(req.params.id);
+    const user = await usersDB.findById(req.user_data._id);
+    // Danh sách các người nhận (ví dụ)
+    const recipients = task?.related_user.filter((u) => u != req.user_data._id); // Thay thế bằng danh sách người nhận thực tế
+
+    // Tạo thông báo cho mỗi người nhận
+    for (const recipientId of recipients) {
+      const notification = new NotificationDB({
+        recipient: recipientId,
+        content: `${user?.display_name} đã bình luận công việc`,
+        type: "task",
+        related_id: req.params.id,
+        created_at: dayjs(new Date()).unix(),
+      });
+
+      await notification.save();
+    }
     return res.status(200).json({ status: 200, message: "Bình luận thành công", data: savedComment });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });

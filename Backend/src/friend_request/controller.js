@@ -107,6 +107,7 @@ exports.putFriendRequest = async (req, res) => {
         return res.status(200).json({
             status: 200,
             message: "Cập nhật trạng thái thành công",
+            data: friendRequest
         });
     } catch (error) {
         return res.status(400).json({ status: 400, message: error.message });
@@ -118,6 +119,24 @@ exports.deleteFriendRequest = async (req, res) => {
         return res.status(200).json({
             status: 200,
             message: "Xóa lời mời kết bạn thành công",
+        });
+    } catch (error) {
+        return res.status(400).json({ status: 400, message: error.message });
+    }
+};
+exports.putRemoveFriend = async (req, res) => {
+    try {
+        await usersDB.findOneAndUpdate(
+            { _id: req.user_data._id },
+            { $pull: { friends: req.params.id } }
+        );
+        await usersDB.findOneAndUpdate(
+            { _id: req.params.id },
+            { $pull: { friends: req.user_data._id } }
+        );
+        return res.status(200).json({
+            status: 200,
+            message: "Hủy kết bạn thành công",
         });
     } catch (error) {
         return res.status(400).json({ status: 400, message: error.message });

@@ -15,7 +15,9 @@ route.get("/", checkAuth, controller.getFriendRequests);
 route.get("/:id", checkAuth, controller.getFriendRequest);
 route.post("/", checkAuth, controller.postFriendRequest);
 route.put("/:id", checkAuth, controller.putFriendRequest);
+route.put("/remove_friend/:id", checkAuth, controller.putRemoveFriend);
 route.delete("/:id", checkAuth, controller.deleteFriendRequest);
+
 
 
 module.exports = route;

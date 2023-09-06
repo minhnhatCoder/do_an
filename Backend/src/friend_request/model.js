@@ -34,18 +34,18 @@ friendRequestSchema.pre("remove", async function (next) {
   next();
 });
 
-friendRequestSchema.post("save", async function (doc) {
-  const user = await usersDB.findById(doc.receiver);
-  const notification = new NotificationDB({
-    recipient: doc.receiver,
-    content: `${user?.display_name} vừa gửi cho bạn lời mời kết bạn`,
-    type: "friend_request",
-    related_id: user?._id,
-    created_at: dayjs(new Date()).unix(),
-  });
+// friendRequestSchema.post("save", async function (doc) {
+//   const user = await usersDB.findById(doc.receiver);
+//   const notification = new NotificationDB({
+//     recipient: doc.receiver,
+//     content: `${user?.display_name} đã gửi cho bạn lời mời kết bạn`,
+//     type: "friend_request",
+//     related_id: user?._id,
+//     created_at: dayjs(new Date()).unix(),
+//   });
 
-  await notification.save();
-});
+//   await notification.save();
+// });
 
 friendRequestSchema.post("save", async function (doc) {
   const sender = await usersDB.findById(doc.sender);

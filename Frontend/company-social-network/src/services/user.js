@@ -34,6 +34,10 @@ const User = {
     const url = "/friend_requests/" + id;
     return axiosClient.put(url, body);
   },
+  removeFriend: (id) => {
+    const url = "/friend_requests/remove_friend/" + id;
+    return axiosClient.put(url);
+  },
   deleteFriendRequest: (id) => {
     const url = "/friend_requests/" + id;
     return axiosClient.delete(url);

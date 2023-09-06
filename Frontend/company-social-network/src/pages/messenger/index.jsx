@@ -109,29 +109,36 @@ const Messenger = () => {
             )}
           </div>
           <div className="flex items-center gap-3">
-            {userInfo?.friends?.map((u, index) => {
-              if (index < 6)
-                return (
-                  <div className="relative" key={index}>
-                    <Tooltip title={u?.display_name}>
-                      <img
-                        className="w-12 h-12 rounded-full border"
-                        src={u?.image}
-                        alt=""
-                        onClick={() =>
-                          onMessage({
-                            "participants[all]": [userInfo?._id, u?._id],
-                            "type:eq": "personal",
-                          })
-                        }
-                      />
-                    </Tooltip>
-                    {usersOnline?.find((on) => on?._id == u?._id) ? (
-                      <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
-                    ) : null}
-                  </div>
-                );
-            })}
+            {userInfo?.friends
+              ?.map((f) => {
+                if (usersOnline?.find((u) => u?._id == f?._id)) {
+                  return { ...f, online: true };
+                } else return { ...f, online: false };
+              })
+              .sort((a, b) => Number(b.online) - Number(a.online))
+              ?.map((u, index) => {
+                if (index < 6)
+                  return (
+                    <div className="relative" key={index}>
+                      <Tooltip title={u?.display_name}>
+                        <img
+                          className="w-12 h-12 rounded-full border"
+                          src={u?.image}
+                          alt=""
+                          onClick={() =>
+                            onMessage({
+                              "participants[all]": [userInfo?._id, u?._id],
+                              "type:eq": "personal",
+                            })
+                          }
+                        />
+                      </Tooltip>
+                      {u?.online ? (
+                        <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
+                      ) : null}
+                    </div>
+                  );
+              })}
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2 px-4">

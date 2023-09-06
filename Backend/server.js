@@ -78,7 +78,8 @@ io.on("connection", (socket) => {
   socket.on("sendNotification", ({ userIds, data }) => {
     userIds.forEach(userId => {
       const socketId = getUser(userId)?.socketId
-      io.to(socketId).emit("getNotification", data);
+      if (socketId)
+        io.to(socketId).emit("getNotification", data);
     });
 
   });

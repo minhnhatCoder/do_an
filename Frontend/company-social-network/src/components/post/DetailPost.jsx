@@ -33,6 +33,14 @@ const DetailPost = ({ show, setShow, id }) => {
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
+      if (post?.created_user?._id != userInfo?._id && data?.liked_user?.find((u) => u?._id == userInfo?._id)) {
+        socket.emit("sendNotification", {
+          userIds: [post?.created_user?._id],
+          data: {
+            content: `${userInfo?.display_name} đã thích bài viết của bạn`,
+          },
+        });
+      }
       setPost({ ...post, liked_user: data?.liked_user });
     } catch (error) {
       console.log(error);
@@ -77,6 +85,14 @@ const DetailPost = ({ show, setShow, id }) => {
       setContent("");
       setAttachments([]);
       setPost({ ...post, comments: [...post.comments, res?.data?._id] });
+      if (post?.created_user?._id != userInfo?._id) {
+        socket.emit("sendNotification", {
+          userIds: [post?.created_user?._id],
+          data: {
+            content: `${userInfo?.display_name} đã bình luận bài viết`,
+          },
+        });
+      }
       scrollToBottom();
     } catch (error) {
       console.log(error);

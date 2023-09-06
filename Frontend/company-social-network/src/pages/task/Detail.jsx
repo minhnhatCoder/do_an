@@ -23,12 +23,15 @@ import { BsBriefcase, BsTrash } from "react-icons/bs";
 import _ from "lodash";
 import Toast from "../../components/noti";
 import Status from "../../components/status";
+import useSocketStore from "../../store/socketStore";
 
 const Detail = ({ id, show, setShow, getTasks }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
   const currentUser = useRootState((state) => state.userInfo);
+  const userInfo = useRootState((state) => state.userInfo);
+  const socket = useSocketStore((state) => state.socket);
 
   const onChangeTab = (key) => {
     setActiveTab(key);
@@ -48,7 +51,18 @@ const Detail = ({ id, show, setShow, getTasks }) => {
   const onChangePriority = async (_id) => {
     setLoading(true);
     try {
-      const res = await TasksServices.updateTask(id, { priority: _id });
+      const res = await TasksServices.updateTask(id, {
+        priority: _id,
+        noti_content: "đã cập nhật độ ưu tiên công việc",
+      });
+
+      socket?.emit("sendNotification", {
+        userIds: data?.related_user?.map((u) => u?._id).filter((id) => id != userInfo?._id) || [],
+        data: {
+          content: `${userInfo?.display_name} đã cập nhật độ ưu tiên công việc`,
+        },
+      });
+
       setData({ ...data, priority: _id });
       getTasks && getTasks();
       Toast("success", res?.message);
@@ -66,9 +80,14 @@ const Detail = ({ id, show, setShow, getTasks }) => {
     if (_id == 4 || _id == 1) {
       body.progress = 0;
     }
-    console.log(body);
     try {
-      const res = await TasksServices.updateTask(id, body);
+      const res = await TasksServices.updateTask(id, { ...body, noti_content: "đã cập nhật trạng thái công việc" });
+      socket?.emit("sendNotification", {
+        userIds: data?.related_user?.map((u) => u?._id).filter((id) => id != userInfo?._id) || [],
+        data: {
+          content: `${userInfo?.display_name} đã cập nhật trạng thái công việc `,
+        },
+      });
       setData({ ...data, ...body });
       getTasks && getTasks();
       Toast("success", res?.message);
@@ -77,11 +96,19 @@ const Detail = ({ id, show, setShow, getTasks }) => {
     }
     setLoading(false);
   };
-  console.log(data);
   const onChangeProgress = async (value) => {
     setLoading(true);
     try {
-      const res = await TasksServices.updateTask(id, { progress: value });
+      const res = await TasksServices.updateTask(id, {
+        progress: value,
+        noti_content: "đã cập nhật tiến độ công việc",
+      });
+      socket?.emit("sendNotification", {
+        userIds: data?.related_user?.map((u) => u?._id).filter((id) => id != userInfo?._id) || [],
+        data: {
+          content: `${userInfo?.display_name} đã cập nhật tiến độ công việc`,
+        },
+      });
       setData({ ...data, progress: value });
       Toast("success", res?.message);
     } catch (error) {
@@ -238,7 +265,7 @@ const Detail = ({ id, show, setShow, getTasks }) => {
           />
 
           {activeTab == 1 && <DescTab data={data?.description} />}
-          {activeTab == 2 && <CommentTab id={data?._id} currentUser={currentUser} />}
+          {activeTab == 2 && <CommentTab id={data?._id} currentUser={currentUser} data={data} />}
           {activeTab == 3 && <AttachmentTab data={data?.attachments} />}
           {activeTab == 4 && <SubTaskTab id={data?._id} projectId={data?.project?._id} />}
         </div>
@@ -253,12 +280,15 @@ const DescTab = ({ data }) => {
   if (!data) return <Empty />;
   return <div className="" dangerouslySetInnerHTML={{ __html: data }} />;
 };
-const CommentTab = ({ id, currentUser }) => {
+const CommentTab = ({ id, currentUser, data }) => {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState([]);
   const [files, setFiles] = useState([]);
   const scrollRef = useRef(null);
+  const userInfo = useRootState((state) => state.userInfo);
+  const socket = useSocketStore((state) => state.socket);
+
   const getComments = async () => {
     setLoading(true);
     try {
@@ -275,6 +305,12 @@ const CommentTab = ({ id, currentUser }) => {
       await TasksServices.commentTask(id, {
         content: content,
         attachments: files,
+      });
+      socket?.emit("sendNotification", {
+        userIds: data?.related_user?.map((u) => u?._id).filter((id) => id != userInfo?._id) || [],
+        data: {
+          content: `${userInfo?.display_name} đã bình luận công việc`,
+        },
       });
       setContent("");
       setFiles([]);

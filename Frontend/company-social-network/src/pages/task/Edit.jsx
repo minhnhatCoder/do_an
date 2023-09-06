@@ -7,6 +7,8 @@ import SelectProjects from "../../components/Select/Projects";
 import SelectPriority from "../../components/Select/Priority";
 import Tasks from "../../services/tasksServices";
 import Toast from "../../components/noti";
+import { useRootState } from "../../store";
+import useSocketStore from "../../store/socketStore";
 
 const Edit = ({ id, show, setShow, projectId, getData, taskParentId, disableProject }) => {
   const [infoEdit, setInfoEdit] = useState({});
@@ -14,6 +16,8 @@ const Edit = ({ id, show, setShow, projectId, getData, taskParentId, disableProj
   const [files, setFiles] = useState([]);
   const [description, setDescription] = useState("");
   const [relatedUsers, setRelatedUsers] = useState([]);
+  const userInfo = useRootState((state) => state.userInfo);
+  const socket = useSocketStore((state) => state.socket);
 
   const getTask = async () => {
     setLoading(true);
@@ -45,13 +49,26 @@ const Edit = ({ id, show, setShow, projectId, getData, taskParentId, disableProj
     try {
       let res;
       if (id) {
-        res = await Tasks.updateTask(id, body);
+        res = await Tasks.updateTask(id, { ...body, noti_content: "đã cập nhật thông tin công việc" });
+        socket?.emit("sendNotification", {
+          userIds: res.data.related_user?.filter((id) => id != userInfo?._id) || [],
+          data: {
+            content: `${userInfo?.display_name} đã cập nhật thông tin công việc`,
+          },
+        });
       } else {
         res = await Tasks.addTask(body);
+        socket?.emit("sendNotification", {
+          userIds: res.data?.related_user?.filter((id) => id != userInfo?._id) || [],
+          data: {
+            content: `${userInfo?.display_name} đã tạo công việc`,
+          },
+        });
       }
       setShow(false);
       setFiles([]);
       setInfoEdit({});
+      setDescription("");
       getData();
       setLoading(false);
       Toast("success", res?.message);

@@ -114,25 +114,6 @@ taskSchema.post("save", async function (doc) {
   }
 });
 
-taskSchema.post("findOneAndUpdate", async function (doc) {
-  const creator = await usersDB.findById(doc?.assigner);
-
-  // Danh sách các người nhận (ví dụ)
-  const recipients = doc?.related_user.filter((u) => !u.equals(doc?.assigner)); // Thay thế bằng danh sách người nhận thực tế
-
-  // Tạo thông báo cho mỗi người nhận
-  for (const recipientId of recipients) {
-    const notification = new NotificationDB({
-      recipient: recipientId,
-      content: `${creator?.display_name} đã cập nhật công việc`,
-      type: "task",
-      related_id: doc._id,
-      created_at: dayjs(new Date()).unix(),
-    });
-
-    await notification.save();
-  }
-});
 
 const tasksDB = mongoose.model("tasks", taskSchema);
 const projectsDB = mongoose.model("projects", projectSchema);

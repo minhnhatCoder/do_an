@@ -1,4 +1,4 @@
-import { Button, Dropdown, Modal, Spin, Tabs, Upload } from "antd";
+import { Button, Dropdown, Modal, Popconfirm, Spin, Tabs, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import Info from "./Info";
 import TimeLine from "./TimeLine";
@@ -16,6 +16,7 @@ import PostServices from "../../services/postServices";
 import _ from "lodash";
 import ConversationsServices from "../../services/conversationServies";
 import { BiSolidUserX, BiUserCheck, BiUserX } from "react-icons/bi";
+import useSocketStore from "../../store/socketStore";
 
 const Profile = () => {
   const [tabActive, setTabActive] = useState(1);
@@ -50,6 +51,7 @@ const Profile = () => {
   const [content, setContent] = useState("");
   const [imageType, setImageType] = useState(1);
   const navigate = useNavigate();
+  const socket = useSocketStore((state) => state.socket);
 
   const getUserInfo = async () => {
     const data = await UserServices.getUser(id);
@@ -123,6 +125,12 @@ const Profile = () => {
       const res = await UserServices.sendFriendRequest({
         receiver: id,
       });
+      socket?.emit("sendNotification", {
+        userIds: [id],
+        data: {
+          content: `${userInfo?.display_name} đã gửi cho bạn lời mời kết bạn`,
+        },
+      });
       await resetUserInfo();
       getUserInfo();
       Toast("success", res?.message);
@@ -133,6 +141,16 @@ const Profile = () => {
   const unSendRequestFriend = async (id) => {
     try {
       const res = await UserServices.deleteFriendRequest(id);
+      await resetUserInfo();
+      getUserInfo();
+      Toast("success", res?.message);
+    } catch (error) {
+      Toast("error", error?.message);
+    }
+  };
+  const removeFriend = async () => {
+    try {
+      const res = await UserServices.removeFriend(user?._id);
       await resetUserInfo();
       getUserInfo();
       Toast("success", res?.message);
@@ -161,6 +179,14 @@ const Profile = () => {
     setLoading(true);
     try {
       const res = await UserServices.approveFriendRequest(_id, body);
+      const status = body?.status == "approved" ? "chấp nhận" : "từ chối";
+
+      socket?.emit("sendNotification", {
+        userIds: [res?.data?.sender],
+        data: {
+          content: `${userInfo?.display_name} đã ${status} lời mời kết bạn`,
+        },
+      });
       await resetUserInfo();
       setLoading(false);
       Toast("success", res.message);
@@ -238,14 +264,17 @@ const Profile = () => {
         <div className="flex items-center justify-center gap-3 mt-2">
           {userInfo?._id == user?._id ? null : userInfo?.friends?.find((f) => user?._id == f?._id) ? (
             <div className="flex items-center justify-center gap-3">
-              <Button
-                icon={<BiUserCheck />}
-                size="large"
-                className="flex items-center justify-center"
-                onClick={() => {}}
+              <Popconfirm
+                title="Hủy kết bạn"
+                description="Bạn có chắc chắn muốn hủy kết bạn?"
+                onConfirm={removeFriend}
+                okText="Đồng ý"
+                cancelText="Hủy"
               >
-                Bạn bè
-              </Button>
+                <Button icon={<BiUserCheck />} size="large" className="flex items-center justify-center">
+                  Bạn bè
+                </Button>
+              </Popconfirm>
             </div>
           ) : userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id) ? (
             <div>

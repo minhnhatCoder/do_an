@@ -245,12 +245,13 @@ const NotificationCO = () => {
         "recipient[eq]": userInfo?._id,
         "is_read[eq]": "false",
         sort: "-created_at",
+        limit: 10000,
       });
-      if (page == 1) {
-        setNotis(res?.data);
-      } else {
-        setNotis([...notis, ...res.data]);
-      }
+      // if (page == 1) {
+      setNotis(res?.data);
+      // } else {
+      //   setNotis([...notis, ...res.data]);
+      // }
 
       setHasMore([...notis, res?.data]?.length < res?.count);
       setCount(res?.count);
