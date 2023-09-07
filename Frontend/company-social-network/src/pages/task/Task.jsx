@@ -24,7 +24,7 @@ import SelectUsers from "../../components/Select/Users";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1 });
+  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1, sort: "created_at" });
   const [showDetail, setShowDetail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -45,15 +45,81 @@ const Task = ({ currentProject }) => {
   const items = [
     {
       key: "1",
-      label: <a target="_blank">Thời gian tạo</a>,
+      label: (
+        <a
+          className={`${filter.sort == "created_at" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "created_at" });
+          }}
+        >
+          Thời gian tạo tăng dần
+        </a>
+      ),
     },
     {
       key: "2",
-      label: <a target="_blank">Thời gian bắt đầu</a>,
+      label: (
+        <a
+          className={`${filter.sort == "-created_at" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "-created_at" });
+          }}
+        >
+          Thời gian tạo giảm dần
+        </a>
+      ),
     },
     {
       key: "3",
-      label: <a target="_blank">Thời gian kết thúc</a>,
+      label: (
+        <a
+          className={`${filter.sort == "start_date" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "start_date" });
+          }}
+        >
+          Thời gian bắt đầu tăng dần
+        </a>
+      ),
+    },
+    {
+      key: "4",
+      label: (
+        <a
+          className={`${filter.sort == "-start_date" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "-start_date" });
+          }}
+        >
+          Thời gian bắt đầu giảm dần
+        </a>
+      ),
+    },
+    {
+      key: "5",
+      label: (
+        <a
+          className={`${filter.sort == "end_date" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "end_date" });
+          }}
+        >
+          Thời gian kết thúc tăng dần
+        </a>
+      ),
+    },
+    {
+      key: "6",
+      label: (
+        <a
+          className={`${filter.sort == "-end_date" ? "!text-orange-500" : ""}`}
+          onClick={() => {
+            setFilter({ ...filter, sort: "-end_date" });
+          }}
+        >
+          Thời gian kết thúc giảm dần
+        </a>
+      ),
     },
   ];
 
@@ -67,6 +133,7 @@ const Task = ({ currentProject }) => {
           page: _page ? _page : page,
           search: filter.title,
           status: filter.status,
+          sort: filter.sort,
         };
       } else {
         params = {
@@ -75,6 +142,7 @@ const Task = ({ currentProject }) => {
           search: filter.display_name,
           "project[eq]": currentProject?._id,
           status: filter.status,
+          sort: filter.sort,
         };
       }
       if (filter.is_mine == "mine") {
