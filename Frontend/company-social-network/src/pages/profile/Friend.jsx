@@ -9,6 +9,7 @@ import UserServices from "../../services/user";
 import Toast from "../../components/noti";
 import { Empty, Spin } from "antd";
 import { useRootState } from "../../store";
+import useSocketStore from "../../store/socketStore";
 
 const Friend = () => {
   const { id } = useParams();
@@ -17,6 +18,8 @@ const Friend = () => {
   const [friendRequests, setFriendRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFriendTab, setIsFriendTab] = useState(true);
+  const socket = useSocketStore((state) => state.socket);
+
   const getUserFriends = async () => {
     setLoading(true);
     try {
@@ -39,11 +42,27 @@ const Friend = () => {
       Toast("error", error.message);
     }
   };
+  const removeFriend = async (id) => {
+    try {
+      const res = await UserServices.removeFriend(id);
+      getUserFriends();
+      getUserFriendRequests();
+      Toast("success", res?.message);
+    } catch (error) {
+      Toast("error", error?.message);
+    }
+  };
 
   const onApproversRequest = async (_id, body) => {
     setLoading(true);
     try {
       const res = await UserServices.approveFriendRequest(_id, body);
+      socket?.emit("sendNotification", {
+        userIds: [res?.data?.sender],
+        data: {
+          content: `${currentUser?.display_name} đã ${status} lời mời kết bạn`,
+        },
+      });
       getUserFriends();
       getUserFriendRequests();
       setLoading(false);
@@ -99,10 +118,18 @@ const Friend = () => {
                       <p className="text-sm text-neutral-500">{friend?.department?.name}</p>
                     </div>
                     <div className="px-3">
-                      <button className="btn-gray w-full mt-3 !py-2 flex items-center justify-center gap-3">
-                        <AiOutlineCheck className="text-green-600 w-6 h-6" />
-                        Bạn bè
-                      </button>
+                      <Popconfirm
+                        title="Hủy kết bạn"
+                        description="Bạn có chắc chắn muốn hủy kết bạn?"
+                        onConfirm={() => removeFriend(friend?._id)}
+                        okText="Đồng ý"
+                        cancelText="Hủy"
+                      >
+                        <button className="btn-gray w-full mt-3 !py-2 flex items-center justify-center gap-3">
+                          <AiOutlineCheck className="text-green-600 w-6 h-6" />
+                          Bạn bè
+                        </button>
+                      </Popconfirm>
                     </div>
                   </div>
                 );

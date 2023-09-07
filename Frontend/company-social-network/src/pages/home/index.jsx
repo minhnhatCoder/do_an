@@ -1,4 +1,4 @@
-import { Input, Avatar } from "antd";
+import { Input, Avatar, Empty } from "antd";
 import { BiGroup, BiNews } from "react-icons/bi";
 import { FaMapMarkerAlt, FaPhotoVideo, FaTasks, FaUsers } from "react-icons/fa";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
@@ -7,30 +7,63 @@ import Post from "../../components/post";
 import UploadPost from "../../components/uploadPost";
 import PostServices from "../../services/postServices";
 import { useRootState } from "../../store";
-import { HiOutlineClipboardList } from "react-icons/hi";
-import { BsCalendarDate, BsMessenger, BsSave2 } from "react-icons/bs";
-import { RiCalendarEventFill } from "react-icons/ri";
+import UserServices from "../../services/user";
+import {
+  CiBookmark,
+  CiBoxList,
+  CiCalendar,
+  CiCalendarDate,
+  CiChat1,
+  CiLocationOn,
+  CiMemoPad,
+  CiReceipt,
+} from "react-icons/ci";
+import { PiUsersThin, PiUsersThreeThin } from "react-icons/pi";
+import useSocketStore from "../../store/socketStore";
+import Toast from "../../components/noti";
 
 const Home = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const userInfo = useRootState((state) => state.userInfo);
   const usersOnline = useRootState((state) => state.usersOnline);
+  const resetUserInfo = useRootState((state) => state.resetUserInfo);
+  const socket = useSocketStore((state) => state.socket);
+
+  const onApproversRequest = async (_id, body) => {
+    setLoading(true);
+    try {
+      const res = await UserServices.approveFriendRequest(_id, body);
+      const status = body?.status == "approved" ? "chấp nhận" : "từ chối";
+
+      socket?.emit("sendNotification", {
+        userIds: [res?.data?.sender],
+        data: {
+          content: `${userInfo?.display_name} đã ${status} lời mời kết bạn`,
+        },
+      });
+      resetUserInfo();
+      Toast("success", res.message);
+    } catch (error) {
+      setLoading(false);
+      Toast("error", error.message);
+    }
+  };
   const [quickAction, setQuickAction] = useState([
     {
       label: userInfo?.display_name,
       icon: <Avatar className="border " size={50} src={userInfo?.image || ""} />,
       link: "/",
     },
-    { label: "Thành viên trong tổ chức", icon: <FaUsers className="w-10 h-10" />, link: "/" },
-    { label: "Công việc", icon: <FaTasks className="w-10 h-10" />, link: "/" },
-    { label: "Chấm công", icon: <FaMapMarkerAlt className="w-10 h-10" />, link: "/" },
-    { label: "Nghỉ phép", icon: <HiOutlineClipboardList className="w-10 h-10" />, link: "/" },
-    { label: "Nhóm", icon: <BiGroup className="w-10 h-10" />, link: "/" },
-    { label: "Đã lưu", icon: <BsSave2 className="w-10 h-10" />, link: "/" },
-    { label: "Tin nhắn", icon: <BsMessenger className="w-10 h-10" />, link: "/" },
-    { label: "Sự kiện", icon: <RiCalendarEventFill className="w-10 h-10" />, link: "/" },
-    { label: "Lịch", icon: <BsCalendarDate className="w-10 h-10" />, link: "/" },
+    { label: "Thành viên trong tổ chức", icon: <PiUsersThreeThin className="w-7 h-7" />, link: "/" },
+    { label: "Công việc", icon: <CiMemoPad className="w-7 h-7" />, link: "/" },
+    { label: "Chấm công", icon: <CiLocationOn className="w-7 h-7" />, link: "/" },
+    { label: "Nghỉ phép", icon: <CiReceipt className="w-7 h-7" />, link: "/" },
+    { label: "Nhóm", icon: <PiUsersThin className="w-7 h-7" />, link: "/" },
+    { label: "Đã lưu", icon: <CiBookmark className="w-7 h-7" />, link: "/" },
+    { label: "Tin nhắn", icon: <CiChat1 className="w-7 h-7" />, link: "/" },
+    { label: "Sự kiện", icon: <CiCalendar className="w-7 h-7" />, link: "/" },
+    { label: "Lịch", icon: <CiCalendarDate className="w-7 h-7" />, link: "/" },
   ]);
 
   const getPost = async () => {
@@ -51,20 +84,20 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="main-content flex items-start justify-between gap-3">
-      <div className="w-1/4">
-        <div className="rounded-lg p-3 bg-white">
-          <p className="font-bold text-2xl mb-7">Thao tác nhanh</p>
+    <div className="main-content flex items-start justify-between gap-10 !px-32">
+      <div className="w-1/5">
+        <div className="rounded-lg p-3 bg-white h-[calc(100vh-105px)] box_shadow-light">
+          <p className="font-semibold text-2xl mb-7">Thao tác nhanh</p>
 
           {quickAction?.map((i, id) => (
             <div className="flex items-center gap-2 cursor-pointer mb-5" key={id}>
               {i?.icon}
-              <p className="font-bold text-sm">{i?.label}</p>
+              <p className="font-semibold text-base">{i?.label}</p>
             </div>
           ))}
         </div>
       </div>
-      <div className="w-1/2 flex flex-col gap-4">
+      <div className="w-3/5 flex flex-col gap-4">
         <InputPost getPost={getPost} />
         {/* post */}
         {data?.map((item) => {
@@ -72,15 +105,47 @@ const Home = () => {
         })}
       </div>
       <div className="w-1/4">
-        <div className="rounded-lg p-3 bg-white mb-3">
-          <p className="font-bold text-2xl mb-7">Lời mời kết bạn</p>
-          <div className="flex items-center gap-2 cursor-pointer mb-5">
-            <Avatar className="border " size={50} src={userInfo?.image || ""} />
-            <p className="font-bold text-sm">{userInfo?.display_name}</p>
-          </div>
+        <div className="rounded-lg p-3 bg-white mb-3 box_shadow-light min-h-[215px]">
+          <p className="font-semibold text-2xl mb-7">Lời mời kết bạn ({userInfo?.friend_requests?.length})</p>
+
+          {userInfo?.friend_requests?.length > 0 ? (
+            userInfo?.friend_requests?.map((friendRequest, index) => {
+              if (index < 2)
+                return (
+                  <div className="flex justify-between items-center mb-2" key={index}>
+                    <div className="flex items-center justify-center gap-2 cursor-pointer">
+                      <Avatar className="border " size={50} src={friendRequest?.sender?.image || ""} />
+                      <p className="font-semibold text-base">{friendRequest?.sender?.display_name}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="inline-block rounded-full bg-neutral-800 px-3 pb-2 pt-2.5 text-xs font-medium  text-neutral-50 shadow-[0_4px_9px_-4px_rgba(51,45,45,0.7)] "
+                        onClick={() => {
+                          onApproversRequest(friendRequest?._id, { status: "approved" });
+                        }}
+                      >
+                        Chấp nhận
+                      </button>
+                      <button
+                        className="inline-block rounded-full bg-neutral-50 px-3 pb-2 pt-2.5 text-xs font-medium text-neutral-800 shadow-[0_4px_9px_-4px_#cbcbcb] "
+                        onClick={() => {
+                          onApproversRequest(friendRequest?._id, { status: "rejected" });
+                        }}
+                      >
+                        Từ chối
+                      </button>
+                    </div>
+                  </div>
+                );
+            })
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Empty />
+            </div>
+          )}
         </div>
-        <div className="rounded-lg p-3 bg-white">
-          <p className="font-bold text-2xl mb-7">Bạn bè</p>
+        <div className="rounded-lg p-3 bg-white box_shadow-light h-[calc(100vh-330px)]">
+          <p className="font-semibold text-2xl mb-7">Bạn bè ({userInfo?.friends?.length})</p>
           {userInfo?.friends
             ?.map((f) => {
               if (usersOnline?.find((u) => u?._id == f?._id)) {
@@ -91,7 +156,7 @@ const Home = () => {
             .map((i) => (
               <div className="flex items-center gap-2 cursor-pointer mb-5 relative" key={i?._id}>
                 <Avatar className="border " size={50} src={i?.image || ""} />
-                <p className="font-bold text-sm">{i?.display_name}</p>
+                <p className="font-semibold text-base">{i?.display_name}</p>
                 {i?.online ? (
                   <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
                 ) : null}

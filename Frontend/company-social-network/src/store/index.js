@@ -17,7 +17,6 @@ export const useRootState = create(
       setPositions: (positions) => set({ positions: positions }),
       resetUserInfo: async () => {
         const state = getState();
-
         try {
           const res = await UserServices.getUser(state?.userInfo?._id);
           set({ userInfo: res?.data });

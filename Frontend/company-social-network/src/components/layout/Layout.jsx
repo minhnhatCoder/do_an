@@ -154,19 +154,19 @@ const Layout = ({ children }) => {
   });
 
   useEffect(() => {
-    setMenuActive(menuItems?.find((m) => location?.pathname == m?.link)?.link ?? "/");
+    if (location?.pathname?.includes("/chat")) setMenuActive("/chat");
+    else if (location?.pathname?.includes("/friends")) setMenuActive("/friends");
+    else if (location?.pathname?.includes("/tasks")) setMenuActive("/tasks");
+    else setMenuActive("/");
   }, [location?.pathname]);
   if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot") {
     return <div>{children}</div>;
   } else
     return (
       <div className="min-h-full h-screen">
-        <div className="p-2 flex items-center justify-between box_shadow-light">
+        <div className="p-2 flex items-center justify-between box_shadow-light px-16">
           <div className="flex items-center justify-center gap-9">
-            <img
-              src="https://1000logos.net/wp-content/uploads/2021/10/Batman-Logo-500x281.png"
-              className="h-12 w-auto bg-cover"
-            />
+            <p className="font-bold text-2xl">penSocial</p>
             <AutoComplete
               options={options}
               className="w-72"

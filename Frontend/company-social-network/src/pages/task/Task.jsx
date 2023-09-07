@@ -6,7 +6,7 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm } from "antd";
+import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm, Dropdown } from "antd";
 import React, { useEffect, useState } from "react";
 import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -20,6 +20,7 @@ import { convertTimeStampToString } from "../../helper/timeHelper";
 import { Link } from "react-router-dom";
 import { BsTrash } from "react-icons/bs";
 import { GrEdit } from "react-icons/gr";
+import SelectUsers from "../../components/Select/Users";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
@@ -30,6 +31,31 @@ const Task = ({ currentProject }) => {
   const [show, setShow] = useState(false);
   const currentUser = useRootState((state) => state.userInfo);
   const [currentTaskId, setCurrentTaskId] = useState(0);
+  const [relatedUsers, setRelatedUsers] = useState([]);
+
+  const getUserRelated = async () => {
+    try {
+      const res = await Tasks.getProject(projectId);
+      setRelatedUsers(res?.data?.related_user || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const items = [
+    {
+      key: "1",
+      label: <a target="_blank">Thời gian tạo</a>,
+    },
+    {
+      key: "2",
+      label: <a target="_blank">Thời gian bắt đầu</a>,
+    },
+    {
+      key: "3",
+      label: <a target="_blank">Thời gian kết thúc</a>,
+    },
+  ];
 
   const getTasks = async (_page) => {
     setLoading(true);
@@ -56,6 +82,12 @@ const Task = ({ currentProject }) => {
       } else {
         params["related_user[in]"] = [currentUser?._id];
       }
+      if (filter.assigner) {
+        params["assigner[eq]"] = filter.assigner;
+      }
+      if (filter.reciever) {
+        params["reciever[eq]"] = filter.reciever;
+      }
       const res = await TasksServices.getTasks(params);
       setTasks(
         res?.data.map((task) => ({
@@ -80,19 +112,48 @@ const Task = ({ currentProject }) => {
   useEffect(() => {
     getTasks();
   }, [currentProject?._id, JSON.stringify(filter)]);
+  useEffect(() => {
+    getUserRelated();
+  }, [currentProject?._id]);
   return (
     <div className="w-3/4 p-3">
       <p className="font-bold text-xl">{currentProject?.title}</p>
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center justify-center gap-3">
-          <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
-            <LuSlidersHorizontal className="w-4 h-4" />
-            <p>Bộ lọc</p>
+          <div className="w-72">
+            <SelectUsers
+              menuPlacement={"bottom"}
+              usersId={relatedUsers ?? []}
+              placeholder="Người tạo việc"
+              isClearable
+              required
+              value={filter?.assigner}
+              onChange={(e) => {
+                setFilter({ ...filter, assigner: e?.value });
+              }}
+            />
           </div>
-          <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
-            <BiSort className="w-4 h-4" />
-            <p>Sắp xếp</p>
+          <div className="w-72">
+            <SelectUsers
+              menuPlacement={"bottom"}
+              usersId={relatedUsers ?? []}
+              placeholder="Người nhận việc"
+              isClearable
+              required
+              value={filter?.reciever}
+              onChange={(e) => {
+                setFilter({ ...filter, reciever: e?.value });
+              }}
+            />
           </div>
+
+          <Dropdown menu={{ items }} placement="bottom" arrow={{ pointAtCenter: true }} trigger={["click"]}>
+            <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
+              <BiSort className="w-4 h-4" />
+              <p>Sắp xếp</p>
+            </div>
+          </Dropdown>
+
           <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
             <Radio.Group
               options={[

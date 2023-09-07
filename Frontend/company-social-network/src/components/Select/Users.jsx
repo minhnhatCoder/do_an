@@ -23,6 +23,7 @@ const SelectUsers = ({
   menuPlacement,
   isClearable,
   usersId,
+  placeholder,
 }) => {
   const users = useRootState((state) => state.users);
   const [options, setOptions] = useState([]);
@@ -95,6 +96,7 @@ const SelectUsers = ({
         isMulti={isMulti}
         className="w-full"
         components={{ Option: CustomOption }}
+        placeholder={placeholder}
         menuPlacement={menuPlacement}
         closeMenuOnSelect={isMulti ? false : true}
         value={
