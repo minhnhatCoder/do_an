@@ -15,7 +15,9 @@ import { useRootState } from "../../store";
 import PostServices from "../../services/postServices";
 import DetailPost from "./DetailPost";
 import useSocketStore from "../../store/socketStore";
-import dayjs from "dayjs";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import Image from "react-image-resizer";
 
 const Post = ({ post, setPost, posts }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
@@ -23,6 +25,7 @@ const Post = ({ post, setPost, posts }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const [show, setShow] = useState(false);
   const [id, setId] = useState(0);
+
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
@@ -139,16 +142,34 @@ const Post = ({ post, setPost, posts }) => {
 
         <FiMoreHorizontal className="w-8 h-8" />
       </div>
-      <div className="flex items-center justify-around mt-3">
-        <img
-          src={post?.attachments?.[0]?.url}
-          className="w-full h-[450px] bg-contain rounded-lg object-cover cursor-pointer"
-          onClick={() => {
-            setId(post?._id);
-            setShow(true);
-          }}
-        />
-      </div>
+      <div className="mt-3" dangerouslySetInnerHTML={{ __html: post?.content }} />
+      <Swiper spaceBetween={50} navigation={true} modules={[Navigation]}>
+        {post?.attachments?.map((image, index) => {
+          return (
+            <SwiperSlide key={index}>
+              <div
+                className="flex items-center justify-around mt-3 "
+                onClick={() => {
+                  setId(post?._id);
+                  setShow(true);
+                }}
+              >
+                <Image
+                  src={image?.url}
+                  className="bg-contain rounded-lg object-cover cursor-pointer bg-gray-200"
+                  height={450}
+                  width={900}
+                  style={{
+                    background: "#F0F0F0",
+                    borderRadius: 8,
+                  }}
+                />
+              </div>
+            </SwiperSlide>
+          );
+        })}
+      </Swiper>
+
       <div className="flex items-center justify-between mt-4">
         {post?.liked_user?.length > 0 ? (
           <div className="flex items-center justify-center gap-2">

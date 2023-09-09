@@ -10,6 +10,9 @@ import { useRootState } from "./store";
 import DepartmentServices from "./services/deptServices";
 import { io } from "socket.io-client";
 import useSocketStore from "./store/socketStore";
+import "swiper/css";
+import "swiper/css/navigation";
+
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null);

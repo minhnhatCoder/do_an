@@ -1,4 +1,4 @@
-import { Modal, Spin } from "antd";
+import { Image as AntdImage, Modal, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import UserLiked from "./UserLiked";
 import { AiOutlineLike, AiTwotoneLike } from "react-icons/ai";
@@ -8,6 +8,9 @@ import PostServices from "../../services/postServices";
 import { useRootState } from "../../store";
 import CommentServices from "../../services/commentServices";
 import useSocketStore from "../../store/socketStore";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import Image from "react-image-resizer";
 
 const DetailPost = ({ show, setShow, id }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
@@ -126,12 +129,25 @@ const DetailPost = ({ show, setShow, id }) => {
       footer={null}
       centered
       onCancel={() => setShow(false)}
-      width={750}
+      width={950}
     >
       <Spin spinning={loading}>
         <div>
           <div className="flex flex-col gap-2 min-h-[700px] max-h-[1000px] overflow-y-auto p-3 hide-scroll">
-            <img src={post?.attachments?.[0]?.url} className="w-full h-[450px] bg-contain rounded-lg" />
+            <div dangerouslySetInnerHTML={{ __html: post?.content }} />
+
+            <Swiper navigation={true} modules={[Navigation]} className="w-[800px] h-[1380px]">
+              {post?.attachments?.map((image, index) => {
+                return (
+                  <SwiperSlide key={index}>
+                    <div className="flex items-center justify-center">
+                      <AntdImage src={image.url} height={550} quality={100} crop="fill" />
+                    </div>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center justify-center gap-2">
                 {post?.liked_user?.length > 0 ? (

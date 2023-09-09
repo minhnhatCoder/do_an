@@ -1,8 +1,8 @@
-import { Input, Avatar, Empty } from "antd";
+import { Input, Avatar, Empty, FloatButton } from "antd";
 import { BiGroup, BiNews } from "react-icons/bi";
 import { FaMapMarkerAlt, FaPhotoVideo, FaTasks, FaUsers } from "react-icons/fa";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Post from "../../components/post";
 import UploadPost from "../../components/uploadPost";
 import PostServices from "../../services/postServices";
@@ -21,14 +21,20 @@ import {
 import { PiUsersThin, PiUsersThreeThin } from "react-icons/pi";
 import useSocketStore from "../../store/socketStore";
 import Toast from "../../components/noti";
+import usePopupChatStore from "../../store/popupChatStore";
+import ConversationsServices from "../../services/conversationServies";
 
 const Home = () => {
   const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const userInfo = useRootState((state) => state.userInfo);
   const usersOnline = useRootState((state) => state.usersOnline);
   const resetUserInfo = useRootState((state) => state.resetUserInfo);
   const socket = useSocketStore((state) => state.socket);
+  const [hasMore, setHasMore] = useState(false);
+  const scrollRef = useRef(null);
+  const addConversation = usePopupChatStore((state) => state?.addConversation);
 
   const onApproversRequest = async (_id, body) => {
     setLoading(true);
@@ -66,25 +72,55 @@ const Home = () => {
     { label: "Lịch", icon: <CiCalendarDate className="w-7 h-7" />, link: "/" },
   ]);
 
-  const getPost = async () => {
+  const getPost = async (_page) => {
     setLoading(true);
     const params = {
       "related_user[all]": userInfo?._id,
       limit: 5,
-      page: 1,
+      page: _page ? _page : page,
       sort: "-created_at",
     };
+    _page == 0 && setPage(1);
     setLoading(false);
     const res = await PostServices.getPosts(params);
-    setData(res?.data);
+    setHasMore(res?.data?.length < res?.count);
+    _page == 1 ? setData(res?.data) : setData([...data, ...res?.data]);
     setLoading(false);
   };
   useEffect(() => {
-    getPost();
+    getPost(1);
   }, []);
 
+  useEffect(() => {
+    page > 1 && getPost();
+  }, [page]);
+
+  const handleScroll = () => {
+    const { scrollTop, clientHeight, scrollHeight } = scrollRef.current;
+    const isBottom = scrollTop + clientHeight === scrollHeight;
+    if (isBottom && hasMore) {
+      setPage(page + 1);
+    }
+  };
+
+  const onMessage = async (params) => {
+    try {
+      const res = await ConversationsServices.getConversations(params);
+      if (res?.data?.length > 0) {
+        addConversation(res?.data?.[0]);
+      } else {
+        const newConversation = await ConversationsServices.postConversation({
+          participants: params["participants[all]"],
+        });
+        addConversation(newConversation?.data);
+      }
+    } catch (error) {
+      console.log(error?.message);
+    }
+  };
+
   return (
-    <div className="main-content flex items-start justify-between gap-10 !px-32">
+    <div className="main-content flex items-start justify-between gap-10 !px-32 !pb-0 relative">
       <div className="w-1/5">
         <div className="rounded-lg p-3 bg-white h-[calc(100vh-105px)] box_shadow-light">
           <p className="font-semibold text-2xl mb-7">Thao tác nhanh</p>
@@ -97,7 +133,11 @@ const Home = () => {
           ))}
         </div>
       </div>
-      <div className="w-3/5 flex flex-col gap-4">
+      <div
+        className="w-3/5 flex flex-col gap-4 h-[calc(100vh-105px)] overflow-scroll hide-scroll"
+        ref={scrollRef}
+        onScroll={handleScroll}
+      >
         <InputPost getPost={getPost} />
         {/* post */}
         {data?.map((item) => {
@@ -106,38 +146,42 @@ const Home = () => {
       </div>
       <div className="w-1/4">
         <div className="rounded-lg p-3 bg-white mb-3 box_shadow-light min-h-[215px]">
-          <p className="font-semibold text-2xl mb-7">Lời mời kết bạn ({userInfo?.friend_requests?.length})</p>
+          <p className="font-semibold text-2xl mb-7">
+            Lời mời kết bạn ({userInfo?.friend_requests.filter((f) => f?.sender?._id != userInfo?._id)?.length})
+          </p>
 
-          {userInfo?.friend_requests?.length > 0 ? (
-            userInfo?.friend_requests?.map((friendRequest, index) => {
-              if (index < 2)
-                return (
-                  <div className="flex justify-between items-center mb-2" key={index}>
-                    <div className="flex items-center justify-center gap-2 cursor-pointer">
-                      <Avatar className="border " size={50} src={friendRequest?.sender?.image || ""} />
-                      <p className="font-semibold text-base">{friendRequest?.sender?.display_name}</p>
+          {userInfo?.friend_requests?.filter((f) => f?.sender?._id != userInfo?._id)?.length > 0 ? (
+            userInfo?.friend_requests
+              ?.filter((f) => f?.sender?._id != userInfo?._id)
+              ?.map((friendRequest, index) => {
+                if (index < 2)
+                  return (
+                    <div className="flex justify-between items-center mb-2" key={index}>
+                      <div className="flex items-center justify-center gap-2 cursor-pointer">
+                        <Avatar className="border " size={50} src={friendRequest?.sender?.image || ""} />
+                        <p className="font-semibold text-base">{friendRequest?.sender?.display_name}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="inline-block rounded-full bg-neutral-800 px-3 pb-2 pt-2.5 text-xs font-medium  text-neutral-50 shadow-[0_4px_9px_-4px_rgba(51,45,45,0.7)] "
+                          onClick={() => {
+                            onApproversRequest(friendRequest?._id, { status: "approved" });
+                          }}
+                        >
+                          Chấp nhận
+                        </button>
+                        <button
+                          className="inline-block rounded-full bg-neutral-50 px-3 pb-2 pt-2.5 text-xs font-medium text-neutral-800 shadow-[0_4px_9px_-4px_#cbcbcb] "
+                          onClick={() => {
+                            onApproversRequest(friendRequest?._id, { status: "rejected" });
+                          }}
+                        >
+                          Từ chối
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="inline-block rounded-full bg-neutral-800 px-3 pb-2 pt-2.5 text-xs font-medium  text-neutral-50 shadow-[0_4px_9px_-4px_rgba(51,45,45,0.7)] "
-                        onClick={() => {
-                          onApproversRequest(friendRequest?._id, { status: "approved" });
-                        }}
-                      >
-                        Chấp nhận
-                      </button>
-                      <button
-                        className="inline-block rounded-full bg-neutral-50 px-3 pb-2 pt-2.5 text-xs font-medium text-neutral-800 shadow-[0_4px_9px_-4px_#cbcbcb] "
-                        onClick={() => {
-                          onApproversRequest(friendRequest?._id, { status: "rejected" });
-                        }}
-                      >
-                        Từ chối
-                      </button>
-                    </div>
-                  </div>
-                );
-            })
+                  );
+              })
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Empty />
@@ -154,7 +198,16 @@ const Home = () => {
             })
             .sort((a, b) => Number(b.online) - Number(a.online))
             .map((i) => (
-              <div className="flex items-center gap-2 cursor-pointer mb-5 relative" key={i?._id}>
+              <div
+                className="flex items-center gap-2 cursor-pointer relative hover:bg-neutral-100 p-3 rounded-lg"
+                key={i?._id}
+                onClick={() => {
+                  onMessage({
+                    "participants[all]": [userInfo?._id, i?._id],
+                    "type:eq": "personal",
+                  });
+                }}
+              >
                 <Avatar className="border " size={50} src={i?.image || ""} />
                 <p className="font-semibold text-base">{i?.display_name}</p>
                 {i?.online ? (

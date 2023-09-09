@@ -6,13 +6,15 @@ import { BiTask, BiSearchAlt } from "react-icons/bi";
 import { FiLogOut } from "react-icons/fi";
 import { FaRegUserCircle, FaUsers, FaUsersSlash } from "react-icons/fa";
 import Toast from "../../components/noti";
-import { Avatar, Badge, Dropdown, AutoComplete, Input, Popover, Empty } from "antd";
+import { Avatar, Badge, Dropdown, AutoComplete, Input, Popover, Empty, FloatButton } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRootState } from "../../store";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
 import UserServices from "../../services/user";
 import NotificationServices from "../../services/notiServices";
 import useSocketStore from "../../store/socketStore";
+import { CommentOutlined, CustomerServiceOutlined } from "@ant-design/icons";
+import PopupChat from "./PopupChat";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
@@ -223,6 +225,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
         <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)]">{children}</div>
+        <PopupChat />
       </div>
     );
 };
