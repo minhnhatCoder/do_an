@@ -1,4 +1,4 @@
-import { Avatar, Empty, Modal, Popconfirm, Slider, Space, Spin, Table, Tabs, Tag, Tooltip } from "antd";
+import { Avatar, Empty, Modal, Popconfirm, Rate, Slider, Space, Spin, Table, Tabs, Tag, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import Priority from "../../components/priority";
 import { HiOutlineUser, HiUsers } from "react-icons/hi2";
@@ -24,6 +24,7 @@ import _ from "lodash";
 import Toast from "../../components/noti";
 import Status from "../../components/status";
 import useSocketStore from "../../store/socketStore";
+import { LiaGrinStars } from "react-icons/lia";
 
 const Detail = ({ id, show, setShow, getTasks }) => {
   const [data, setData] = useState({});
@@ -71,11 +72,36 @@ const Detail = ({ id, show, setShow, getTasks }) => {
     }
     setLoading(false);
   };
+
+  const onChangeRate = async (number) => {
+    setLoading(true);
+    try {
+      const res = await TasksServices.updateTask(id, {
+        star: number,
+        noti_content: "đã đánh giá công việc",
+      });
+
+      socket?.emit("sendNotification", {
+        userIds: data?.related_user?.map((u) => u?._id).filter((id) => id != userInfo?._id) || [],
+        data: {
+          content: `${userInfo?.display_name} đã đánh giá công việc`,
+        },
+      });
+      setData({ ...data, star: number });
+      getTasks && getTasks();
+      Toast("success", res?.message);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
+
   const onChangeStatus = async (_id) => {
     setLoading(true);
     const body = { status: _id };
     if (_id == 3) {
       body.progress = 99;
+      body.star = 2;
     }
     if (_id == 4 || _id == 1) {
       body.progress = 0;
@@ -194,6 +220,7 @@ const Detail = ({ id, show, setShow, getTasks }) => {
 
               <Slider
                 className="w-40"
+                disabled={data?.status != 2}
                 tooltip={{
                   formatter,
                 }}
@@ -203,17 +230,36 @@ const Detail = ({ id, show, setShow, getTasks }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-5">
-            <div className="flex items-center gap-2">
-              <MdDateRange className="w-5 h-5" />
-              <p className="font-semibold">Thời gian</p>
-            </div>
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-3 w-2/3">
+              <div className="flex items-center gap-3 mt-5">
+                <div className="flex items-center gap-2">
+                  <MdDateRange className="w-5 h-5" />
+                  <p className="font-semibold">Thời gian</p>
+                </div>
 
-            <div className="flex items-center gap-2">
-              <p>{convertTimeStampToString(data.start_date, "right")}</p>
-              <p> - {convertTimeStampToString(data.end_date, "right")}</p>
+                <div className="flex items-center gap-2">
+                  <p>{convertTimeStampToString(data.start_date, "right")}</p>
+                  <p> - {convertTimeStampToString(data.end_date, "right")}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mt-4 w-1/3">
+              <div className="flex items-center gap-2">
+                <LiaGrinStars className="w-5 h-5" />
+                <p className="font-semibold">Đánh giá</p>
+              </div>
+
+              <Rate
+                disabled={data?.status != 3}
+                value={data?.star}
+                onChange={(e) => {
+                  onChangeRate(e);
+                }}
+              />
             </div>
           </div>
+
           <div className="flex items-center gap-3 mt-5 mb-3">
             <div className="flex items-center gap-2">
               <FiClipboard className="w-5 h-5" />

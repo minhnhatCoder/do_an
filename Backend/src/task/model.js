@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const dayjs = require("dayjs");
 const usersDB = require("../auth/model");
 const NotificationDB = require("../noti/model");
+const number = require("@hapi/joi/lib/types/number");
 
 const taskSchema = new mongoose.Schema({
   title: {
@@ -34,6 +35,7 @@ const taskSchema = new mongoose.Schema({
     type: Number,
     default: 1,
   },
+  star: { type: Number, default: 0 },
   progress: {
     type: Number,
     default: 0,

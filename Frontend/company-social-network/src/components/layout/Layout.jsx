@@ -192,17 +192,18 @@ const Layout = ({ children }) => {
           <div className="flex items-center justify-center gap-2">
             {menuItems?.map((item, index) => {
               return (
-                <div
-                  key={index}
-                  className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
-                    item?.link == menuActive ? "border-b-[#28526e]" : "border-b-white"
-                  } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
-                  onClick={() => {
-                    setMenuActive(item?.link);
-                  }}
-                >
-                  <Link to={item.link}>{item.icon}</Link>
-                </div>
+                <Link to={item.link} key={index}>
+                  <div
+                    className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
+                      item?.link == menuActive ? "border-b-[#28526e]" : "border-b-white"
+                    } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
+                    onClick={() => {
+                      setMenuActive(item?.link);
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+                </Link>
               );
             })}
           </div>

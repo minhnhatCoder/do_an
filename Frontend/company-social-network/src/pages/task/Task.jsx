@@ -6,7 +6,7 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm, Dropdown } from "antd";
+import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm, Dropdown, Popover } from "antd";
 import React, { useEffect, useState } from "react";
 import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -21,10 +21,12 @@ import { Link } from "react-router-dom";
 import { BsTrash } from "react-icons/bs";
 import { GrEdit } from "react-icons/gr";
 import SelectUsers from "../../components/Select/Users";
+import SelectPriority from "../../components/Select/Priority";
+import SelectStar from "../../components/Select/Star";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1, sort: "created_at" });
+  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1, sort: "created_at", star: 0 });
   const [showDetail, setShowDetail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -156,6 +158,12 @@ const Task = ({ currentProject }) => {
       if (filter.reciever) {
         params["reciever[eq]"] = filter.reciever;
       }
+      if (filter.priority) {
+        params["priority[eq]"] = filter.priority;
+      }
+      if (filter.star) {
+        params["star[eq]"] = filter.star;
+      }
       const res = await TasksServices.getTasks(params);
       setTasks(
         res?.data.map((task) => ({
@@ -188,33 +196,7 @@ const Task = ({ currentProject }) => {
       <p className="font-bold text-xl">{currentProject?.title}</p>
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center justify-center gap-3">
-          <div className="w-72">
-            <SelectUsers
-              menuPlacement={"bottom"}
-              usersId={relatedUsers ?? []}
-              placeholder="Người tạo việc"
-              isClearable
-              required
-              value={filter?.assigner}
-              onChange={(e) => {
-                setFilter({ ...filter, assigner: e?.value });
-              }}
-            />
-          </div>
-          <div className="w-72">
-            <SelectUsers
-              menuPlacement={"bottom"}
-              usersId={relatedUsers ?? []}
-              placeholder="Người nhận việc"
-              isClearable
-              required
-              value={filter?.reciever}
-              onChange={(e) => {
-                setFilter({ ...filter, reciever: e?.value });
-              }}
-            />
-          </div>
-
+          <FilterCO relatedUsers={relatedUsers} filter={filter} setFilter={setFilter} />
           <Dropdown menu={{ items }} placement="bottom" arrow={{ pointAtCenter: true }} trigger={["click"]}>
             <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
               <BiSort className="w-4 h-4" />
@@ -401,3 +383,91 @@ const Task = ({ currentProject }) => {
 };
 
 export default Task;
+
+const FilterCO = ({ relatedUsers, filter, setFilter }) => {
+  const content = (
+    <div className="p-3">
+      <div className="flex items-center justify-center gap-4">
+        <div className="w-72">
+          <SelectUsers
+            menuPlacement={"bottom"}
+            usersId={relatedUsers ?? []}
+            title="Người tạo việc"
+            placeholder="Người tạo việc"
+            isClearable
+            value={filter?.assigner}
+            onChange={(e) => {
+              setFilter({ ...filter, assigner: e?.value });
+            }}
+          />
+        </div>
+        <div className="w-72">
+          <SelectUsers
+            menuPlacement={"bottom"}
+            usersId={relatedUsers ?? []}
+            title="Người nhận việc"
+            placeholder="Người nhận việc"
+            isClearable
+            value={filter?.reciever}
+            onChange={(e) => {
+              setFilter({ ...filter, reciever: e?.value });
+            }}
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-4 mt-4">
+        <div className="w-72">
+          <SelectPriority
+            title="Mức dộ ưu tiên"
+            isClearable
+            placeholder="Mức độ ưu tiên"
+            value={filter?.priority}
+            onChange={(e) => setFilter({ ...filter, priority: e?.value })}
+          />
+        </div>
+        <div className="w-72">
+          <SelectStar
+            menuPlacement={"bottom"}
+            title="Đánh giá"
+            placeholder="Đánh giá"
+            value={filter?.star}
+            isClearable
+            onChange={(e) => {
+              setFilter({ ...filter, star: e?.value });
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="w-full mt-4">
+        <p
+          className="text-blue-500 hover:text-orange-500 cursor-pointer text-right"
+          onClick={() => {
+            setFilter({
+              ...filter,
+              star: 0,
+              assigner: null,
+              reciever: null,
+              priority: null,
+            });
+          }}
+        >
+          Xóa bộ lọc
+        </p>
+      </div>
+    </div>
+  );
+  return (
+    <Popover
+      content={content}
+      title={<p className="font-bold text-lg">Bộ lọc</p>}
+      trigger="click"
+      placement="bottomRight"
+    >
+      <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
+        <LuSlidersHorizontal className="w-4 h-4" />
+        <p>Bộ lọc</p>
+      </div>
+    </Popover>
+  );
+};

@@ -9,9 +9,10 @@
 import { Popover, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { AiOutlineCheck } from "react-icons/ai";
-import { BiAddToQueue, BiCommentDetail, BiSolidFlagAlt } from "react-icons/bi";
+import { BiAddToQueue, BiCommentDetail, BiSolidFlagAlt, BiTask, BiTaskX } from "react-icons/bi";
 import { CgArrowsExchangeAltV } from "react-icons/cg";
 import { GoPaperclip } from "react-icons/go";
+import { MdPendingActions } from "react-icons/md";
 import { TbFileDescription } from "react-icons/tb";
 
 const Status = ({ id = 1, hideValue, onChange, hasTitle }) => {
@@ -51,7 +52,7 @@ const Status = ({ id = 1, hideValue, onChange, hasTitle }) => {
         onClick={() => onChange && onChange(2)}
       >
         <div className="flex items-center gap-2 ">
-          <BiCommentDetail className="w-6 h-6" />
+          <MdPendingActions className="w-6 h-6" />
           <p className="font-semibold">Đang làm</p>
         </div>
         {id == 2 && <AiOutlineCheck className="w-6 h-6" color="green" />}
@@ -61,7 +62,7 @@ const Status = ({ id = 1, hideValue, onChange, hasTitle }) => {
         onClick={() => onChange && onChange(3)}
       >
         <div className="flex items-center gap-2 ">
-          <GoPaperclip className="w-6 h-6" />
+          <BiTask className="w-6 h-6" />
           <p className="font-semibold">Hoàn thành</p>
         </div>
         {id == 3 && <AiOutlineCheck className="w-6 h-6" color="green" />}
@@ -71,7 +72,7 @@ const Status = ({ id = 1, hideValue, onChange, hasTitle }) => {
         onClick={() => onChange && onChange(4)}
       >
         <div className="flex items-center gap-2 ">
-          <BiAddToQueue className="w-6 h-6" />
+          <BiTaskX className="w-6 h-6" />
           <p className="font-semibold">Hủy</p>
         </div>
         {id == 4 && <AiOutlineCheck className="w-6 h-6" color="green" />}

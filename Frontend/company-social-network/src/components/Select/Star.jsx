@@ -23,10 +23,11 @@ const SelectPriority = ({
   placeholder,
 }) => {
   const [options, setOptions] = useState([
-    { value: 4, label: "Không ưu tiên" },
-    { value: 3, label: "Mức độ ưu tiên thấp" },
-    { value: 2, label: "Mức độ ưu tiên trung bình" },
-    { value: 1, label: "Mức độ ưu tiên cao" },
+    { value: 1, label: "⭐" },
+    { value: 2, label: "⭐⭐" },
+    { value: 3, label: "⭐⭐⭐" },
+    { value: 4, label: "⭐⭐⭐⭐" },
+    { value: 5, label: "⭐⭐⭐⭐⭐" },
   ]);
 
   return (
@@ -44,8 +45,8 @@ const SelectPriority = ({
         isClearable={isClearable}
         isMulti={isMulti}
         className="w-full"
-        placeholder={placeholder}
         menuPlacement={menuPlacement}
+        placeholder={placeholder}
         value={options.find((opt) => opt?.value == value) ?? null}
         onChange={onChange}
       />
