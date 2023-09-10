@@ -70,7 +70,10 @@ io.on("connection", (socket) => {
   });
 
   //send and get message
-  socket.on("sendMessage", ({ roomId, data }) => {
+  socket.on("sendMessage", ({ roomId, data, userId }) => {
+    const socketId = getUser(userId)?.socketId
+    console.log(socketId);                                                            
+    // io.sockets.sockets[socketId].join(roomId);
     io.to(roomId).emit("getMessage", data);
   });
 
@@ -81,7 +84,6 @@ io.on("connection", (socket) => {
       if (socketId)
         io.to(socketId).emit("getNotification", data);
     });
-
   });
 
   //join the room

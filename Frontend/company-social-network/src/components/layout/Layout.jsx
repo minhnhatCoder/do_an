@@ -15,10 +15,14 @@ import NotificationServices from "../../services/notiServices";
 import useSocketStore from "../../store/socketStore";
 import { CommentOutlined, CustomerServiceOutlined } from "@ant-design/icons";
 import PopupChat from "./PopupChat";
+import ConversationsServices from "../../services/conversationServies";
+import usePopupChatStore from "../../store/popupChatStore";
 
 const Layout = ({ children }) => {
+  const socket = useSocketStore((state) => state?.socket);
   const navigate = useNavigate();
   const userInfo = useRootState((state) => state.userInfo);
+  const addConversation = usePopupChatStore((state) => state?.addConversation);
   let location = useLocation();
   const [menuItems] = useState([
     { icon: <AiFillHome className="w-8 h-8" color="#28526e" />, link: "/" },
@@ -155,6 +159,22 @@ const Layout = ({ children }) => {
     ),
   });
 
+  const onMessage = async (id, updatedMessage) => {
+    try {
+      const res = await ConversationsServices.getConversation(id);
+      addConversation && addConversation({ ...res?.data, isPopup: true }, updatedMessage);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    socket &&
+      socket?.on("getMessage", (mess) => {
+        mess && onMessage(mess?.target, mess?.content);
+      });
+  }, [socket]);
+
   useEffect(() => {
     if (location?.pathname?.includes("/chat")) setMenuActive("/chat");
     else if (location?.pathname?.includes("/friends")) setMenuActive("/friends");
@@ -225,7 +245,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
         <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)]">{children}</div>
-        <PopupChat />
+        {menuActive != "/chat" && <PopupChat />}
       </div>
     );
 };

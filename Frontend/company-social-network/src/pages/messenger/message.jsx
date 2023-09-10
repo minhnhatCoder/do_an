@@ -67,7 +67,11 @@ const Message = ({ conversation, getConversation, setConversations, conversation
       setAttachments([]);
       setContent("");
       setLoadingSend(false);
-      socket?.emit("sendMessage", { roomId: id, data: res?.data });
+      socket?.emit("sendMessage", {
+        roomId: id,
+        data: res?.data,
+        userId: conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id,
+      });
     } catch (error) {
       setLoadingSend(false);
       Toast("error", error?.message);
@@ -139,7 +143,7 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   };
 
   return (
-    <div className="w-2/3 h-[calc(100vh-75px)] border-l border-r">
+    <div className="w-2/3 h-[calc(100vh-75px)] border-l border-r relative">
       <div className="p-4 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -278,9 +282,10 @@ const Message = ({ conversation, getConversation, setConversations, conversation
         </div>
       </Spin>
 
-      <div className="w-full px-4">
+      <div className="w-full px-4 absolute bottom-2 bg-white">
         <AnswerInput
           loading={loadingSend}
+          placeholder={"Viết tin nhắn ..."}
           content={content}
           setContent={setContent}
           onComment={onSendMessage}

@@ -185,17 +185,49 @@ export const AnswerComment = ({ hasShowMore, comment, setComments, comments }) =
   );
 };
 
-export const AnswerInput = ({ content, setContent, onComment, loading, files, setFiles, isUploadFile }) => {
+export const AnswerInput = ({
+  content,
+  setContent,
+  onComment,
+  loading,
+  files,
+  setFiles,
+  isUploadFile,
+  isMini,
+  placeholder,
+}) => {
   const currentUser = useRootState((state) => state.userInfo);
   return (
     <div>
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
-        <Tooltip title={currentUser?.display_name}>
-          <Avatar className="border " size={40} src={currentUser?.image} />
-        </Tooltip>
+        {isMini ? (
+          <div className="flex gap-2">
+            <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+            <div className="flex-1">
+              {isUploadFile ? (
+                <UploadUi
+                  files={files ?? []}
+                  setFiles={setFiles}
+                  customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
+                />
+              ) : (
+                <UploadImage
+                  files={files ?? []}
+                  setFiles={setFiles}
+                  customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          <Tooltip title={currentUser?.display_name}>
+            <Avatar className="border " size={40} src={currentUser?.image} />
+          </Tooltip>
+        )}
+
         <div className="flex-1">
           <TextArea
-            placeholder="Viết bình luận"
+            placeholder={placeholder ? placeholder : "Viết bình luận..."}
             className="rounded-2xl px-4 py-1"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -219,24 +251,26 @@ export const AnswerInput = ({ content, setContent, onComment, loading, files, se
           }}
         />
       </div>
-      <div className="flex gap-4 mt-1 ml-16">
-        <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
-        <div className="flex-1">
-          {isUploadFile ? (
-            <UploadUi
-              files={files ?? []}
-              setFiles={setFiles}
-              customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
-            />
-          ) : (
-            <UploadImage
-              files={files ?? []}
-              setFiles={setFiles}
-              customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
-            />
-          )}
+      {!isMini && (
+        <div className="flex gap-4 mt-1 ml-16">
+          <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+          <div className="flex-1">
+            {isUploadFile ? (
+              <UploadUi
+                files={files ?? []}
+                setFiles={setFiles}
+                customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
+              />
+            ) : (
+              <UploadImage
+                files={files ?? []}
+                setFiles={setFiles}
+                customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

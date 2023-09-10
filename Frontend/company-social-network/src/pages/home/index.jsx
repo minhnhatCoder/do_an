@@ -107,12 +107,12 @@ const Home = () => {
     try {
       const res = await ConversationsServices.getConversations(params);
       if (res?.data?.length > 0) {
-        addConversation(res?.data?.[0]);
+        addConversation({ ...res?.data?.[0], isPopup: true });
       } else {
         const newConversation = await ConversationsServices.postConversation({
           participants: params["participants[all]"],
         });
-        addConversation(newConversation?.data);
+        addConversation({ ...newConversation?.data, isPopup: true });
       }
     } catch (error) {
       console.log(error?.message);
@@ -147,7 +147,7 @@ const Home = () => {
       <div className="w-1/4">
         <div className="rounded-lg p-3 bg-white mb-3 box_shadow-light min-h-[215px]">
           <p className="font-semibold text-2xl mb-7">
-            Lời mời kết bạn ({userInfo?.friend_requests.filter((f) => f?.sender?._id != userInfo?._id)?.length})
+            Lời mời kết bạn ({userInfo?.friend_requests?.filter((f) => f?.sender?._id != userInfo?._id)?.length})
           </p>
 
           {userInfo?.friend_requests?.filter((f) => f?.sender?._id != userInfo?._id)?.length > 0 ? (
@@ -211,7 +211,7 @@ const Home = () => {
                 <Avatar className="border " size={50} src={i?.image || ""} />
                 <p className="font-semibold text-base">{i?.display_name}</p>
                 {i?.online ? (
-                  <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
+                  <span className="bottom-2 left-11 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
                 ) : null}
               </div>
             ))}
