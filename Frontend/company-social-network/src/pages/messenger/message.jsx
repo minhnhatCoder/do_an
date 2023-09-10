@@ -68,9 +68,8 @@ const Message = ({ conversation, getConversation, setConversations, conversation
       setContent("");
       setLoadingSend(false);
       socket?.emit("sendMessage", {
-        roomId: id,
+        userIds: conversation?.participants?.map((u) => u?._id),
         data: res?.data,
-        userId: conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id,
       });
     } catch (error) {
       setLoadingSend(false);
@@ -86,11 +85,6 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   useEffect(() => {
     id && getMessages();
   }, [page]);
-  useEffect(() => {
-    if (id && socket) {
-      socket?.emit("joinRoom", id);
-    }
-  }, [id, socket]);
 
   useEffect(() => {
     socket &&

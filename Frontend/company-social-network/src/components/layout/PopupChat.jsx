@@ -133,11 +133,13 @@ const MessageModal = ({ conversation }) => {
         content,
         attachments,
       });
-      if (attachments.length > 0) getConversation();
       setAttachments([]);
       setContent("");
       setLoadingSend(false);
-      socket?.emit("sendMessage", { roomId: conversation?._id, data: res?.data, userId: conversation?.receiver?._id });
+      socket?.emit("sendMessage", {
+        userIds: conversation?.participants?.map((u) => u?._id),
+        data: res?.data,
+      });
     } catch (error) {
       setLoadingSend(false);
       Toast("error", error?.message);
@@ -153,12 +155,6 @@ const MessageModal = ({ conversation }) => {
   useEffect(() => {
     conversation?.isPopup && getMessages();
   }, [page]);
-
-  useEffect(() => {
-    if (conversation?.isPopup && socket) {
-      socket?.emit("joinRoom", conversation?._id);
-    }
-  }, [conversation?.isPopup, socket]);
 
   useEffect(() => {
     socket &&

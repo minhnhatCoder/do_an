@@ -84,7 +84,7 @@ const Home = () => {
     setLoading(false);
     const res = await PostServices.getPosts(params);
     setHasMore(res?.data?.length < res?.count);
-    _page == 1 ? setData(res?.data) : setData([...data, ...res?.data]);
+    _page == 1 ? setData(res?.data) : setData([...data, ...res.data]);
     setLoading(false);
   };
   useEffect(() => {

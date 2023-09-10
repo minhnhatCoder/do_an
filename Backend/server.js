@@ -70,11 +70,13 @@ io.on("connection", (socket) => {
   });
 
   //send and get message
-  socket.on("sendMessage", ({ roomId, data, userId }) => {
-    const socketId = getUser(userId)?.socketId
-    console.log(socketId);                                                            
-    // io.sockets.sockets[socketId].join(roomId);
-    io.to(roomId).emit("getMessage", data);
+  socket.on("sendMessage", ({ userIds, data }) => {
+    userIds.forEach(userId => {
+      const socketId = getUser(userId)?.socketId
+      if (socketId)
+        io.to(socketId).emit("getMessage", data);
+    });
+
   });
 
   //send noti
@@ -85,16 +87,6 @@ io.on("connection", (socket) => {
         io.to(socketId).emit("getNotification", data);
     });
   });
-
-  //join the room
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
-  });
-  //leave the room
-  socket.on("leaveRoom", (roomId) => {
-    socket.leave(roomId);
-  });
-
 
   //when disconnect
   socket.on("disconnect", () => {

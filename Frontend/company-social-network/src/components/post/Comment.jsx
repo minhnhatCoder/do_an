@@ -1,6 +1,6 @@
 import { Avatar, Tooltip } from "antd";
 import { Input } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PiArrowBendUpLeftBold, PiPaperPlaneRightFill } from "react-icons/pi";
 import { BsImageFill } from "react-icons/bs";
 import { MdEmojiEmotions } from "react-icons/md";
@@ -197,6 +197,7 @@ export const AnswerInput = ({
   placeholder,
 }) => {
   const currentUser = useRootState((state) => state.userInfo);
+  const uploadRef = useRef(null);
   return (
     <div>
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
@@ -205,16 +206,19 @@ export const AnswerInput = ({
             <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
             <div className="flex-1">
               {isUploadFile ? (
-                <UploadUi
-                  files={files ?? []}
-                  setFiles={setFiles}
-                  customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
+                <AiOutlinePaperClip
+                  className="w-5 h-5 cursor-pointer text-neutral-400"
+                  onClick={() => {
+                    console.log(uploadRef.current);
+                    uploadRef.current.click();
+                  }}
                 />
               ) : (
-                <UploadImage
-                  files={files ?? []}
-                  setFiles={setFiles}
-                  customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
+                <BsImageFill
+                  className="w-5 h-5 cursor-pointer text-neutral-400"
+                  onClick={() => {
+                    uploadRef.current.click();
+                  }}
                 />
               )}
             </div>
@@ -251,7 +255,27 @@ export const AnswerInput = ({
           }}
         />
       </div>
-      {!isMini && (
+      {isMini ? (
+        <div>
+          {isUploadFile ? (
+            <UploadUi
+              files={files ?? []}
+              maxFileUpload={1}
+              setFiles={setFiles}
+              customBtnUpload={
+                <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" ref={uploadRef} />
+              }
+            />
+          ) : (
+            <UploadImage
+              maxFileUpload={1}
+              files={files ?? []}
+              setFiles={setFiles}
+              customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" ref={uploadRef} />}
+            />
+          )}
+        </div>
+      ) : (
         <div className="flex gap-4 mt-1 ml-16">
           <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
           <div className="flex-1">
