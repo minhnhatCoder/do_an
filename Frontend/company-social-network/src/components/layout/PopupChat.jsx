@@ -240,7 +240,7 @@ const MessageModal = ({ conversation }) => {
       </div>
 
       <div
-        className="px-2 h-[calc(450px-110px)] overflow-y-auto bg-[#f8f8fc]"
+        className="px-2 h-[calc(450px-125px)] overflow-y-auto bg-[#f8f8fc]"
         id="scroll-custom"
         ref={scrollRef}
         onScroll={handleScroll}

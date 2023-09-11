@@ -15,7 +15,7 @@ import Toast from "../noti";
 import _ from "lodash";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
-const UploadImage = ({ files, setFiles, type, customButton, maxFileUpload }) => {
+const UploadImage = ({ files, setFiles, type, customButton, maxFileUpload, isShowFile }) => {
   const [loading, setLoading] = useState(false);
   const handleChange = async (info) => {
     setLoading(true);
@@ -67,7 +67,7 @@ const UploadImage = ({ files, setFiles, type, customButton, maxFileUpload }) => 
         listType="picture-circle"
         fileList={[...files]}
         multiple
-        showUploadList={false}
+        showUploadList={isShowFile}
         maxCount={1}
         beforeUpload={beforeUpload}
         disabled={loading}
@@ -90,6 +90,7 @@ const UploadImage = ({ files, setFiles, type, customButton, maxFileUpload }) => 
         fileList={[...files]}
         className={`upload-list-inline`}
         multiple
+        showUploadList={isShowFile}
         maxCount={maxFileUpload ? maxFileUpload : 5}
         beforeUpload={beforeUpload}
         disabled={loading}

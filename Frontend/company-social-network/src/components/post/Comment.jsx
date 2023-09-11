@@ -224,7 +224,7 @@ export const AnswerInput = ({
                 <div className="relative">
                   <Tooltip key={index} title={getFileName(file?.public_id)}>
                     <div className="flex items-center justify-center gap-1 !w-12 !h-12 p-2 hover:bg-neutral-200 rounded-lg bg-neutral-100">
-                      <AiOutlinePaperClip className="w-12 h-12 cursor-pointer text-neutral-400" />
+                      <AiOutlinePaperClip className="w-12 h-12 cursor-pointer text-neutral-400 hover:text-neutral-600" />
                     </div>
                   </Tooltip>
                   <span
@@ -248,14 +248,14 @@ export const AnswerInput = ({
             <div className="flex-1">
               {isUploadFile ? (
                 <UploadUi
-                  disabledShowFile={false}
+                  isShowFile={false}
                   files={files ?? []}
                   setFiles={setFiles}
                   customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
                 />
               ) : (
                 <UploadImage
-                  disabledShowFile={false}
+                  isShowFile={false}
                   files={files ?? []}
                   setFiles={setFiles}
                   customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
