@@ -1,4 +1,4 @@
-import { Avatar, Tooltip } from "antd";
+import { Avatar, Image, Tooltip } from "antd";
 import { Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PiArrowBendUpLeftBold, PiPaperPlaneRightFill } from "react-icons/pi";
@@ -11,8 +11,9 @@ import CommentServices from "../../services/commentServices";
 import { timeAgo } from "../../helper/timeHelper";
 import UploadImage from "../uploadImage";
 import UploadUi from "../uploadFiles";
-import { AiOutlinePaperClip } from "react-icons/ai";
+import { AiOutlineCloseCircle, AiOutlinePaperClip } from "react-icons/ai";
 import Toast from "../noti";
+import { getFileName, isImageFile } from "../../helper/fileHelper";
 
 const { TextArea } = Input;
 
@@ -197,28 +198,67 @@ export const AnswerInput = ({
   placeholder,
 }) => {
   const currentUser = useRootState((state) => state.userInfo);
-  const uploadRef = useRef(null);
   return (
-    <div>
+    <div className="p-2 overflow-y-auto">
+      {isMini && (
+        <div className="flex items-center gap-2">
+          {files?.map((file, index) => {
+            if (isImageFile(file?.public_id)) {
+              return (
+                <div className="relative" key={index}>
+                  <Tooltip title={getFileName(file?.public_id)}>
+                    <Image src={file?.url} alt="" className="!w-12 !h-12 object-cover rounded-lg" />
+                  </Tooltip>
+                  <span
+                    className="-top-2 left-10 absolute  w-4 h-4 rounded-full bg-white cursor-pointer"
+                    onClick={() => {
+                      setFiles(files?.filter((f) => f?._id != file?._id));
+                    }}
+                  >
+                    <AiOutlineCloseCircle className="w-4 h-4" />
+                  </span>
+                </div>
+              );
+            } else {
+              return (
+                <div className="relative">
+                  <Tooltip key={index} title={getFileName(file?.public_id)}>
+                    <div className="flex items-center justify-center gap-1 !w-12 !h-12 p-2 hover:bg-neutral-200 rounded-lg bg-neutral-100">
+                      <AiOutlinePaperClip className="w-12 h-12 cursor-pointer text-neutral-400" />
+                    </div>
+                  </Tooltip>
+                  <span
+                    className="-top-2 left-10 absolute  w-4 h-4 rounded-full bg-white cursor-pointer"
+                    onClick={() => {
+                      setFiles(files?.filter((f) => f?._id != file?._id));
+                    }}
+                  >
+                    <AiOutlineCloseCircle className="w-4 h-4" />
+                  </span>
+                </div>
+              );
+            }
+          })}
+        </div>
+      )}
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
         {isMini ? (
           <div className="flex gap-2">
             <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
             <div className="flex-1">
               {isUploadFile ? (
-                <AiOutlinePaperClip
-                  className="w-5 h-5 cursor-pointer text-neutral-400"
-                  onClick={() => {
-                    console.log(uploadRef.current);
-                    uploadRef.current.click();
-                  }}
+                <UploadUi
+                  disabledShowFile={false}
+                  files={files ?? []}
+                  setFiles={setFiles}
+                  customBtnUpload={<AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />}
                 />
               ) : (
-                <BsImageFill
-                  className="w-5 h-5 cursor-pointer text-neutral-400"
-                  onClick={() => {
-                    uploadRef.current.click();
-                  }}
+                <UploadImage
+                  disabledShowFile={false}
+                  files={files ?? []}
+                  setFiles={setFiles}
+                  customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" />}
                 />
               )}
             </div>
@@ -255,27 +295,7 @@ export const AnswerInput = ({
           }}
         />
       </div>
-      {isMini ? (
-        <div>
-          {isUploadFile ? (
-            <UploadUi
-              files={files ?? []}
-              maxFileUpload={1}
-              setFiles={setFiles}
-              customBtnUpload={
-                <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" ref={uploadRef} />
-              }
-            />
-          ) : (
-            <UploadImage
-              maxFileUpload={1}
-              files={files ?? []}
-              setFiles={setFiles}
-              customButton={<BsImageFill className="w-5 h-5 cursor-pointer text-neutral-400" ref={uploadRef} />}
-            />
-          )}
-        </div>
-      ) : (
+      {!isMini && (
         <div className="flex gap-4 mt-1 ml-16">
           <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
           <div className="flex-1">

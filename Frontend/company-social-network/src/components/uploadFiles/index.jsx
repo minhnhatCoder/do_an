@@ -7,8 +7,9 @@ import Toast from "../noti";
 import _ from "lodash";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
-const UploadUi = ({ files, setFiles, customBtnUpload, maxFileUpload }) => {
+const UploadUi = ({ files, setFiles, customBtnUpload, maxFileUpload, disabledShowFile = true }) => {
   const [loading, setLoading] = useState(false);
+
   const handleChange = async (info) => {
     setLoading(true);
     try {
@@ -41,6 +42,7 @@ const UploadUi = ({ files, setFiles, customBtnUpload, maxFileUpload }) => {
       fileList={[...files]}
       multiple
       beforeUpload={beforeUpload}
+      showUploadList={disabledShowFile}
       disabled={loading}
       onChange={handleChange}
       onRemove={(e) => {
@@ -52,7 +54,7 @@ const UploadUi = ({ files, setFiles, customBtnUpload, maxFileUpload }) => {
       }}
     >
       {customBtnUpload ? (
-        customBtnUpload
+        <Spin spinning={loading}>{customBtnUpload}</Spin>
       ) : (
         <Button
           className={`btn-outlined  hover:!text-blue-500 !font-normal`}
