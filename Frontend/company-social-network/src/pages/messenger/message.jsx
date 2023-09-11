@@ -187,7 +187,7 @@ const Message = ({ conversation, getConversation, setConversations, conversation
       </div>
       <Spin spinning={loading} size="large">
         <div
-          className="h-[calc(100vh-235px)] overflow-y-auto bg-[#f8f8fc] p-3"
+          className="h-[calc(100vh-250px)] overflow-y-auto bg-[#f8f8fc] p-3"
           id="scroll-custom"
           ref={scrollRef}
           onScroll={handleScroll}
