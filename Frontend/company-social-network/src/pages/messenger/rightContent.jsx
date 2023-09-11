@@ -17,7 +17,6 @@ const RightContent = ({ setConversations, conversations }) => {
   const { id } = useParams();
   const [conversation, setConversation] = useState({});
   const [loading, setLoading] = useState(false);
-  const [attachments, setAttachments] = useState([]);
 
   const getConversation = async () => {
     try {

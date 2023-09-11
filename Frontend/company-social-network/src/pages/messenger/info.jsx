@@ -6,10 +6,10 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { IoIosNotifications } from "react-icons/io";
-import { Image, Switch } from "antd";
+import { Image, Modal, Switch, Tabs } from "antd";
 import { BsFillInfoCircleFill, BsImages } from "react-icons/bs";
 import { AiOutlineFileText, AiOutlinePaperClip } from "react-icons/ai";
 import { GrShieldSecurity } from "react-icons/gr";
@@ -19,6 +19,8 @@ import { getFileName, isImageFile } from "../../helper/fileHelper";
 const Info = ({ conversation }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const usersOnline = useRootState((state) => state?.usersOnline);
+  const [show, setShow] = useState(false);
+  const [tab, setTab] = useState(1);
 
   return (
     <div className="w-1/3 h-[calc(100vh-75px)] overflow-y-auto">
@@ -109,7 +111,15 @@ const Info = ({ conversation }) => {
             )}
           </div>
           {conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length > 3 && (
-            <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem thêm</p>
+            <p
+              className="text-neutral-400 cursor-pointer hover:underline text-xs"
+              onClick={() => {
+                setShow(true);
+                setTab(1);
+              }}
+            >
+              Xem thêm
+            </p>
           )}
         </div>
         <div className="flex items-center mt-2 gap-2">
@@ -145,7 +155,15 @@ const Info = ({ conversation }) => {
             )}
           </div>
           {conversation?.attachments?.filter((img) => !isImageFile(img?.public_id))?.length > 3 && (
-            <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem thêm</p>
+            <p
+              className="text-neutral-400 cursor-pointer hover:underline text-xs"
+              onClick={() => {
+                setShow(true);
+                setTab(2);
+              }}
+            >
+              Xem thêm
+            </p>
           )}
         </div>
         {conversation?.attachments
@@ -170,8 +188,73 @@ const Info = ({ conversation }) => {
         </div>
         <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem chi tiết</p>
       </div>
+      <FileModal show={show} setShow={setShow} files={conversation?.attachments} tab={tab} setTab={setTab} />
     </div>
   );
 };
 
 export default Info;
+
+const FileModal = ({ files, show, setShow }) => {
+  const items = [
+    {
+      key: "1",
+      label: "Ảnh",
+      children: (
+        <div>
+          <Image.PreviewGroup
+            className="gap-2"
+            preview={{
+              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+            }}
+          >
+            {files
+              ?.filter((img) => isImageFile(img?.public_id))
+              ?.map((attachment, index) => {
+                return <Image key={index} className="!w-36 !h-36 rounded-lg" src={attachment?.url} />;
+              })}
+          </Image.PreviewGroup>
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: "File",
+      children: (
+        <div>
+          {files
+            ?.filter((img) => !isImageFile(img?.public_id))
+            ?.map((file, index) => {
+              return (
+                <div className="flex items-center gap-2" key={index}>
+                  <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />
+                  <a className="text-neutral-600 hover:underline text-base" href={file?.url}>
+                    {getFileName(file?.public_id)}
+                  </a>
+                </div>
+              );
+            })}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <Modal
+      title={
+        <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
+          <p className="font-bold text-lg text-center">Tài liệu</p>
+        </div>
+      }
+      open={show}
+      footer={null}
+      centered
+      onCancel={() => setShow(false)}
+      width={700}
+    >
+      <div className="p-3 h-[500px]  overflow-auto">
+        <Tabs defaultActiveKey="1" centered items={items} />
+      </div>
+    </Modal>
+  );
+};
