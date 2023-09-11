@@ -20,7 +20,7 @@ const Info = ({ conversation }) => {
   const userInfo = useRootState((state) => state.userInfo);
   const usersOnline = useRootState((state) => state?.usersOnline);
   const [show, setShow] = useState(false);
-  const [tab, setTab] = useState(1);
+  const [tab, setTab] = useState("1");
 
   return (
     <div className="w-1/3 h-[calc(100vh-75px)] overflow-y-auto">
@@ -115,7 +115,7 @@ const Info = ({ conversation }) => {
               className="text-neutral-400 cursor-pointer hover:underline text-xs"
               onClick={() => {
                 setShow(true);
-                setTab(1);
+                setTab("1");
               }}
             >
               Xem thêm
@@ -159,7 +159,7 @@ const Info = ({ conversation }) => {
               className="text-neutral-400 cursor-pointer hover:underline text-xs"
               onClick={() => {
                 setShow(true);
-                setTab(2);
+                setTab("2");
               }}
             >
               Xem thêm
@@ -195,7 +195,7 @@ const Info = ({ conversation }) => {
 
 export default Info;
 
-const FileModal = ({ files, show, setShow }) => {
+const FileModal = ({ files, show, setShow, tab, setTab }) => {
   const items = [
     {
       key: "1",
@@ -253,7 +253,14 @@ const FileModal = ({ files, show, setShow }) => {
       width={700}
     >
       <div className="p-3 h-[500px]  overflow-auto">
-        <Tabs defaultActiveKey="1" centered items={items} />
+        <Tabs
+          centered
+          items={items}
+          activeKey={tab}
+          onChange={(e) => {
+            setTab(String(e));
+          }}
+        />
       </div>
     </Modal>
   );
