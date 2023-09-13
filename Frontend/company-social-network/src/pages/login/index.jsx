@@ -50,11 +50,6 @@ const Login = ({ setToken }) => {
         <button className="btn-green w-96 mt-6 !py-4" onClick={onLogin}>
           Đăng nhập
         </button>
-        <div className=" mt-4 text-right w-96">
-          <Link className="text-blue-500 cursor-pointer font-bold" to="/register">
-            Đăng ký
-          </Link>
-        </div>
       </div>
       <div className="w-2/3">
         <img src="https://www.gapo.vn/assets/images/right-cover.jpg" className="w-full h-full" />

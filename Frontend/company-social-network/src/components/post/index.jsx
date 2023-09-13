@@ -1,9 +1,9 @@
-import { Avatar, Tooltip, Modal, Button } from "antd";
+import { Avatar, Tooltip, Modal, Button, Dropdown, Popconfirm } from "antd";
 import React, { useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { GoCommentDiscussion } from "react-icons/go";
 import { BiShare, BiSolidLock } from "react-icons/bi";
-import { AiOutlineGlobal, AiOutlineLike, AiTwotoneLike } from "react-icons/ai";
+import { AiOutlineEdit, AiOutlineGlobal, AiOutlineLike, AiTwotoneLike } from "react-icons/ai";
 import Comment from "./Comment";
 import UserLiked from "./UserLiked";
 import { Link } from "react-router-dom";
@@ -18,13 +18,29 @@ import useSocketStore from "../../store/socketStore";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import Image from "react-image-resizer";
+import { BsTrash } from "react-icons/bs";
+import UploadPost from "../uploadPost";
+import Toast from "../noti";
 
 const Post = ({ post, setPost, posts }) => {
   const [isShowUserLiked, setIsShowUserLiked] = useState(false);
   const socket = useSocketStore((state) => state.socket);
   const userInfo = useRootState((state) => state.userInfo);
   const [show, setShow] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [id, setId] = useState(0);
+
+  const cbSuccess = (data) => {
+    setPost((prev) =>
+      prev?.map((p) => {
+        if (p?._id == data?._id) {
+          return { ...p, content: data?.content, show_type: data?.show_type, attachments: data?.attachments };
+        } else {
+          return p;
+        }
+      })
+    );
+  };
 
   const onLikePost = async () => {
     try {
@@ -91,6 +107,16 @@ const Post = ({ post, setPost, posts }) => {
     setPost([...posts]);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const res = PostServices.deletePost(id);
+      setPost((prev) => prev?.filter((p) => p?._id !== id));
+      Toast("success", res?.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="py-3 px-5 rounded-lg bg-white box_shadow-light w-full">
       <div className="flex items-center justify-between">
@@ -140,7 +166,44 @@ const Post = ({ post, setPost, posts }) => {
           </div>
         </div>
 
-        <FiMoreHorizontal className="w-8 h-8" />
+        {post?.created_user?._id == userInfo?._id ? (
+          <Dropdown
+            trigger={"click"}
+            placement="bottom"
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: (
+                    <p
+                      className="font-semibold"
+                      onClick={() => {
+                        setId(post?._id);
+                        setShowEdit(true);
+                      }}
+                    >
+                      Sửa bài viết
+                    </p>
+                  ),
+                  icon: <AiOutlineEdit className="w-5 h-5" />,
+                },
+                {
+                  key: "2",
+                  label: (
+                    <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(post?._id)}>
+                      <div className="flex items-center gap-2">
+                        <BsTrash className="w-5 h-5" />
+                        <p className="font-semibold">Xóa bài viết</p>
+                      </div>
+                    </Popconfirm>
+                  ),
+                },
+              ],
+            }}
+          >
+            <FiMoreHorizontal className="w-8 h-8 cursor-pointer text-neutral-500 hover:text-neutral-900" />
+          </Dropdown>
+        ) : null}
       </div>
       <div className="mt-3" dangerouslySetInnerHTML={{ __html: post?.content }} />
       <Swiper spaceBetween={50} navigation={true} modules={[Navigation]}>
@@ -218,6 +281,7 @@ const Post = ({ post, setPost, posts }) => {
       <Comment id={post?._id} onCommentSuccess={onComment} />
       <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} data={post?.liked_user} />
       <DetailPost show={show} setShow={setShow} id={id} />
+      <UploadPost show={showEdit} setShow={setShowEdit} id={id} cbSuccess={cbSuccess} />
     </div>
   );
 };

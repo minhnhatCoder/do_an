@@ -8,13 +8,13 @@
  */
 
 import { Modal, Spin } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text } from "../../components/input";
 import SelectUsers from "../../components/Select/Users";
 import Toast from "../../components/noti";
 import Tasks from "../../services/tasksServices";
 
-const Edit = ({ id, show, setShow }) => {
+const Edit = ({ id, show, setShow, setId }) => {
   const [infoEdit, setInfoEdit] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -24,18 +24,30 @@ const Edit = ({ id, show, setShow }) => {
       let res;
       if (id) {
         res = await Tasks.updateProject(id, infoEdit);
+        setInfoEdit({});
+        setShow(false);
+        setLoading(false);
       } else {
         res = await Tasks.addProject(infoEdit);
         setInfoEdit({});
         setShow(false);
         setLoading(false);
-        Toast("success", res?.message);
       }
+      Toast("success", res?.message);
     } catch (error) {
       setLoading(false);
       Toast("error", error?.response?.data?.message);
     }
   };
+  const getProject = async () => {
+    const { data } = await Tasks.getProject(id);
+    setInfoEdit({ title: data.title, related_user: data.related_user });
+  };
+
+  useEffect(() => {
+    id && show && getProject();
+  }, [show]);
+
   return (
     <Modal
       title={
@@ -50,6 +62,7 @@ const Edit = ({ id, show, setShow }) => {
       onCancel={() => {
         setShow(false);
         setInfoEdit({});
+        setId(0);
       }}
       width={900}
     >

@@ -7,7 +7,7 @@
  * Change Log: <press Ctrl + alt + c write changelog>
  */
 import { Modal, Spin } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Date, Select, Text } from "../../components/input";
 import UploadImage from "../../components/uploadImage";
 import SelectDepartment from "../../components/Select/department";
@@ -16,11 +16,12 @@ import SelectGender from "../../components/Select/Gender";
 import UserServices from "../../services/user";
 import Toast from "../../components/noti";
 import _ from "lodash";
+import SelectStatus from "../../components/Select/Status";
 
 const Edit = ({ show, setShow, id, setId, getData }) => {
   const [loading, setLoading] = useState(false);
   const [infoEdit, setInfoEdit] = useState({});
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState([]);
 
   const onUpdate = async () => {
     if (infoEdit?.password !== infoEdit?.password_confirm) {
@@ -32,12 +33,12 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
         const body = _.cloneDeep(infoEdit);
         delete body.password_confirm;
         body.image = image?.[0]?.url;
-        const res = await UserServices.updateUser(body);
+        const res = await UserServices.updateUser(id, body);
         getData();
         setId(0);
         setShow(false);
         setInfoEdit({});
-        setImage("");
+        setImage([]);
         setLoading(false);
         Toast("success", res?.message);
       } else {
@@ -48,7 +49,7 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
         getData();
         setId(0);
         setInfoEdit({});
-        setImage("");
+        setImage([]);
         setShow(false);
         setLoading(false);
         Toast("success", res?.message);
@@ -58,6 +59,33 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
       setLoading(false);
     }
   };
+  const getUser = async () => {
+    setLoading(true);
+    const { data } = await UserServices.getUser(id);
+    setImage([
+      {
+        name: "hinh-anh-doremon-cute-ngau-dep-nhat-2-1.jpg",
+        public_id: "files/hinh-anh-doremon-cute-ngau-dep-nhat-2-1.jpg",
+        uid: "__AUTO__1694614226192_0__",
+        url: data?.image,
+      },
+    ]);
+    setInfoEdit({
+      display_name: data?.display_name,
+      email: data?.email,
+      phone: data?.phone,
+      gender: data?.gender,
+      birth: data?.birth,
+      position: data?.position?._id,
+      department: data?.department?._id,
+      address: data?.address,
+      status: data?.status,
+    });
+    setLoading(false);
+  };
+  useEffect(() => {
+    id && show && getUser();
+  }, [show]);
   return (
     <Modal
       title={
@@ -69,7 +97,12 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
       //   footer={null}
       centered
       onOk={onUpdate}
-      onCancel={() => setShow(false)}
+      onCancel={() => {
+        setInfoEdit({});
+        setImage([]);
+        setId(0);
+        setShow(false);
+      }}
       width={700}
     >
       <Spin spinning={loading}>
@@ -77,7 +110,7 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
           <div className="flex justify-center">
             <div className="flex flex-col items-center justify-center">
               <p className="mb-2">Ảnh đại diện</p>
-              <UploadImage files={image} setFiles={setImage} type="avatar" />
+              <UploadImage files={image} setFiles={setImage} type="avatar" isShowFile={false} />
             </div>
           </div>
 
@@ -150,13 +183,23 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
             />
           </div>
 
-          <Text
-            classname="w-full mt-5"
-            title="Số điện thoại"
-            value={infoEdit?.phone}
-            required
-            onChange={(e) => setInfoEdit({ ...infoEdit, phone: e.target.value })}
-          />
+          <div className="mt-5 flex items-center justify-center gap-2">
+            <Text
+              classname="w-1/2"
+              title="Số điện thoại"
+              value={infoEdit?.phone}
+              required
+              onChange={(e) => setInfoEdit({ ...infoEdit, phone: e.target.value })}
+            />
+            <SelectStatus
+              menuPlacement={"top"}
+              title="Trạng thái làm việc"
+              className="w-1/2"
+              value={infoEdit?.status}
+              onChange={(e) => setInfoEdit({ ...infoEdit, status: e?.value })}
+            />
+          </div>
+
           <Text
             classname="w-full mt-5"
             title="Địa chỉ"

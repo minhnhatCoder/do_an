@@ -1,5 +1,3 @@
-
-
 /*
  * @description
  * @since         Wednesday, 7 26th 2023, 22:29:06 pm
@@ -11,7 +9,7 @@
 import React, { useState } from "react";
 import Select from "react-select";
 
-const SelectGender = ({
+const SelectStatus = ({
   title,
   value,
   onChange,
@@ -23,9 +21,8 @@ const SelectGender = ({
   isClearable,
 }) => {
   const [options, setOptions] = useState([
-    { value: "Nam", label: "Nam" },
-    { value: "Nữ", label: "Nữ" },
-    { value: "Khác", label: "Khác" },
+    { value: 1, label: "Đang làm việc" },
+    { value: 0, label: "Đã nghỉ việc" },
   ]);
 
   return (
@@ -51,4 +48,4 @@ const SelectGender = ({
   );
 };
 
-export default SelectGender;
+export default SelectStatus;

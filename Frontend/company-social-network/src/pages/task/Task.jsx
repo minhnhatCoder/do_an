@@ -183,7 +183,15 @@ const Task = ({ currentProject }) => {
     }
     setLoading(false);
   };
-  const handleDelete = async (_id) => {};
+  const handleDelete = async (id) => {
+    try {
+      const res = await TasksServices.deleteTask(id);
+      getTasks(page);
+      Toast("success", res?.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     getTasks();
@@ -365,7 +373,7 @@ const Task = ({ currentProject }) => {
                       setShow(true);
                     }}
                   />
-                  <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete()}>
+                  <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(key)}>
                     <BsTrash className="w-5 h-5 cursor-pointer hover:text-blue-500" />
                   </Popconfirm>
                 </Space>

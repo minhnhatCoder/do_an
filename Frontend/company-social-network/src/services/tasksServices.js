@@ -23,7 +23,7 @@ const Tasks = {
     return axiosClient.post(url, body);
   },
   updateProject: (id, body) => {
-    const url = "/job/projects" + id;
+    const url = "/job/projects/" + id;
     return axiosClient.put(url, body);
   },
   getTask: (id) => {
@@ -45,6 +45,10 @@ const Tasks = {
   commentTask: (id, body) => {
     const url = "/job/tasks/comment/" + id;
     return axiosClient.post(url, body);
+  },
+  deleteTask: (id) => {
+    const url = "/job/tasks/" + id;
+    return axiosClient.delete(url);
   },
 };
 

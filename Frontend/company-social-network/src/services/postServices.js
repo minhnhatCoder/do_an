@@ -14,6 +14,14 @@ const PostServices = {
     const url = "/story/posts";
     return axiosClient.post(url, body);
   },
+  updatePost: (id, body) => {
+    const url = "/story/posts/" + id;
+    return axiosClient.put(url, body);
+  },
+  deletePost: (id) => {
+    const url = "/story/posts/" + id;
+    return axiosClient.delete(url);
+  },
   commentPost: (id, body) => {
     const url = "/story/comment/" + id;
     return axiosClient.put(url, body);

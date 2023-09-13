@@ -1,6 +1,13 @@
 import { Avatar, Dropdown, Empty, Input, InputNumber, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { AiOutlineCheck, AiOutlineClose, AiOutlineMessage, AiOutlinePlus } from "react-icons/ai";
+import {
+  AiFillEdit,
+  AiOutlineCheck,
+  AiOutlineClose,
+  AiOutlineEdit,
+  AiOutlineMessage,
+  AiOutlinePlus,
+} from "react-icons/ai";
 import { BiSearchAlt, BiSolidRightArrow, BiSolidDownArrow } from "react-icons/bi";
 import { FcFolder, FcOpenedFolder } from "react-icons/fc";
 import { FiFolderPlus, FiMoreHorizontal } from "react-icons/fi";
@@ -26,6 +33,8 @@ const Friends = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [show, setShow] = useState(false);
+  const [id, setId] = useState(0);
+
   const onMessage = async (params) => {
     try {
       const res = await ConversationsServices.getConversations(params);
@@ -85,6 +94,13 @@ const Friends = () => {
       title: "Trạng thái",
       dataIndex: "status",
       width: 150,
+      render: (value) => (
+        <div>
+          <p className={`font-bold ${value == 1 ? "text-green-500" : " text-red-500"}`}>
+            {value == 1 ? "Đang làm việc" : "Đã nghỉ việc"}
+          </p>
+        </div>
+      ),
     },
     {
       title: "",
@@ -117,6 +133,21 @@ const Friends = () => {
               </Link>
             ),
             icon: <RxAvatar className="w-5 h-5" />,
+          },
+          {
+            key: "3",
+            label: (
+              <p
+                className="font-semibold"
+                onClick={() => {
+                  setShow(true);
+                  setId(key);
+                }}
+              >
+                Sửa
+              </p>
+            ),
+            icon: <AiOutlineEdit className="w-5 h-5" />,
           },
         ];
         return (
@@ -174,7 +205,7 @@ const Friends = () => {
             dept: user?.department?.name,
             role: user?.position?.name,
           },
-          status: "Đang làm việc",
+          status: user?.status,
         }))
       );
       setLoading(false);
@@ -289,7 +320,7 @@ const Friends = () => {
           </div>
         </div>
       </div>
-      <Edit show={show} setShow={setShow} id={0} setId={() => {}} getData={getUsers} />
+      <Edit show={show} setShow={setShow} id={id} setId={setId} getData={getUsers} />
     </div>
   );
 };

@@ -18,7 +18,7 @@ import SelectUsers from "../Select/Users";
 import useSocketStore from "../../store/socketStore";
 import dayjs from "dayjs";
 
-const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
+const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend, id }) => {
   const socket = useSocketStore((state) => state.socket);
   const userInfo = useRootState((state) => state.userInfo);
   const users = useRootState((state) => state.users);
@@ -34,41 +34,62 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
   const handleUploadPost = async () => {
     setLoading(true);
     try {
-      const res = await PostServices.uploadPost({
-        title: "",
-        content,
-        created_user: userInfo?._id,
-        attachments: files,
-        show_type: type,
-        related_user:
-          type == 0
-            ? users?.map((u) => u?._id)
-            : type == 1
-            ? [userInfo?._id]
-            : type == 2
-            ? userInfo?.friends?.map((u) => u?._id)
-            : type == 3
-            ? deptRelated
-            : userRelated,
-      });
-      socket.emit("sendNotification", {
-        userIds:
-          type == 0
-            ? users?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
-            : type == 1
-            ? [userInfo?._id]?.filter((u) => u != userInfo?._id)
-            : type == 2
-            ? userInfo?.friends?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
-            : type == 3
-            ? users
-                ?.filter((u) => deptRelated?.includes(u?.department?._id))
-                ?.map((u) => u?._id)
-                ?.filter((u) => u != userInfo?._id)
-            : userRelated?.filter((u) => u != userInfo?._id),
-        data: {
-          content: `${userInfo?.display_name} đã tạo bài viết mới`,
-        },
-      });
+      let res;
+      if (id) {
+        res = await PostServices.updatePost(id, {
+          title: "",
+          content,
+          attachments: files,
+          show_type: type,
+          related_user:
+            type == 0
+              ? users?.map((u) => u?._id)
+              : type == 1
+              ? [userInfo?._id]
+              : type == 2
+              ? userInfo?.friends?.map((u) => u?._id)
+              : type == 3
+              ? deptRelated
+              : userRelated,
+        });
+      } else {
+        res = await PostServices.uploadPost({
+          title: "",
+          content,
+          created_user: userInfo?._id,
+          attachments: files,
+          show_type: type,
+          related_user:
+            type == 0
+              ? users?.map((u) => u?._id)
+              : type == 1
+              ? [userInfo?._id]
+              : type == 2
+              ? userInfo?.friends?.map((u) => u?._id)
+              : type == 3
+              ? deptRelated
+              : userRelated,
+        });
+        socket.emit("sendNotification", {
+          userIds:
+            type == 0
+              ? users?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
+              : type == 1
+              ? [userInfo?._id]?.filter((u) => u != userInfo?._id)
+              : type == 2
+              ? userInfo?.friends?.map((u) => u?._id)?.filter((u) => u != userInfo?._id)
+              : type == 3
+              ? users
+                  ?.filter((u) => deptRelated?.includes(u?.department?._id))
+                  ?.map((u) => u?._id)
+                  ?.filter((u) => u != userInfo?._id)
+              : userRelated?.filter((u) => u != userInfo?._id),
+          data: {
+            content: `${userInfo?.display_name} đã tạo bài viết mới`,
+          },
+        });
+      }
+
       setShow(false);
       setLoading(false);
       setContent("");
@@ -76,8 +97,25 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
       setUserRelated([]);
       setType(0);
       setFiles([]);
-      cbSuccess && cbSuccess();
+      cbSuccess && cbSuccess(res?.data);
       Toast("success", res.message);
+    } catch (err) {
+      setLoading(false);
+      Toast("danger", err.response.data.message);
+    }
+  };
+
+  const getPost = async () => {
+    setLoading(true);
+    try {
+      const res = await PostServices.getPost(id);
+      setContent(res.data.content);
+      setType(res.data.show_type);
+      setDeptRelated(res.data.related_department);
+      setUserRelated(res.data.related_user);
+      setFiles(res.data.attachments);
+      setHaveFiles(res.data.attachments.length > 0);
+      setLoading(false);
     } catch (err) {
       setLoading(false);
       Toast("danger", err.response.data.message);
@@ -88,11 +126,15 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
     upLoadToFriend && setType(2);
   }, [upLoadToFriend]);
 
+  useEffect(() => {
+    id && show && getPost();
+  }, [show]);
+
   return (
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg">Tạo bài viết</p>
+          <p className="font-bold text-lg">{id ? "Sửa bài viết" : "Tạo bài viết"}</p>
         </div>
       }
       open={show}
@@ -175,7 +217,7 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend }) => {
             disabled={content.trim().length == 0}
             onClick={handleUploadPost}
           >
-            Đăng
+            {id ? "Sửa bài viết" : "Tạo bài viết"}
           </Button>
         </div>
         <UserRelated
