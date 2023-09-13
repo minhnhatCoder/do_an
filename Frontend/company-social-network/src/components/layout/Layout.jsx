@@ -188,7 +188,7 @@ const Layout = ({ children }) => {
       <div className="min-h-full h-screen">
         <div className="p-2 flex items-center justify-between box_shadow-light px-16">
           <div className="flex items-center justify-center gap-9">
-            <p className="font-bold text-2xl">penSocial</p>
+            <p className="font-bold text-2xl">DagoSocial</p>
             <AutoComplete
               options={options}
               className="w-72"

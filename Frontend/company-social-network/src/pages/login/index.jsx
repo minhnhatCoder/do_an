@@ -25,8 +25,8 @@ const Login = ({ setToken }) => {
   return (
     <div className="h-screen w-screen flex">
       <div className="w-1/3 px-24 py-8">
-        <p className="font-bold text-5xl text-green-500">gapo</p>
-        <p className="font-bold text-4xl mt-9">Xin chào Gapoer!</p>
+        <p className="font-bold text-5xl text-green-500">Dago</p>
+        <p className="font-bold text-4xl mt-9">Xin chào Damianer!</p>
 
         <Text
           title={"Email"}
@@ -52,7 +52,10 @@ const Login = ({ setToken }) => {
         </button>
       </div>
       <div className="w-2/3">
-        <img src="https://www.gapo.vn/assets/images/right-cover.jpg" className="w-full h-full" />
+        <img
+          src="https://lambanner.com/wp-content/uploads/2021/04/MNT-DESIGN-KICH-THUOC-ANH-MANG-XA-HOI-2021.jpg"
+          className="w-full h-full"
+        />
       </div>
     </div>
   );
