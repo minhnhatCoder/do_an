@@ -162,6 +162,47 @@ exports.commentTask = async (req, res) => {
     return res.status(400).json({ status: 400, message: error.message });
   }
 };
+
+exports.getStatistics = async (req, res) => {
+
+  const { start_date, end_date, dept_id, status } = req.query;
+  try {
+    // Lấy danh sách người dùng trong phòng ban
+    const users = await usersDB.find({ department: dept_id });
+
+    // Lấy danh sách ID người dùng từ kết quả truy vấn
+    const getTasks = async (user_id) => {
+      const tasks = await tasksDB.find({
+        reciever: {
+          $eq: user_id,
+        },
+        start_date: {
+          $gte: start_date,
+          $lte: end_date,
+        },
+        status
+      })
+      return tasks
+    }
+    let statistic = []
+    await Promise.all(users.map(async (user) => {
+      const tasks = await getTasks(user._id);
+      statistic.push({
+        user_id: user._id,
+        user_name: user.display_name,
+        task_count: tasks.length,
+      })
+    }))
+
+
+
+    return res.status(200).json({ status: 200, message: "Thống kê thành công", data: statistic });
+  } catch (error) {
+    return res.status(400).json({ status: 400, message: error.message });
+  }
+}
+
+////project
 exports.createProject = async (req, res) => {
   try {
     const project = new projectsDB({

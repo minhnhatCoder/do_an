@@ -8,6 +8,7 @@ route.post("/tasks", checkAuth, controller.createTask);
 route.post("/tasks/comment/:id", checkAuth, controller.commentTask);
 route.put("/tasks/:id", checkAuth, controller.updateTask);
 route.delete("/tasks/:id", checkAuth, controller.deleteTask);
+route.get("/statistic", checkAuth, controller.getStatistics);
 
 route.get("/projects", checkAuth, controller.getProjects);
 route.get("/projects/:id", checkAuth, controller.getProject);
