@@ -88,4 +88,8 @@ function formatTimestamp(timestamp) {
   }
 }
 
-export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp, formatTimestamp };
+function getCurrentTimeStamp() {
+  return dayjs().valueOf();
+}
+
+export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp, formatTimestamp, getCurrentTimeStamp };

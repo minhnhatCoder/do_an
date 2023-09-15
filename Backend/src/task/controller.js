@@ -180,21 +180,25 @@ exports.getStatistics = async (req, res) => {
           $gte: start_date,
           $lte: end_date,
         },
-        status
-      })
+      }).populate("reciever", ["display_name", "image"])
       return tasks
     }
     let statistic = []
     await Promise.all(users.map(async (user) => {
       const tasks = await getTasks(user._id);
       statistic.push({
-        user_id: user._id,
-        user_name: user.display_name,
-        task_count: tasks.length,
+        user: {
+          _id: user._id,
+          display_name: user.display_name,
+          image: user.image,
+        },
+        task_todo: tasks?.filter(t => t?.status == 1).length,
+        task_doing: tasks?.filter(t => t?.status == 2).length,
+        task_complete: tasks?.filter(t => t?.status == 3).length,
+        task_cancel: tasks?.filter(t => t?.status == 4).length,
+        tasks: tasks
       })
     }))
-
-
 
     return res.status(200).json({ status: 200, message: "Thống kê thành công", data: statistic });
   } catch (error) {

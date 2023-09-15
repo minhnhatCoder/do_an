@@ -50,6 +50,10 @@ const Tasks = {
     const url = "/job/tasks/" + id;
     return axiosClient.delete(url);
   },
+  getStatistic: (params) => {
+    const url = "/job/statistic";
+    return axiosClient.get(url, { params: params });
+  }
 };
 
 export default Tasks;

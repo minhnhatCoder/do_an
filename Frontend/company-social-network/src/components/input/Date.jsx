@@ -1,6 +1,7 @@
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
+const { RangePicker } = DatePicker;
 
 const Date = ({ title, value, onChange, className, required, disabled, type = "date", allowClear }) => {
   const [selectedValue, setSelectedValue] = useState(null);
@@ -49,6 +50,29 @@ const Date = ({ title, value, onChange, className, required, disabled, type = "d
         )}
 
         <DatePicker
+          disabled={disabled}
+          className="w-full"
+          showTime
+          allowClear={allowClear}
+          //   onOk={onOk}
+          onChange={handleDateChange}
+          // format="DD-MM-YYYY HH:mm:ss"
+          value={selectedValue ?? 0}
+        />
+      </div>
+    );
+  }
+  if (type == "date-range") {
+    return (
+      <div className={className}>
+        {title && (
+          <p className="mb-2">
+            {title}
+            {required && <span className="ml-2 text-red-500">(*)</span>}
+          </p>
+        )}
+
+        <RangePicker
           disabled={disabled}
           className="w-full"
           showTime

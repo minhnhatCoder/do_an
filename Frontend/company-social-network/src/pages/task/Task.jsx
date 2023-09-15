@@ -37,7 +37,7 @@ const Task = ({ currentProject }) => {
 
   const getUserRelated = async () => {
     try {
-      const res = await Tasks.getProject(projectId);
+      const res = await TasksServices.getProject(currentProject?._id);
       setRelatedUsers(res?.data?.related_user || []);
     } catch (error) {
       console.log(error);

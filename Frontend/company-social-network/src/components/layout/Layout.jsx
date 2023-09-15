@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AiFillHome, AiOutlineSetting } from "react-icons/ai";
+import { AiFillHome, AiOutlineBarChart, AiOutlineSetting } from "react-icons/ai";
 import { IoIosPeople, IoMdNotificationsOutline } from "react-icons/io";
 import { BsChatDots, BsCheckAll } from "react-icons/bs";
 import { BiTask, BiSearchAlt } from "react-icons/bi";
@@ -32,6 +32,7 @@ const Layout = ({ children }) => {
     },
     { icon: <BsChatDots className="w-8 h-8" color="#28526e" />, link: "/chat" },
     { icon: <BiTask className="w-8 h-8" color="#28526e" />, link: "/tasks" },
+    { icon: <AiOutlineBarChart className="w-8 h-8" color="#28526e" />, link: "/chart" },
   ]);
   const [menuActive, setMenuActive] = useState("/");
   const items = [
@@ -179,6 +180,7 @@ const Layout = ({ children }) => {
     if (location?.pathname?.includes("/chat")) setMenuActive("/chat");
     else if (location?.pathname?.includes("/friends")) setMenuActive("/friends");
     else if (location?.pathname?.includes("/tasks")) setMenuActive("/tasks");
+    else if (location?.pathname?.includes("/chart")) setMenuActive("/chart");
     else setMenuActive("/");
   }, [location?.pathname]);
   if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot") {

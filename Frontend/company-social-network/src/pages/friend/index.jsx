@@ -314,7 +314,7 @@ const Friends = () => {
               dataSource={users}
               pagination={false}
               scroll={{
-                y: 500,
+                y: 700,
               }}
             />
           </div>
