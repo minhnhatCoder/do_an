@@ -14,6 +14,7 @@ import { AnswerInput } from "../post/Comment";
 import { getFileName, isImageFile } from "../../helper/fileHelper";
 import { formatTimestamp } from "../../helper/timeHelper";
 import AvatarUi from "../avatar";
+import msg_sound from "../../assets/msg_sound.wav";
 
 const PopupChat = () => {
   const userInfo = useRootState((state) => state?.userInfo);
@@ -138,7 +139,7 @@ const MessageModal = ({ conversation }) => {
       setLoadingSend(false);
       socket?.emit("sendMessage", {
         userIds: conversation?.participants?.map((u) => u?._id),
-        data: res?.data,
+        data: { ...res?.data, type: "message" },
       });
     } catch (error) {
       setLoadingSend(false);
@@ -159,12 +160,15 @@ const MessageModal = ({ conversation }) => {
   useEffect(() => {
     socket &&
       socket?.on("getMessage", (mess) => {
-        setArrivalMessage(mess);
+        mess && mess?.type == "message" && setArrivalMessage(mess);
       });
   }, [socket]);
 
   useEffect(() => {
-    arrivalMessage && arrivalMessage?.target == conversation?._id && setMessages([...messages, arrivalMessage]);
+    if (arrivalMessage && arrivalMessage?.target == conversation?._id) {
+      setMessages([...messages, arrivalMessage]);
+      new Audio(msg_sound).play();
+    }
   }, [arrivalMessage]);
 
   const readAllMessages = async () => {

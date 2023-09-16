@@ -181,6 +181,8 @@ exports.getStatistics = async (req, res) => {
           $lte: end_date,
         },
       }).populate("reciever", ["display_name", "image"])
+        .populate("project", ["title"])
+        .populate("assigner", ["display_name", "image"])
       return tasks
     }
     let statistic = []
@@ -200,7 +202,7 @@ exports.getStatistics = async (req, res) => {
       })
     }))
 
-    return res.status(200).json({ status: 200, message: "Thống kê thành công", data: statistic });
+    return res.status(200).json({ status: 200, message: "Thống kê thành công", data: statistic.reverse() });
   } catch (error) {
     return res.status(400).json({ status: 400, message: error.message });
   }

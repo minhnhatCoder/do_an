@@ -19,12 +19,13 @@ const Login = ({ setToken }) => {
       navigate("/");
       Toast("success", res.data.message);
     } catch (error) {
-      Toast("error", error.message);
+      console.log(error);
+      Toast("error", error.response?.data.message);
     }
   };
   return (
     <div className="h-screen w-screen flex">
-      <div className="w-1/3 px-24 py-8">
+      <div className="2xl:w-1/3 px-24 py-8 w-full">
         <p className="font-bold text-5xl text-green-500">Dago</p>
         <p className="font-bold text-4xl mt-9">Xin chào Damianer!</p>
 
@@ -51,7 +52,7 @@ const Login = ({ setToken }) => {
           Đăng nhập
         </button>
       </div>
-      <div className="w-2/3">
+      <div className="2xl:w-2/3">
         <img
           src="https://lambanner.com/wp-content/uploads/2021/04/MNT-DESIGN-KICH-THUOC-ANH-MANG-XA-HOI-2021.jpg"
           className="w-full h-full"

@@ -78,7 +78,7 @@ const Messenger = () => {
   useEffect(() => {
     socket &&
       socket?.on("getMessage", (mess) => {
-        setArrivalMessage(mess);
+        mess && mess?.type == "message" &&  setArrivalMessage(mess);
       });
   }, [socket]);
 

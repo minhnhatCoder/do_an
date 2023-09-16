@@ -10,9 +10,10 @@ import {
   getYearOfTimeStamp,
 } from "../../helper/timeHelper";
 import { VerticalBarChart } from "../../components/chart/Vertical";
-import { Avatar, Drawer, Rate, Spin, Table, Tag } from "antd";
+import { Avatar, Button, Drawer, Rate, Spin, Table, Tag } from "antd";
 import TaskServices from "../../services/tasksServices";
 import { LineChart } from "../../components/chart/Line";
+import { CSVLink } from "react-csv";
 
 const Statistic = () => {
   const userInfo = useRootState((state) => state.userInfo);
@@ -27,6 +28,7 @@ const Statistic = () => {
   const [dataTable, setDataTable] = useState([]);
   const [show, setShow] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [dataScv, setDataScv] = useState([]);
 
   const columns = [
     {
@@ -50,18 +52,52 @@ const Statistic = () => {
             className="font-bold  text-right hover:text-orange-500 cursor-pointer"
             onClick={() => {
               setShow(true);
-              setTasks(data?.tasks).map((task) => ({
-                key: task?._id,
-                title: task?.title,
-                reciever: task.reciever,
-                time:
-                  convertTimeStampToString(task.start_date, "right") +
-                  " - " +
-                  convertTimeStampToString(task.end_date, "right"),
-                priority: task.priority,
-                status: task.status,
-                star: task?.star,
-              }));
+              setTasks(
+                data?.tasks.map((task) => ({
+                  key: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  priority: task.priority,
+                  status: task.status,
+                  star: task?.star,
+                }))
+              );
+              setDataScv(
+                data?.tasks.map((task) => ({
+                  id: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever?.display_name,
+                  assigner: task.assigner?.display_name,
+                  project: task?.project?.title,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  priority:
+                    task.priority == 1
+                      ? "Cao"
+                      : task.priority == 2
+                      ? "Trung bình"
+                      : task.priority == 3
+                      ? "Thấp"
+                      : "Không ưu tiên",
+                  status:
+                    task.status == 1
+                      ? "Cần làm"
+                      : task.status == 2
+                      ? "Đang làm"
+                      : task.status == 3
+                      ? "Hoàn thành"
+                      : "Đã hủy",
+                  progress: task.progress,
+                  star: task?.star,
+                }))
+              );
             }}
           >
             {data?.task_cancel + data?.task_complete + data?.task_doing + data?.task_todo}
@@ -90,6 +126,40 @@ const Statistic = () => {
                     convertTimeStampToString(task.end_date, "right"),
                   priority: task.priority,
                   status: task.status,
+                  star: task?.star,
+                }))
+            );
+            setDataScv(
+              data?.tasks
+                ?.filter((t) => t?.status == 1)
+                .map((task) => ({
+                  id: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever?.display_name,
+                  assigner: task.assigner?.display_name,
+                  project: task?.project?.title,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  priority:
+                    task.priority == 1
+                      ? "Cao"
+                      : task.priority == 2
+                      ? "Trung bình"
+                      : task.priority == 3
+                      ? "Thấp"
+                      : "Không ưu tiên",
+                  status:
+                    task.status == 1
+                      ? "Cần làm"
+                      : task.status == 2
+                      ? "Đang làm"
+                      : task.status == 3
+                      ? "Hoàn thành"
+                      : "Đã hủy",
+                  progress: task.progress,
                   star: task?.star,
                 }))
             );
@@ -124,6 +194,40 @@ const Statistic = () => {
                   star: task?.star,
                 }))
             );
+            setDataScv(
+              data?.tasks
+                ?.filter((t) => t?.status == 2)
+                .map((task) => ({
+                  id: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever?.display_name,
+                  assigner: task.assigner?.display_name,
+                  project: task?.project?.title,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  priority:
+                    task.priority == 1
+                      ? "Cao"
+                      : task.priority == 2
+                      ? "Trung bình"
+                      : task.priority == 3
+                      ? "Thấp"
+                      : "Không ưu tiên",
+                  status:
+                    task.status == 1
+                      ? "Cần làm"
+                      : task.status == 2
+                      ? "Đang làm"
+                      : task.status == 3
+                      ? "Hoàn thành"
+                      : "Đã hủy",
+                  progress: task.progress,
+                  star: task?.star,
+                }))
+            );
             setShow(true);
           }}
         >
@@ -155,6 +259,40 @@ const Statistic = () => {
                   star: task?.star,
                 }))
             );
+            setDataScv(
+              data?.tasks
+                ?.filter((t) => t?.status == 3)
+                .map((task) => ({
+                  id: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever?.display_name,
+                  assigner: task.assigner?.display_name,
+                  project: task?.project?.title,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  priority:
+                    task.priority == 1
+                      ? "Cao"
+                      : task.priority == 2
+                      ? "Trung bình"
+                      : task.priority == 3
+                      ? "Thấp"
+                      : "Không ưu tiên",
+                  status:
+                    task.status == 1
+                      ? "Cần làm"
+                      : task.status == 2
+                      ? "Đang làm"
+                      : task.status == 3
+                      ? "Hoàn thành"
+                      : "Đã hủy",
+                  progress: task.progress,
+                  star: task?.star,
+                }))
+            );
             setShow(true);
           }}
         >
@@ -183,6 +321,40 @@ const Statistic = () => {
                     convertTimeStampToString(task.end_date, "right"),
                   priority: task.priority,
                   status: task.status,
+                  star: task?.star,
+                }))
+            );
+            setDataScv(
+              data?.tasks
+                ?.filter((t) => t?.status == 4)
+                .map((task) => ({
+                  id: task?._id,
+                  title: task?.title,
+                  reciever: task.reciever?.display_name,
+                  assigner: task.assigner?.display_name,
+                  project: task?.project?.title,
+                  time:
+                    convertTimeStampToString(task.start_date, "right") +
+                    " - " +
+                    convertTimeStampToString(task.end_date, "right"),
+                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  priority:
+                    task.priority == 1
+                      ? "Cao"
+                      : task.priority == 2
+                      ? "Trung bình"
+                      : task.priority == 3
+                      ? "Thấp"
+                      : "Không ưu tiên",
+                  status:
+                    task.status == 1
+                      ? "Cần làm"
+                      : task.status == 2
+                      ? "Đang làm"
+                      : task.status == 3
+                      ? "Hoàn thành"
+                      : "Đã hủy",
+                  progress: task.progress,
                   star: task?.star,
                 }))
             );
@@ -240,7 +412,7 @@ const Statistic = () => {
 
   useEffect(() => {
     setFilter({
-      month: getMonthOfTimeStamp(getCurrentTimeStamp()) - 1,
+      month: getMonthOfTimeStamp(getCurrentTimeStamp() / 1000) + 1,
       year: getYearOfTimeStamp(getCurrentTimeStamp() / 1000),
       dept_id: userInfo?.department?._id,
     });
@@ -298,7 +470,7 @@ const Statistic = () => {
             />
           </div>
         </Spin>
-        <DarawerTask tasks={tasks} show={show} setShow={setShow} />
+        <DarawerTask tasks={tasks} show={show} setShow={setShow} dataScv={dataScv} />
       </div>
     </div>
   );
@@ -306,79 +478,101 @@ const Statistic = () => {
 
 export default Statistic;
 
-const DarawerTask = ({ tasks, show, setShow }) => {
-  console.log(tasks);
+const DarawerTask = ({ tasks, show, setShow, dataScv }) => {
+  const [headers, setHeaders] = useState([
+    { label: "ID", key: "id" },
+    { label: "Tên công việc", key: "title" },
+    { label: "Dự án", key: "project" },
+    { label: "Người tạo việc", key: "assigner" },
+    { label: "Người nhận việc", key: "reciever" },
+    { label: "Thời gian tạo", key: "created_at" },
+    { label: "Thời gian thực hiện", key: "time" },
+    { label: "Độ ưu tiên", key: "priority" },
+    { label: "Tiến độ", key: "progress" },
+    { label: "Đánh giá", key: "star" },
+  ]);
+
   return (
     <Drawer
       title="Danh sách công việc"
       placement="right"
-      width={1500}
+      width={1200}
       onClose={() => {
         setShow(false);
       }}
       open={show}
     >
-      <Table
-        columns={[
-          {
-            title: "Công việc",
-            dataIndex: "title",
-            key: "title",
-          },
-          {
-            title: "Người thực hiện",
-            dataIndex: "receiver",
-            key: "receiver",
-            render: (value, { reciever }) => {
-              return (
-                <div className="flex items-center gap-2">
-                  <Avatar src={reciever?.image} size="large" />
-                  <p className="font-semibold">{reciever?.display_name}</p>
-                </div>
-              );
+      <div>
+        <div className="w-full flex items-center justify-end">
+          <Button type="primary" className="mb-3">
+            <CSVLink data={dataScv || []} headers={headers} style={{ color: "white" }}>
+              Tải xuống
+            </CSVLink>
+          </Button>
+        </div>
+        <Table
+          columns={[
+            {
+              title: "Công việc",
+              dataIndex: "title",
+              key: "title",
             },
-          },
-          {
-            title: "Thời hạn",
-            dataIndex: "time",
-            key: "time",
-          },
-          {
-            title: "Ưu tiên",
-            key: "priority",
-            dataIndex: "priority",
-            width: 100,
-            render: (priority) => {
-              switch (priority) {
-                case 1:
-                  return <Tag color="red">Cao</Tag>;
-                case 2:
-                  return <Tag color="orange">Trung bình</Tag>;
-                case 3:
-                  return <Tag color="blue">Thấp</Tag>;
-                case 4:
-                  return <Tag color="gray">Không ưu tiên</Tag>;
+            {
+              title: "Người thực hiện",
+              dataIndex: "receiver",
+              key: "receiver",
+              render: (value, { reciever }) => {
+                return (
+                  <div className="flex items-center gap-2">
+                    <Avatar src={reciever?.image} size="large" />
+                    <p className="font-semibold">{reciever?.display_name}</p>
+                  </div>
+                );
+              },
+            },
+            {
+              title: "Thời hạn",
+              dataIndex: "time",
+              key: "time",
+            },
+            {
+              title: "Ưu tiên",
+              key: "priority",
+              dataIndex: "priority",
+              width: 100,
+              render: (priority) => {
+                switch (priority) {
+                  case 1:
+                    return <Tag color="red">Cao</Tag>;
+                  case 2:
+                    return <Tag color="orange">Trung bình</Tag>;
+                  case 3:
+                    return <Tag color="blue">Thấp</Tag>;
+                  case 4:
+                    return <Tag color="gray">Không ưu tiên</Tag>;
 
-                default:
-                  return <Tag color="red">Cao</Tag>;
-              }
+                  default:
+                    return <Tag color="red">Cao</Tag>;
+                }
+              },
             },
-          },
-          {
-            title: "Đánh giá",
-            key: "star",
-            dataIndex: "star",
-            render: (value) => {
-              return <Rate disabled defaultValue={value} />;
+            {
+              title: "Đánh giá",
+              key: "star",
+              width: 170,
+              dataIndex: "star",
+              render: (value) => {
+                return <Rate disabled defaultValue={value} />;
+              },
             },
-          },
-        ]}
-        dataSource={tasks}
-        pagination={false}
-        scroll={{
-          y: 600,
-        }}
-      />
+          ]}
+          dataSource={tasks}
+          pagination={false}
+          scroll={{
+            y: 600,
+          }}
+        />
+      </div>
     </Drawer>
   );
 };

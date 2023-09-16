@@ -41,7 +41,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: '*', // Tên miền của ứng dụng frontend
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    headers: 'Content-Type,Authorization',
+    credentials: true
   },
 });
 

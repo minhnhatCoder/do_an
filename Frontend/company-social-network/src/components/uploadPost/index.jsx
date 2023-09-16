@@ -1,4 +1,4 @@
-import { Avatar, Modal, Radio, Spin, Upload } from "antd";
+import { Avatar, Modal, Popover, Radio, Spin, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { useRootState } from "../../store";
 import Button from "../button";
@@ -17,6 +17,7 @@ import SelectDepartment from "../Select/department";
 import SelectUsers from "../Select/Users";
 import useSocketStore from "../../store/socketStore";
 import dayjs from "dayjs";
+import EmojiPicker from "emoji-picker-react";
 
 const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend, id }) => {
   const socket = useSocketStore((state) => state.socket);
@@ -207,7 +208,19 @@ const UploadPost = ({ show, setShow, cbSuccess, upLoadToFriend, id }) => {
               />
               <HiLocationMarker className="w-8 h-8 text-red-500" />
               <AiOutlineFileGif className="w-8 h-8 text-green-800" />
-              <MdOutlineEmojiEmotions className="w-8 h-8" color="#f7b928" />
+              <Popover
+                placement="bottom"
+                content={
+                  <div className="">
+                    <EmojiPicker />
+                  </div>
+                }
+                title="Title"
+                trigger="hover"
+              >
+                <MdOutlineEmojiEmotions className="w-8 h-8" color="#f7b928" />
+              </Popover>
+
               <RiLiveLine className="w-8 h-8 text-orange-500" />
             </div>
           </div>

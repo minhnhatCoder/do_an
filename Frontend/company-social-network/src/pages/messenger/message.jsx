@@ -69,7 +69,7 @@ const Message = ({ conversation, getConversation, setConversations, conversation
       setLoadingSend(false);
       socket?.emit("sendMessage", {
         userIds: conversation?.participants?.map((u) => u?._id),
-        data: res?.data,
+        data: { ...res?.data, type: "message" },
       });
     } catch (error) {
       setLoadingSend(false);
@@ -89,7 +89,7 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   useEffect(() => {
     socket &&
       socket?.on("getMessage", (mess) => {
-        setArrivalMessage(mess);
+        mess && mess?.type == "message" && setArrivalMessage(mess);
       });
   }, [socket]);
 

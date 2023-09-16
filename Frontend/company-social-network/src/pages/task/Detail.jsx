@@ -166,7 +166,7 @@ const Detail = ({ id, show, setShow, getTasks }) => {
         <div className="p-3  min-h-[650px] max-h-[1200px] overflow-y-auto h-[710px]">
           <div className="flex items-center">
             <div className="w-2/3 flex">
-              <Priority id={data.priority} hasTitle onChange={onChangePriority} />
+              <Priority id={data?.priority} hasTitle onChange={onChangePriority} />
             </div>
             <div className="flex items-center gap-2 w-1/3">
               <div className="flex items-center gap-2">
@@ -239,8 +239,8 @@ const Detail = ({ id, show, setShow, getTasks }) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <p>{convertTimeStampToString(data.start_date, "right")}</p>
-                  <p> - {convertTimeStampToString(data.end_date, "right")}</p>
+                  <p>{convertTimeStampToString(data?.start_date, "right")}</p>
+                  <p> - {convertTimeStampToString(data?.end_date, "right")}</p>
                 </div>
               </div>
             </div>
@@ -264,7 +264,7 @@ const Detail = ({ id, show, setShow, getTasks }) => {
             <div className="flex items-center gap-2">
               <FiClipboard className="w-5 h-5" />
             </div>
-            <Status id={data.status} hasTitle onChange={onChangeStatus} />
+            <Status id={data?.status} hasTitle onChange={onChangeStatus} />
           </div>
           <Tabs
             defaultActiveKey="1"
@@ -334,6 +334,7 @@ const CommentTab = ({ id, currentUser, data }) => {
   const scrollRef = useRef(null);
   const userInfo = useRootState((state) => state.userInfo);
   const socket = useSocketStore((state) => state.socket);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
 
   const getComments = async () => {
     setLoading(true);
@@ -348,7 +349,7 @@ const CommentTab = ({ id, currentUser, data }) => {
   const onComment = async () => {
     setLoading(true);
     try {
-      await TasksServices.commentTask(id, {
+      const res = await TasksServices.commentTask(id, {
         content: content,
         attachments: files,
       });
@@ -357,6 +358,10 @@ const CommentTab = ({ id, currentUser, data }) => {
         data: {
           content: `${userInfo?.display_name} đã bình luận công việc`,
         },
+      });
+      socket?.emit("sendMessage", {
+        userIds: data?.related_user?.map((u) => u?._id),
+        data: { ...res?.data, type: "task" },
       });
       setContent("");
       setFiles([]);
@@ -376,6 +381,18 @@ const CommentTab = ({ id, currentUser, data }) => {
       }
     }
   }, [comments?.length]);
+
+  useEffect(() => {
+    socket &&
+      socket?.on("getMessage", (mess) => {
+        mess && mess?.type == "task" && setArrivalMessage(mess);
+      });
+  }, [socket]);
+
+  useEffect(() => {
+    arrivalMessage && arrivalMessage?.target == id && setComments([...comments, arrivalMessage]);
+  }, [arrivalMessage]);
+
   return (
     <div className="">
       <div className="max-h-[350px] min-h-[250px] h-[300px] overflow-y-auto" ref={scrollRef}>

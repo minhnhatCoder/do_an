@@ -17,6 +17,8 @@ import { CommentOutlined, CustomerServiceOutlined } from "@ant-design/icons";
 import PopupChat from "./PopupChat";
 import ConversationsServices from "../../services/conversationServies";
 import usePopupChatStore from "../../store/popupChatStore";
+import DetailTask from "../../pages/task/Detail";
+import DetailPost from "../post/DetailPost";
 
 const Layout = ({ children }) => {
   const socket = useSocketStore((state) => state?.socket);
@@ -69,6 +71,7 @@ const Layout = ({ children }) => {
   ];
   const [options, setOptions] = useState([]);
   const [search, setSearch] = useState("");
+
   const onSearch = async (searchText) => {
     try {
       if (searchText.length < 3) return;
@@ -172,7 +175,7 @@ const Layout = ({ children }) => {
   useEffect(() => {
     socket &&
       socket?.on("getMessage", (mess) => {
-        mess && onMessage(mess?.target, mess?.content);
+        mess && mess?.type == "message" && onMessage(mess?.target, mess?.content);
       });
   }, [socket]);
 
@@ -263,6 +266,11 @@ const NotificationCO = () => {
   const userInfo = useRootState((state) => state.userInfo);
   const [open, setOpen] = useState(false);
   const socket = useSocketStore((state) => state.socket);
+  const [openTask, setOpenTask] = useState(false);
+  const [taskId, setTaskId] = useState(0);
+  const [openPost, setOpenPost] = useState(false);
+  const [postId, setPostId] = useState(0);
+
   const getNotis = async () => {
     try {
       setLoading(true);
@@ -338,7 +346,24 @@ const NotificationCO = () => {
                 key={noti?._id}
                 className="flex items-center justify-between p-3 hover:bg-neutral-100 cursor-pointer"
               >
-                <p className={`${noti?.is_read ? "" : "font-bold"}`}>{noti?.content}</p>
+                <p
+                  className={`${noti?.is_read ? "" : "font-bold"}`}
+                  onClick={() => {
+                    if (noti?.type == "task") {
+                      setOpenTask(true);
+                      setOpen(false);
+                      setTaskId(noti?.related_id);
+                      onReadNoti(noti?._id);
+                    } else if (noti?.type == "post") {
+                      setOpenPost(true);
+                      setOpen(false);
+                      setPostId(noti?.related_id);
+                      onReadNoti(noti?._id);
+                    }
+                  }}
+                >
+                  {noti?.content}
+                </p>
                 {noti?.is_read ? (
                   <BsCheckAll className="w-6 h-6 text-blue-500 cursor-pointer" />
                 ) : (
@@ -365,23 +390,27 @@ const NotificationCO = () => {
   }, [open]);
 
   return (
-    <Popover
-      content={handleShowNotis()}
-      title={
-        <div className="flex items-center justify-between">
-          <p className="font-bold text-base">Thông báo</p>
-          <p className="text-blue-500 hover:text-orange-500 cursor-pointer text-xs" onClick={onReadAllNoti}>
-            Đọc tất cả thông báo
-          </p>
-        </div>
-      }
-      trigger="click"
-      placement="bottom"
-      open={open}
-    >
-      <Badge count={count} overflowCount={99} offset={[0, 0]} onClick={() => setOpen(!open)}>
-        <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
-      </Badge>
-    </Popover>
+    <div>
+      <Popover
+        content={handleShowNotis()}
+        title={
+          <div className="flex items-center justify-between">
+            <p className="font-bold text-base">Thông báo</p>
+            <p className="text-blue-500 hover:text-orange-500 cursor-pointer text-xs" onClick={onReadAllNoti}>
+              Đọc tất cả thông báo
+            </p>
+          </div>
+        }
+        trigger="click"
+        placement="bottom"
+        open={open}
+      >
+        <Badge count={count} overflowCount={99} offset={[0, 0]} onClick={() => setOpen(!open)}>
+          <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
+        </Badge>
+      </Popover>
+      <DetailTask id={taskId} show={openTask} setShow={setOpenTask} />
+      <DetailPost show={openPost} setShow={setOpenPost} id={postId} />
+    </div>
   );
 };

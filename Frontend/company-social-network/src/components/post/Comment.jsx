@@ -1,4 +1,4 @@
-import { Avatar, Image, Tooltip } from "antd";
+import { Avatar, Image, Popover, Tooltip } from "antd";
 import { Input } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { PiArrowBendUpLeftBold, PiPaperPlaneRightFill } from "react-icons/pi";
@@ -14,6 +14,7 @@ import UploadUi from "../uploadFiles";
 import { AiOutlineCloseCircle, AiOutlinePaperClip } from "react-icons/ai";
 import Toast from "../noti";
 import { getFileName, isImageFile } from "../../helper/fileHelper";
+import EmojiPicker from "emoji-picker-react";
 
 const { TextArea } = Input;
 
@@ -244,7 +245,20 @@ export const AnswerInput = ({
       <div className="flex items-center justify-center gap-2 mt-2 w-full">
         {isMini ? (
           <div className="flex gap-2">
-            <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+            <Popover
+              content={
+                <div className="">
+                  <EmojiPicker
+                    onEmojiClick={(emoji) => {
+                      setContent(content + " " + emoji.emoji);
+                    }}
+                  />
+                </div>
+              }
+              trigger="click"
+            >
+              <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+            </Popover>
             <div className="flex-1">
               {isUploadFile ? (
                 <UploadUi
@@ -297,7 +311,22 @@ export const AnswerInput = ({
       </div>
       {!isMini && (
         <div className="flex gap-4 mt-1 ml-16">
-          <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+          <Popover
+            placement="left"
+            content={
+              <div className="">
+                <EmojiPicker
+                  onEmojiClick={(emoji) => {
+                    setContent(content + " " + emoji.emoji);
+                  }}
+                />
+              </div>
+            }
+            trigger="click"
+          >
+            <MdEmojiEmotions className="w-5 h-5 cursor-pointer text-neutral-400" />
+          </Popover>
+
           <div className="flex-1">
             {isUploadFile ? (
               <UploadUi
