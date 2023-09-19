@@ -23,7 +23,7 @@ const Login = ({ setToken }) => {
       Toast("error", error.response?.data.message);
     }
   };
-  return (
+
     <div className="h-screen w-screen flex">
       <div className="2xl:w-1/3 px-24 py-8 w-full">
         <p className="font-bold text-5xl text-green-500">Dago</p>
