@@ -12,10 +12,12 @@ import { io } from "socket.io-client";
 import useSocketStore from "./store/socketStore";
 import "swiper/css";
 import "swiper/css/navigation";
-
+import { ConfigProvider } from "antd";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null);
+  const [token, setToken] = useState(
+    localStorage.getItem(LOCAL_STORAGE_USER_KEY) || null
+  );
   const setUserInfo = useRootState((state) => state.setUserInfo);
   const userInfo = useRootState((state) => state.userInfo);
   const setUsers = useRootState((state) => state.setUsers);
@@ -24,6 +26,13 @@ function App() {
   const setUsersOnline = useRootState((state) => state.setUsersOnline);
   const setSocket = useSocketStore((state) => state.setSocket);
   const socket = useSocketStore((state) => state.socket);
+
+  const theme = {
+    token: {
+      colorPrimary: " #233f80", // Màu primary tùy chỉnh
+      colorPrimaryHover: "#2C5099",
+    },
+  };
 
   const getUserInfo = async () => {
     const token_gen = jwt_decode(token);
@@ -70,14 +79,18 @@ function App() {
       const token_gen = jwt_decode(token);
       socket?.emit("addUser", token_gen?._id);
       socket?.on("getUsers", (users) => {
-        setUsersOnline(userInfo.friends.filter((f) => users.some((u) => u.userId == f?._id)));
+        setUsersOnline(
+          userInfo.friends.filter((f) => users.some((u) => u.userId == f?._id))
+        );
       });
     }
   }, [socket]);
   return (
     <div>
-      <RootRoute {...{ setToken, token }} />
-      <ToastContainer />
+      <ConfigProvider theme={theme}>
+        <RootRoute {...{ setToken, token }} />
+        <ToastContainer />
+      </ConfigProvider>
     </div>
   );
 }

@@ -17,7 +17,10 @@ const Tasks = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [addProject, setAddProject] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [currentProject, setCurrentProject] = useState({ title: "Timeline", _id: 0 });
+  const [currentProject, setCurrentProject] = useState({
+    title: "Timeline",
+    _id: 0,
+  });
   const [idP, setIdP] = useState(0);
 
   const getProjects = async () => {
@@ -34,7 +37,7 @@ const Tasks = () => {
   }, []);
 
   return (
-    <div className="main-content h-full">
+    <div className="h-full">
       <div className="flex gap-2 overflow-y-auto h-full bg-white rounded-lg">
         <div className="w-1/4 p-3 border-r">
           <p className="font-bold text-lg mb-2">Quản lý công việc</p>
@@ -51,7 +54,7 @@ const Tasks = () => {
             </div>
             <div className="mt-3">
               <p className="font-bold text-lg mb-2">Tất cả dự án</p>
-              <div className=" min-h-[650px] overflow-auto">
+              <div className=" min-h-[452px] overflow-auto">
                 {projects?.length > 0 ? (
                   projects.map((p) => {
                     return (
@@ -92,7 +95,13 @@ const Tasks = () => {
         </div>
         <Task currentProject={currentProject} />
       </div>
-      <EditProject id={idP} setId={setIdP} show={addProject} setShow={setAddProject} />
+      <EditProject
+        id={idP}
+        setId={setIdP}
+        show={addProject}
+        setShow={setAddProject}
+        getProjects={getProjects}
+      />
     </div>
   );
 };

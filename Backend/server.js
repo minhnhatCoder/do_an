@@ -8,7 +8,7 @@ const { uploads } = require("./untils/multer");
 const http = require("http");
 const { Server } = require("socket.io");
 const { handleSocket } = require("./untils/socketHandler");
-const { notificationSchema } = require("./src/noti/model")
+const { notificationSchema } = require("./src/noti/model");
 
 //PORT
 const PORT = process.env.PORT || 9000;
@@ -41,17 +41,18 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*', // Tên miền của ứng dụng frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    headers: 'Content-Type,Authorization',
-    credentials: true
+    origin: "*", // Tên miền của ứng dụng frontend
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    headers: "Content-Type,Authorization",
+    credentials: true,
   },
 });
 
 let users = [];
 
 const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) && users.push({ userId, socketId });
+  !users.some((user) => user.userId === userId) &&
+    users.push({ userId, socketId });
 };
 
 const removeUser = (socketId) => {
@@ -74,20 +75,17 @@ io.on("connection", (socket) => {
 
   //send and get message
   socket.on("sendMessage", ({ userIds, data }) => {
-    userIds.forEach(userId => {
-      const socketId = getUser(userId)?.socketId
-      if (socketId)
-        io.to(socketId).emit("getMessage", data);
+    userIds.forEach((userId) => {
+      const socketId = getUser(userId)?.socketId;
+      if (socketId) io.to(socketId).emit("getMessage", data);
     });
-
   });
 
   //send noti
   socket.on("sendNotification", ({ userIds, data }) => {
-    userIds.forEach(userId => {
-      const socketId = getUser(userId)?.socketId
-      if (socketId)
-        io.to(socketId).emit("getNotification", data);
+    userIds.forEach((userId) => {
+      const socketId = getUser(userId)?.socketId;
+      if (socketId) io.to(socketId).emit("getNotification", data);
     });
   });
 
@@ -99,9 +97,7 @@ io.on("connection", (socket) => {
   });
 });
 
-
 ///server connect
 server.listen(PORT, () => {
   console.log(`server run on http://localhost:${PORT}`);
 });
-

@@ -77,7 +77,10 @@ const Statistic = () => {
                     convertTimeStampToString(task.start_date, "right") +
                     " - " +
                     convertTimeStampToString(task.end_date, "right"),
-                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  created_at: convertTimeStampToString(
+                    task.created_at,
+                    "right"
+                  ),
                   priority:
                     task.priority == 1
                       ? "Cao"
@@ -100,7 +103,10 @@ const Statistic = () => {
               );
             }}
           >
-            {data?.task_cancel + data?.task_complete + data?.task_doing + data?.task_todo}
+            {data?.task_cancel +
+              data?.task_complete +
+              data?.task_doing +
+              data?.task_todo}
           </p>
         );
       },
@@ -142,7 +148,10 @@ const Statistic = () => {
                     convertTimeStampToString(task.start_date, "right") +
                     " - " +
                     convertTimeStampToString(task.end_date, "right"),
-                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  created_at: convertTimeStampToString(
+                    task.created_at,
+                    "right"
+                  ),
                   priority:
                     task.priority == 1
                       ? "Cao"
@@ -207,7 +216,10 @@ const Statistic = () => {
                     convertTimeStampToString(task.start_date, "right") +
                     " - " +
                     convertTimeStampToString(task.end_date, "right"),
-                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  created_at: convertTimeStampToString(
+                    task.created_at,
+                    "right"
+                  ),
                   priority:
                     task.priority == 1
                       ? "Cao"
@@ -272,7 +284,10 @@ const Statistic = () => {
                     convertTimeStampToString(task.start_date, "right") +
                     " - " +
                     convertTimeStampToString(task.end_date, "right"),
-                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  created_at: convertTimeStampToString(
+                    task.created_at,
+                    "right"
+                  ),
                   priority:
                     task.priority == 1
                       ? "Cao"
@@ -337,7 +352,10 @@ const Statistic = () => {
                     convertTimeStampToString(task.start_date, "right") +
                     " - " +
                     convertTimeStampToString(task.end_date, "right"),
-                  created_at: convertTimeStampToString(task.created_at, "right"),
+                  created_at: convertTimeStampToString(
+                    task.created_at,
+                    "right"
+                  ),
                   priority:
                     task.priority == 1
                       ? "Cao"
@@ -371,8 +389,14 @@ const Statistic = () => {
     try {
       setLoading(true);
       const params = {
-        start_date: dayjs(`${filter?.month}-${filter?.year}`, "M-YYYY").startOf("month").valueOf() / 1000,
-        end_date: dayjs(`${filter?.month}-${filter?.year}`, "M-YYYY").endOf("month").valueOf() / 1000,
+        start_date:
+          dayjs(`${filter?.month}-${filter?.year}`, "M-YYYY")
+            .startOf("month")
+            .valueOf() / 1000,
+        end_date:
+          dayjs(`${filter?.month}-${filter?.year}`, "M-YYYY")
+            .endOf("month")
+            .valueOf() / 1000,
         dept_id: filter?.dept_id,
       };
       const res = await TaskServices.getStatistic(params);
@@ -423,7 +447,7 @@ const Statistic = () => {
   }, [filter]);
 
   return (
-    <div className="main-content h-full">
+    <div className="h-full">
       <div className="overflow-y-auto h-full bg-white rounded-lg">
         <div className="p-3 border-b pb-6">
           <div className="flex gap-2">
@@ -440,9 +464,16 @@ const Statistic = () => {
               title={"Tháng"}
               className="w-72"
               format="M-YYYY"
-              value={dayjs(`${filter?.month}-${filter?.year}`, "M-YYYY").startOf("month")}
+              value={dayjs(
+                `${filter?.month}-${filter?.year}`,
+                "M-YYYY"
+              ).startOf("month")}
               onChange={(date) => {
-                setFilter({ ...filter, month: dayjs(date).month() + 1, year: dayjs(date).year() });
+                setFilter({
+                  ...filter,
+                  month: dayjs(date).month() + 1,
+                  year: dayjs(date).year(),
+                });
               }}
             />
           </div>
@@ -470,7 +501,12 @@ const Statistic = () => {
             />
           </div>
         </Spin>
-        <DarawerTask tasks={tasks} show={show} setShow={setShow} dataScv={dataScv} />
+        <DarawerTask
+          tasks={tasks}
+          show={show}
+          setShow={setShow}
+          dataScv={dataScv}
+        />
       </div>
     </div>
   );
@@ -505,7 +541,11 @@ const DarawerTask = ({ tasks, show, setShow, dataScv }) => {
       <div>
         <div className="w-full flex items-center justify-end">
           <Button type="primary" className="mb-3">
-            <CSVLink data={dataScv || []} headers={headers} style={{ color: "white" }}>
+            <CSVLink
+              data={dataScv || []}
+              headers={headers}
+              style={{ color: "white" }}
+            >
               Tải xuống
             </CSVLink>
           </Button>

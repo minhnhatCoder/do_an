@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { AiFillHome, AiOutlineBarChart, AiOutlineSetting } from "react-icons/ai";
+import {
+  AiFillHome,
+  AiOutlineBarChart,
+  AiOutlineSetting,
+} from "react-icons/ai";
 import { IoIosPeople, IoMdNotificationsOutline } from "react-icons/io";
 import { BsChatDots, BsCheckAll } from "react-icons/bs";
 import { BiTask, BiSearchAlt } from "react-icons/bi";
 import { FiLogOut } from "react-icons/fi";
 import { FaRegUserCircle, FaUsers, FaUsersSlash } from "react-icons/fa";
 import Toast from "../../components/noti";
-import { Avatar, Badge, Dropdown, AutoComplete, Input, Popover, Empty, FloatButton } from "antd";
+import {
+  Avatar,
+  Badge,
+  Dropdown,
+  AutoComplete,
+  Input,
+  Popover,
+  Empty,
+  FloatButton,
+} from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRootState } from "../../store";
 import { LOCAL_STORAGE_USER_KEY } from "../../constant";
@@ -27,21 +40,61 @@ const Layout = ({ children }) => {
   const addConversation = usePopupChatStore((state) => state?.addConversation);
   let location = useLocation();
   const [menuItems] = useState([
-    { icon: <AiFillHome className="w-8 h-8" color="#28526e" />, link: "/" },
     {
-      icon: <IoIosPeople className="w-8 h-8" color="#28526e" />,
-      link: "/friends",
+      icon: (active) => (
+        <AiFillHome
+          className={`w-6 h-6 text-white ${active && "!text-primary-blue500"}`}
+        />
+      ),
+      link: "/",
+      label: "Trang chủ",
     },
-    { icon: <BsChatDots className="w-8 h-8" color="#28526e" />, link: "/chat" },
-    { icon: <BiTask className="w-8 h-8" color="#28526e" />, link: "/tasks" },
-    { icon: <AiOutlineBarChart className="w-8 h-8" color="#28526e" />, link: "/chart" },
+    {
+      icon: (active) => (
+        <IoIosPeople
+          className={`w-6 h-6 text-white ${active && "!text-primary-blue500"}`}
+        />
+      ),
+      link: "/friends",
+      label: "Nhân viên",
+    },
+    {
+      icon: (active) => (
+        <BsChatDots
+          className={`w-6 h-6 text-white ${active && "!text-primary-blue500"}`}
+        />
+      ),
+      link: "/chat",
+      label: "Chat",
+    },
+    {
+      icon: (active) => (
+        <BiTask
+          className={`w-6 h-6 text-white ${active && "!text-primary-blue500"}`}
+        />
+      ),
+      link: "/tasks",
+      label: "Công việc",
+    },
+    {
+      icon: (active) => (
+        <AiOutlineBarChart
+          className={`w-6 h-6 text-white ${active && "!text-primary-blue500"}`}
+        />
+      ),
+      link: "/chart",
+      label: "Báo cáo",
+    },
   ]);
   const [menuActive, setMenuActive] = useState("/");
   const items = [
     {
       key: "1",
       label: (
-        <Link className="font-semibold" to={`/profile/${userInfo?.employee_id}`}>
+        <Link
+          className="font-semibold"
+          to={`/profile/${userInfo?.employee_id}`}
+        >
           Xem trang cá nhân
         </Link>
       ),
@@ -82,8 +135,12 @@ const Layout = ({ children }) => {
         "_id[ne]": userInfo?._id,
       };
       const res = await UserServices.getUsers(params);
-      const friends = res?.data?.filter((u) => userInfo?.friends.find((i) => i?._id == u?._id));
-      const stranger = res?.data?.filter((u) => (userInfo?.friends.find((i) => i?._id == u?._id) ? false : true));
+      const friends = res?.data?.filter((u) =>
+        userInfo?.friends.find((i) => i?._id == u?._id)
+      );
+      const stranger = res?.data?.filter((u) =>
+        userInfo?.friends.find((i) => i?._id == u?._id) ? false : true
+      );
       setOptions(
         !searchText
           ? []
@@ -150,7 +207,10 @@ const Layout = ({ children }) => {
           <Avatar
             className="border border-black"
             size={40}
-            src={item?.image || "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"}
+            src={
+              item?.image ||
+              "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
+            }
           />
           <div>
             <p className="font-bold">{item?.display_name}</p>
@@ -166,7 +226,8 @@ const Layout = ({ children }) => {
   const onMessage = async (id, updatedMessage) => {
     try {
       const res = await ConversationsServices.getConversation(id);
-      addConversation && addConversation({ ...res?.data, isPopup: true }, updatedMessage);
+      addConversation &&
+        addConversation({ ...res?.data, isPopup: true }, updatedMessage);
     } catch (error) {
       console.log(error);
     }
@@ -175,82 +236,123 @@ const Layout = ({ children }) => {
   useEffect(() => {
     socket &&
       socket?.on("getMessage", (mess) => {
-        mess && mess?.type == "message" && onMessage(mess?.target, mess?.content);
+        mess &&
+          mess?.type == "message" &&
+          onMessage(mess?.target, mess?.content);
       });
   }, [socket]);
 
   useEffect(() => {
     if (location?.pathname?.includes("/chat")) setMenuActive("/chat");
-    else if (location?.pathname?.includes("/friends")) setMenuActive("/friends");
+    else if (location?.pathname?.includes("/friends"))
+      setMenuActive("/friends");
     else if (location?.pathname?.includes("/tasks")) setMenuActive("/tasks");
     else if (location?.pathname?.includes("/chart")) setMenuActive("/chart");
     else setMenuActive("/");
   }, [location?.pathname]);
-  if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/forgot") {
+  if (
+    location.pathname === "/login" ||
+    location.pathname === "/register" ||
+    location.pathname === "/forgot"
+  ) {
     return <div>{children}</div>;
   } else
     return (
-      <div className="min-h-full h-screen">
-        <div className="p-2 flex items-center justify-between box_shadow-light px-16">
-          <div className="flex items-center justify-center gap-9">
-            <p className="font-bold text-2xl">DagoSocial</p>
-            <AutoComplete
-              options={options}
-              className="w-72"
-              onSearch={onSearch}
-              dropdownMatchSelectWidth={450}
-              allowClear
-              defaultValue=""
-              onClear={() => setOptions([])}
-              onSelect={onSelect}
-              // autoComplete
-            >
-              <Input
-                size="large"
-                placeholder="Tìm kiếm..."
-                className="rounded-full"
-                prefix={<BiSearchAlt className="w-6 h-6" />}
-                value={search}
-                onChange={(e) => setSearch(e)}
-              />
-            </AutoComplete>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            {menuItems?.map((item, index) => {
-              return (
-                <Link to={item.link} key={index}>
-                  <div
-                    className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
-                      item?.link == menuActive ? "border-b-[#28526e]" : "border-b-white"
-                    } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
-                    onClick={() => {
-                      setMenuActive(item?.link);
-                    }}
+      <div className="min-h-full h-screen flex">
+        <div className="w-[70px] min-w-[70px] bg-primary-blue500 h-full">
+          {menuItems?.map((item, index) => {
+            return (
+              <Link to={item.link} key={index}>
+                <div
+                  className={`flex flex-col items-center justify-center gap-1 py-2 hover:bg-[#2C5099] cursor-pointer group ${
+                    item?.link == menuActive && "!bg-white"
+                  }`}
+                >
+                  {item.icon(item?.link == menuActive)}
+                  <p
+                    className={`text-white text-xs ${
+                      item?.link == menuActive && "!text-primary-blue500"
+                    }`}
                   >
-                    {item.icon}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          <div className="flex items-center justify-center gap-4">
-            <NotificationCO />
-
-            <Dropdown
-              menu={{
-                items,
-              }}
-            >
-              <div className="flex items-center justify-center gap-2 cursor-pointer">
-                <Avatar className="border " size={40} src={userInfo?.image || ""} />
-                <p className="font-bold">{userInfo?.display_name}</p>
-              </div>
-            </Dropdown>
-          </div>
+                    {item?.label}
+                  </p>
+                </div>
+                {/* <div
+                      className={`flex items-center justify-center border-b-[3px] cursor-pointer ${
+                        item?.link == menuActive
+                          ? "border-b-[#28526e]"
+                          : "border-b-white"
+                      } hover:bg-gray-100 py-3 px-6 rounded-t-lg hover:border-b-[#28526e]`}
+                      onClick={() => {
+                        setMenuActive(item?.link);
+                      }}
+                    >
+                     {item.icon}
+                    </div> */}
+              </Link>
+            );
+          })}
         </div>
-        <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)]">{children}</div>
-        {menuActive != "/chat" && <PopupChat />}
+        <div>
+          <div className="p-2 flex items-center justify-between box_shadow-light px-3 border border-b max-w-[calc(100vw-87px)] min-w-[calc(100vw-87px)]">
+            <div className="flex items-center justify-center gap-9">
+              <div className="flex items-center gap-2">
+                <div className="p-3 rounded-lg bg-primary-blue500">
+                  {menuItems?.find((menu) => menu?.link === menuActive)?.icon()}
+                </div>
+                <p className="font-bold text-base">
+                  {menuItems?.find((menu) => menu?.link === menuActive)?.label}
+                </p>
+              </div>
+              <AutoComplete
+                options={options}
+                className="w-72"
+                onSearch={onSearch}
+                dropdownMatchSelectWidth={450}
+                allowClear
+                defaultValue=""
+                onClear={() => setOptions([])}
+                onSelect={onSelect}
+                // autoComplete
+              >
+                <Input
+                  size="large"
+                  placeholder="Tìm kiếm..."
+                  className="rounded-full"
+                  prefix={<BiSearchAlt className="w-6 h-6" />}
+                  value={search}
+                  onChange={(e) => setSearch(e)}
+                />
+              </AutoComplete>
+            </div>
+
+            {/* <div className="flex items-center justify-center gap-2">
+              
+            </div> */}
+            <div className="flex items-center justify-center gap-4">
+              <NotificationCO />
+
+              <Dropdown
+                menu={{
+                  items,
+                }}
+              >
+                <div className="flex items-center justify-center gap-2 cursor-pointer">
+                  <Avatar
+                    className="border "
+                    size={40}
+                    src={userInfo?.image || ""}
+                  />
+                  <p className="font-bold">{userInfo?.display_name}</p>
+                </div>
+              </Dropdown>
+            </div>
+          </div>
+          <div className="flex-1 max-h-[calc(100vh-75px)] h-[calc(100vh-75px)] max-w-[calc(100vw-87px)] min-w-[calc(100vw-87px)]">
+            {children}
+          </div>
+          {menuActive != "/chat" && <PopupChat />}
+        </div>
       </div>
     );
 };
@@ -369,7 +471,7 @@ const NotificationCO = () => {
                 ) : (
                   <BsCheckAll
                     className="w-6 h-6 text-neutral-400 cursor-pointer hover:text-blue-500"
-                    onClick={() => onReadNoti(noti?._id)}
+                    onClick={() => !noti?.is_read && onReadNoti(noti?._id)}
                   />
                 )}
               </div>
@@ -396,7 +498,10 @@ const NotificationCO = () => {
         title={
           <div className="flex items-center justify-between">
             <p className="font-bold text-base">Thông báo</p>
-            <p className="text-blue-500 hover:text-orange-500 cursor-pointer text-xs" onClick={onReadAllNoti}>
+            <p
+              className="text-blue-500 hover:text-orange-500 cursor-pointer text-xs"
+              onClick={onReadAllNoti}
+            >
               Đọc tất cả thông báo
             </p>
           </div>
@@ -405,8 +510,16 @@ const NotificationCO = () => {
         placement="bottom"
         open={open}
       >
-        <Badge count={count} overflowCount={99} offset={[0, 0]} onClick={() => setOpen(!open)}>
-          <IoMdNotificationsOutline className="w-8 h-8 cursor-pointer" color="#28526e" />
+        <Badge
+          count={count}
+          overflowCount={99}
+          offset={[0, 0]}
+          onClick={() => setOpen(!open)}
+        >
+          <IoMdNotificationsOutline
+            className="w-8 h-8 cursor-pointer"
+            color="#28526e"
+          />
         </Badge>
       </Popover>
       <DetailTask id={taskId} show={openTask} setShow={setOpenTask} />

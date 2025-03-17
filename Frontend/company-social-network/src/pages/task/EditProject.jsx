@@ -14,7 +14,7 @@ import SelectUsers from "../../components/Select/Users";
 import Toast from "../../components/noti";
 import Tasks from "../../services/tasksServices";
 
-const Edit = ({ id, show, setShow, setId }) => {
+const Edit = ({ id, show, setShow, setId, getProjects }) => {
   const [infoEdit, setInfoEdit] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -27,11 +27,13 @@ const Edit = ({ id, show, setShow, setId }) => {
         setInfoEdit({});
         setShow(false);
         setLoading(false);
+        getProjects?.();
       } else {
         res = await Tasks.addProject(infoEdit);
         setInfoEdit({});
         setShow(false);
         setLoading(false);
+        getProjects?.();
       }
       Toast("success", res?.message);
     } catch (error) {
@@ -52,7 +54,9 @@ const Edit = ({ id, show, setShow, setId }) => {
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg text-center">{id ? "Sửa dự án" : "Tạo dự án"}</p>
+          <p className="font-bold text-lg text-center">
+            {id ? "Sửa dự án" : "Tạo dự án"}
+          </p>
         </div>
       }
       open={show}
@@ -73,7 +77,9 @@ const Edit = ({ id, show, setShow, setId }) => {
             title="Tên dự án"
             value={infoEdit?.title}
             required
-            onChange={(e) => setInfoEdit({ ...infoEdit, title: e.target.value })}
+            onChange={(e) =>
+              setInfoEdit({ ...infoEdit, title: e.target.value })
+            }
           />
 
           <div className="mt-5 w-full">
@@ -83,7 +89,10 @@ const Edit = ({ id, show, setShow, setId }) => {
               title="Người liên quan"
               value={infoEdit?.related_user ?? []}
               onChange={(e) => {
-                setInfoEdit({ ...infoEdit, related_user: e.map((i) => i?.value) });
+                setInfoEdit({
+                  ...infoEdit,
+                  related_user: e.map((i) => i?.value),
+                });
               }}
             />
           </div>

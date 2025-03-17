@@ -8,7 +8,11 @@ import UserServices from "../../services/user";
 import UploadServices from "../../services/upload";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRootState } from "../../store";
-import { BsFillPostcardHeartFill, BsMessenger, BsPersonPlusFill } from "react-icons/bs";
+import {
+  BsFillPostcardHeartFill,
+  BsMessenger,
+  BsPersonPlusFill,
+} from "react-icons/bs";
 import { AiFillCamera, AiOutlineUpload } from "react-icons/ai";
 import Toast from "../../components/noti";
 import { Text, TextArea } from "../../components/input";
@@ -83,7 +87,9 @@ const Profile = () => {
       if (imageType == 1) {
         res = await UserServices.updateUser(user?._id, { image: image?.url });
       } else {
-        res = await UserServices.updateUser(user?._id, { cover_image: image?.url });
+        res = await UserServices.updateUser(user?._id, {
+          cover_image: image?.url,
+        });
       }
       await PostServices.uploadPost({
         title: `vừa cập nhật ảnh ${imageType == 1 ? "đại diện" : "bìa"} của ${
@@ -210,7 +216,9 @@ const Profile = () => {
     };
     setLoading(false);
     const res = await PostServices.getPosts(params);
-    const imgList = res?.data?.map((p) => p?.attachments.map((a) => ({ ...a, post_id: p?._id }))).flat(Infinity);
+    const imgList = res?.data
+      ?.map((p) => p?.attachments.map((a) => ({ ...a, post_id: p?._id })))
+      .flat(Infinity);
     setImages(imgList);
     setLoading(false);
   };
@@ -223,10 +231,13 @@ const Profile = () => {
   }, [user?._id]);
 
   return (
-    <div className="main-content !pt-0">
+    <div className="main-content !pt-0 h-[calc(100vh-66px)] overflow-y-auto">
       <div className="w-2/3 mx-auto bg-white rounded-b-lg h-max">
         <div className="w-full h-[350px] relative ">
-          <img src={user?.cover_image} className="w-full h-[350px] object-cover" />
+          <img
+            src={user?.cover_image}
+            className="w-full h-[350px] object-cover"
+          />
           <div className="w-56 h-56 rounded-full  absolute -bottom-7 left-1/2 -translate-x-1/2 ">
             <div className="relative">
               <img
@@ -259,10 +270,14 @@ const Profile = () => {
             </div>
           ) : null}
         </div>
-        <p className="mt-10 font-bold text-center text-3xl">{user?.display_name}</p>
+        <p className="mt-10 font-bold text-center text-3xl">
+          {user?.display_name}
+        </p>
         <p className="mt-3 text-center font-semibold">Đại ca giang hồ</p>
         <div className="flex items-center justify-center gap-3 mt-2">
-          {userInfo?._id == user?._id ? null : userInfo?.friends?.find((f) => user?._id == f?._id) ? (
+          {userInfo?._id == user?._id ? null : userInfo?.friends?.find(
+              (f) => user?._id == f?._id
+            ) ? (
             <div className="flex items-center justify-center gap-3">
               <Popconfirm
                 title="Hủy kết bạn"
@@ -271,15 +286,22 @@ const Profile = () => {
                 okText="Đồng ý"
                 cancelText="Hủy"
               >
-                <Button icon={<BiUserCheck />} size="large" className="flex items-center justify-center">
+                <Button
+                  icon={<BiUserCheck />}
+                  size="large"
+                  className="flex items-center justify-center"
+                >
                   Bạn bè
                 </Button>
               </Popconfirm>
             </div>
-          ) : userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id) ? (
+          ) : userInfo?.friend_requests?.find(
+              (r) => r?.sender?._id == user?._id || r?.receiver == user?._id
+            ) ? (
             <div>
-              {userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id)
-                ?.receiver == userInfo?._id ? (
+              {userInfo?.friend_requests?.find(
+                (r) => r?.sender?._id == user?._id || r?.receiver == user?._id
+              )?.receiver == userInfo?._id ? (
                 <div className="flex items-center justify-center gap-3">
                   <Button
                     type="primary"
@@ -289,7 +311,9 @@ const Profile = () => {
                     onClick={() => {
                       onApproversRequest(
                         userInfo?.friend_requests?.find(
-                          (r) => r?.sender?._id == user?._id && r?.receiver == userInfo?._id
+                          (r) =>
+                            r?.sender?._id == user?._id &&
+                            r?.receiver == userInfo?._id
                         )?._id,
                         { status: "approved" }
                       );
@@ -305,7 +329,9 @@ const Profile = () => {
                     onClick={() => {
                       onApproversRequest(
                         userInfo?.friend_requests?.find(
-                          (r) => r?.sender?._id == user?._id && r?.receiver == userInfo?._id
+                          (r) =>
+                            r?.sender?._id == user?._id &&
+                            r?.receiver == userInfo?._id
                         )?._id,
                         { status: "rejected" }
                       );
@@ -322,8 +348,11 @@ const Profile = () => {
                   className="flex items-center justify-center"
                   onClick={() => {
                     unSendRequestFriend(
-                      userInfo?.friend_requests?.find((r) => r?.sender?._id == user?._id || r?.receiver == user?._id)
-                        ?._id
+                      userInfo?.friend_requests?.find(
+                        (r) =>
+                          r?.sender?._id == user?._id ||
+                          r?.receiver == user?._id
+                      )?._id
                     );
                   }}
                 >
@@ -349,7 +378,12 @@ const Profile = () => {
               icon={<BsMessenger />}
               size="large"
               className="flex items-center justify-center"
-              onClick={() => onMessage({ "participants[all]": [userInfo?._id, user?._id], "type:eq": "personal" })}
+              onClick={() =>
+                onMessage({
+                  "participants[all]": [userInfo?._id, user?._id],
+                  "type:eq": "personal",
+                })
+              }
             >
               Nhắn tin
             </Button>
@@ -360,7 +394,9 @@ const Profile = () => {
           <Tabs defaultActiveKey={1} items={items} onChange={onChangeTab} />
         </div>
       </div>
-      {tabActive == 1 && <TimeLine userInfo={user} setTabActive={setTabActive} images={images} />}
+      {tabActive == 1 && (
+        <TimeLine userInfo={user} setTabActive={setTabActive} images={images} />
+      )}
       {tabActive == 2 && <Info userInfo={user} />}
       {tabActive == 3 && <Friend />}
       {tabActive == 4 && <Image images={images} />}
@@ -424,7 +460,11 @@ const Profile = () => {
               maxCount={1}
             >
               {image?.url ? (
-                <img src={image?.url} alt="avatar" className="w-56 h-56 rounded-full object-cover" />
+                <img
+                  src={image?.url}
+                  alt="avatar"
+                  className="w-56 h-56 rounded-full object-cover"
+                />
               ) : (
                 <button className="btn-blue flex items-center justify-center gap-2">
                   <AiOutlineUpload className="w-5 h-5" /> Chọn ảnh

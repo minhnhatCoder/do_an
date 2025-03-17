@@ -26,24 +26,32 @@ const Info = ({ conversation }) => {
     <div className="w-1/3 h-[calc(100vh-75px)] overflow-y-auto">
       <div className="p-4 border-b flex items-center justify-center gap-2">
         <BsFillInfoCircleFill className="w-4 h-4 text-blue-600" />
-        <p className="text-lg font-bold text-center">Thông tin cuộc hội thoại</p>
+        <p className="text-lg font-bold text-center">
+          Thông tin cuộc hội thoại
+        </p>
       </div>
       {conversation?.type == "personal" ? (
         <>
           <div className="flex items-center justify-center mt-3">
             <div className="relative">
               <img
-                className="w-20 h-20 rounded-full"
+                className="w-20 h-20 rounded-full object-cover"
                 src={
-                  conversation?.participants?.find((p) => p?._id != userInfo?._id)?.image ||
-                  conversation?.participants?.[0]?.image
+                  conversation?.participants?.find(
+                    (p) => p?._id != userInfo?._id
+                  )?.image || conversation?.participants?.[0]?.image
                 }
                 alt="Large avatar"
               />
               {usersOnline?.find(
                 (on) =>
-                  on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                  conversation?.participants?.every((p) => p?._id == userInfo?._id)
+                  on?._id ==
+                    conversation?.participants?.find(
+                      (p) => p?._id != userInfo?._id
+                    )?._id ||
+                  conversation?.participants?.every(
+                    (p) => p?._id == userInfo?._id
+                  )
               ) ? (
                 <span className="bottom-0 left-14 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white  rounded-full"></span>
               ) : null}
@@ -53,18 +61,23 @@ const Info = ({ conversation }) => {
             <Link
               className="text-gray-700 text-base font-bold text-center cursor-pointer block hover:underline"
               to={`/profile/${
-                conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                conversation?.participants?.[0]?._id
+                conversation?.participants?.find((p) => p?._id != userInfo?._id)
+                  ?._id || conversation?.participants?.[0]?._id
               }`}
             >
-              {conversation?.participants?.find((p) => p?._id != userInfo?._id)?.display_name ||
-                conversation?.participants?.[0]?.display_name}
+              {conversation?.participants?.find((p) => p?._id != userInfo?._id)
+                ?.display_name || conversation?.participants?.[0]?.display_name}
             </Link>
             <p className="text-gray-400 text-xs text-center">
               {usersOnline?.find(
                 (on) =>
-                  on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                  conversation?.participants?.every((p) => p?._id == userInfo?._id)
+                  on?._id ==
+                    conversation?.participants?.find(
+                      (p) => p?._id != userInfo?._id
+                    )?._id ||
+                  conversation?.participants?.every(
+                    (p) => p?._id == userInfo?._id
+                  )
               )
                 ? "Đang hoạt động"
                 : "Đang offline"}
@@ -104,13 +117,21 @@ const Info = ({ conversation }) => {
           <div className="flex gap-2 items-center">
             <BsImages className="w-5 h-5 text-neutral-400" />
             <p className="text-neutral-400">Hình ảnh</p>
-            {conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length > 0 && (
+            {conversation?.attachments?.filter((img) =>
+              isImageFile(img?.public_id)
+            )?.length > 0 && (
               <p className="text-[#1053f3] px-2 text-xs font-semibold bg-[#eaf0ff] rounded-md">
-                {conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length}
+                {
+                  conversation?.attachments?.filter((img) =>
+                    isImageFile(img?.public_id)
+                  )?.length
+                }
               </p>
             )}
           </div>
-          {conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length > 3 && (
+          {conversation?.attachments?.filter((img) =>
+            isImageFile(img?.public_id)
+          )?.length > 3 && (
             <p
               className="text-neutral-400 cursor-pointer hover:underline text-xs"
               onClick={() => {
@@ -127,15 +148,29 @@ const Info = ({ conversation }) => {
             ?.filter((img) => isImageFile(img?.public_id))
             ?.map((attachment, index) => {
               if (index < 3) {
-                return <Image key={index} className="!w-20 !h-20 rounded-lg" src={attachment?.url} />;
+                return (
+                  <Image
+                    key={index}
+                    className="!w-20 !h-20 rounded-lg"
+                    src={attachment?.url}
+                  />
+                );
               }
             })}
-          {conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length > 3 && (
+          {conversation?.attachments?.filter((img) =>
+            isImageFile(img?.public_id)
+          )?.length > 3 && (
             <div className="!w-20 !h-20 rounded-lg relative">
-              <img src={conversation?.attachments?.[4]?.url} className="!w-20 !h-20 rounded-lg" />
+              <img
+                src={conversation?.attachments?.[4]?.url}
+                className="!w-20 !h-20 rounded-lg"
+              />
               <div className="img-mask rounded-lg">
                 <p className="z-10 text-white opacity-100">
-                  +{conversation?.attachments?.filter((img) => isImageFile(img?.public_id))?.length - 4}
+                  +
+                  {conversation?.attachments?.filter((img) =>
+                    isImageFile(img?.public_id)
+                  )?.length - 4}
                 </p>
               </div>
             </div>
@@ -148,13 +183,21 @@ const Info = ({ conversation }) => {
           <div className="flex gap-2 items-center">
             <AiOutlineFileText className="w-5 h-5 text-neutral-400" />
             <p className="text-neutral-400">Files</p>
-            {conversation?.attachments?.filter((img) => !isImageFile(img?.public_id))?.length > 0 && (
+            {conversation?.attachments?.filter(
+              (img) => !isImageFile(img?.public_id)
+            )?.length > 0 && (
               <p className="text-[#1053f3] px-2 text-xs font-semibold bg-[#eaf0ff] rounded-md">
-                {conversation?.attachments?.filter((img) => !isImageFile(img?.public_id))?.length}
+                {
+                  conversation?.attachments?.filter(
+                    (img) => !isImageFile(img?.public_id)
+                  )?.length
+                }
               </p>
             )}
           </div>
-          {conversation?.attachments?.filter((img) => !isImageFile(img?.public_id))?.length > 3 && (
+          {conversation?.attachments?.filter(
+            (img) => !isImageFile(img?.public_id)
+          )?.length > 3 && (
             <p
               className="text-neutral-400 cursor-pointer hover:underline text-xs"
               onClick={() => {
@@ -173,7 +216,10 @@ const Info = ({ conversation }) => {
               return (
                 <div className="flex items-center gap-1" key={index}>
                   <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />
-                  <a className="text-neutral-400 hover:underline text-sm" href={file?.url}>
+                  <a
+                    className="text-neutral-400 hover:underline text-sm"
+                    href={file?.url}
+                  >
                     {getFileName(file?.public_id)}
                   </a>
                 </div>
@@ -186,9 +232,17 @@ const Info = ({ conversation }) => {
           <GrShieldSecurity className="w-5 h-5 !text-neutral-400" />
           <p className="text-neutral-400">Quyền riêng tư & hỗ trợ</p>
         </div>
-        <p className="text-neutral-400 cursor-pointer hover:underline text-xs">Xem chi tiết</p>
+        <p className="text-neutral-400 cursor-pointer hover:underline text-xs">
+          Xem chi tiết
+        </p>
       </div>
-      <FileModal show={show} setShow={setShow} files={conversation?.attachments} tab={tab} setTab={setTab} />
+      <FileModal
+        show={show}
+        setShow={setShow}
+        files={conversation?.attachments}
+        tab={tab}
+        setTab={setTab}
+      />
     </div>
   );
 };
@@ -205,13 +259,20 @@ const FileModal = ({ files, show, setShow, tab, setTab }) => {
           <Image.PreviewGroup
             className="gap-2"
             preview={{
-              onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+              onChange: (current, prev) =>
+                console.log(`current index: ${current}, prev index: ${prev}`),
             }}
           >
             {files
               ?.filter((img) => isImageFile(img?.public_id))
               ?.map((attachment, index) => {
-                return <Image key={index} className="!w-36 !h-36 rounded-lg" src={attachment?.url} />;
+                return (
+                  <Image
+                    key={index}
+                    className="!w-36 !h-36 rounded-lg"
+                    src={attachment?.url}
+                  />
+                );
               })}
           </Image.PreviewGroup>
         </div>
@@ -228,7 +289,10 @@ const FileModal = ({ files, show, setShow, tab, setTab }) => {
               return (
                 <div className="flex items-center gap-2" key={index}>
                   <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />
-                  <a className="text-neutral-600 hover:underline text-base" href={file?.url}>
+                  <a
+                    className="text-neutral-600 hover:underline text-base"
+                    href={file?.url}
+                  >
                     {getFileName(file?.public_id)}
                   </a>
                 </div>

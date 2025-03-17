@@ -24,14 +24,20 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
   const [image, setImage] = useState([]);
 
   const onUpdate = async () => {
-    if (infoEdit?.password !== infoEdit?.password_confirm) {
-      return Toast("error", "Mật khẩu nhập lại không khớp");
-    }
     setLoading(true);
     try {
       if (id) {
+        if (
+          infoEdit?.password &&
+          infoEdit?.password !== infoEdit?.password_confirm
+        ) {
+          setLoading(true);
+
+          return Toast("error", "Mật khẩu nhập lại không khớp");
+        }
         const body = _.cloneDeep(infoEdit);
         delete body.password_confirm;
+        delete body.password;
         body.image = image?.[0]?.url;
         const res = await UserServices.updateUser(id, body);
         getData();
@@ -90,7 +96,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
     <Modal
       title={
         <div className="flex items-center justify-center gap-2 border-b pb-2 border-gray-300">
-          <p className="font-bold text-lg text-center">{id ? "Sửa nhân viên" : "Tạo nhân viên"}</p>
+          <p className="font-bold text-lg text-center">
+            {id ? "Sửa nhân viên" : "Tạo nhân viên"}
+          </p>
         </div>
       }
       open={show}
@@ -110,7 +118,12 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
           <div className="flex justify-center">
             <div className="flex flex-col items-center justify-center">
               <p className="mb-2">Ảnh đại diện</p>
-              <UploadImage files={image} setFiles={setImage} type="avatar" isShowFile={false} />
+              <UploadImage
+                files={image}
+                setFiles={setImage}
+                type="avatar"
+                isShowFile={false}
+              />
             </div>
           </div>
 
@@ -129,7 +142,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
             title="Email"
             value={infoEdit?.email}
             required
-            onChange={(e) => setInfoEdit({ ...infoEdit, email: e.target.value })}
+            onChange={(e) =>
+              setInfoEdit({ ...infoEdit, email: e.target.value })
+            }
           />
           <div className="flex items-center justify-center gap-2">
             <Text
@@ -138,7 +153,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
               value={infoEdit?.password}
               required
               isPassword
-              onChange={(e) => setInfoEdit({ ...infoEdit, password: e.target.value })}
+              onChange={(e) =>
+                setInfoEdit({ ...infoEdit, password: e.target.value })
+              }
             />
             <Text
               classname="w-full mt-5"
@@ -146,7 +163,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
               value={infoEdit?.password_confirm}
               required
               isPassword
-              onChange={(e) => setInfoEdit({ ...infoEdit, password_confirm: e.target.value })}
+              onChange={(e) =>
+                setInfoEdit({ ...infoEdit, password_confirm: e.target.value })
+              }
             />
           </div>
           <div className="flex items-center justify-center gap-3 mt-5">
@@ -159,7 +178,11 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
               value={infoEdit?.department}
               onChange={(e) => {
                 if (!e) {
-                  setInfoEdit({ ...infoEdit, department: null, position: null });
+                  setInfoEdit({
+                    ...infoEdit,
+                    department: null,
+                    position: null,
+                  });
                 } else {
                   setInfoEdit({ ...infoEdit, department: e?.value });
                 }
@@ -189,7 +212,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
               title="Số điện thoại"
               value={infoEdit?.phone}
               required
-              onChange={(e) => setInfoEdit({ ...infoEdit, phone: e.target.value })}
+              onChange={(e) =>
+                setInfoEdit({ ...infoEdit, phone: e.target.value })
+              }
             />
             <SelectStatus
               menuPlacement={"top"}
@@ -205,7 +230,9 @@ const Edit = ({ show, setShow, id, setId, getData }) => {
             title="Địa chỉ"
             value={infoEdit?.address}
             required
-            onChange={(e) => setInfoEdit({ ...infoEdit, address: e.target.value })}
+            onChange={(e) =>
+              setInfoEdit({ ...infoEdit, address: e.target.value })
+            }
           />
           <div className="mt-5 flex items-center justify-center gap-2">
             <Date

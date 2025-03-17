@@ -21,7 +21,12 @@ import { formatTimestamp } from "../../helper/timeHelper";
 import { Image, Spin } from "antd";
 import useSocketStore from "../../store/socketStore";
 
-const Message = ({ conversation, getConversation, setConversations, conversations }) => {
+const Message = ({
+  conversation,
+  getConversation,
+  setConversations,
+  conversations,
+}) => {
   const usersOnline = useRootState((state) => state?.usersOnline);
   const socket = useSocketStore((state) => state?.socket);
   const { id } = useParams();
@@ -40,10 +45,18 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   const getMessages = async (isNewId) => {
     setLoading(true);
     try {
-      const res = await CommentServices.getComments({ "target[eq]": id, sort: "-created_at", limit, page });
+      const res = await CommentServices.getComments({
+        "target[eq]": id,
+        sort: "-created_at",
+        limit,
+        page,
+      });
       const newMess = isNewId
         ? [...res.data.sort((a, b) => a?.created_at - b.created_at)]
-        : [...res.data.sort((a, b) => a?.created_at - b.created_at), ...messages];
+        : [
+            ...res.data.sort((a, b) => a?.created_at - b.created_at),
+            ...messages,
+          ];
       setMessages(newMess);
       setHasMore(newMess?.length < res?.count);
       setLoading(false);
@@ -94,20 +107,32 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   }, [socket]);
 
   useEffect(() => {
-    arrivalMessage && arrivalMessage?.target == id && setMessages([...messages, arrivalMessage]);
+    arrivalMessage &&
+      arrivalMessage?.target == id &&
+      setMessages([...messages, arrivalMessage]);
   }, [arrivalMessage]);
 
   const readAllMessages = async () => {
     try {
       await ConversationsServices.readAllMessages(id);
-      if (!conversations?.find((c) => c?._id == id)?.last_message?.read_receipts?.includes(userInfo?._id)) {
+      if (
+        !conversations
+          ?.find((c) => c?._id == id)
+          ?.last_message?.read_receipts?.includes(userInfo?._id)
+      ) {
         setConversations &&
           setConversations(
             conversations?.map((c) => {
               if (c._id == id) {
                 return {
                   ...c,
-                  last_message: { ...c.last_message, read_receipts: [...c.last_message.read_receipts, userInfo?._id] },
+                  last_message: {
+                    ...c.last_message,
+                    read_receipts: [
+                      ...c.last_message.read_receipts,
+                      userInfo?._id,
+                    ],
+                  },
                 };
               } else return c;
             })
@@ -128,7 +153,11 @@ const Message = ({ conversation, getConversation, setConversations, conversation
   }, [messages?.length]);
 
   const handleScroll = () => {
-    if (!messages?.find((m) => m?.last_message?.read_receipts?.includes(userInfo?._id))) {
+    if (
+      !messages?.find((m) =>
+        m?.last_message?.read_receipts?.includes(userInfo?._id)
+      )
+    ) {
       readAllMessages();
     }
     if (scrollRef.current.scrollTop === 0 && hasMore) {
@@ -142,17 +171,22 @@ const Message = ({ conversation, getConversation, setConversations, conversation
         <div className="flex items-center gap-2">
           <div className="relative">
             <img
-              className="w-12 h-12 rounded-full border"
+              className="w-12 h-12 rounded-full border object-cover"
               src={
-                conversation?.participants?.find((p) => p?._id != userInfo?._id)?.image ||
-                conversation?.participants?.[0]?.image
+                conversation?.participants?.find((p) => p?._id != userInfo?._id)
+                  ?.image || conversation?.participants?.[0]?.image
               }
               alt=""
             />
             {usersOnline?.find(
               (on) =>
-                on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                conversation?.participants?.every((p) => p?._id == userInfo?._id)
+                on?._id ==
+                  conversation?.participants?.find(
+                    (p) => p?._id != userInfo?._id
+                  )?._id ||
+                conversation?.participants?.every(
+                  (p) => p?._id == userInfo?._id
+                )
             ) ? (
               <span className="bottom-0 left-9 absolute  w-3.5 h-3.5 bg-green-400 border-2 border-white rounded-full"></span>
             ) : null}
@@ -161,17 +195,22 @@ const Message = ({ conversation, getConversation, setConversations, conversation
             <Link
               className="text-gray-700 text-base font-semibold cursor-pointer block hover:underline"
               to={`/profile/${
-                conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                conversation?.participants?.[0]?._id
+                conversation?.participants?.find((p) => p?._id != userInfo?._id)
+                  ?._id || conversation?.participants?.[0]?._id
               }`}
             >
-              {conversation?.participants?.find((p) => p?._id != userInfo?._id)?.display_name ||
-                conversation?.participants?.[0]?.display_name}
+              {conversation?.participants?.find((p) => p?._id != userInfo?._id)
+                ?.display_name || conversation?.participants?.[0]?.display_name}
             </Link>
             {usersOnline?.find(
               (on) =>
-                on?._id == conversation?.participants?.find((p) => p?._id != userInfo?._id)?._id ||
-                conversation?.participants?.every((p) => p?._id == userInfo?._id)
+                on?._id ==
+                  conversation?.participants?.find(
+                    (p) => p?._id != userInfo?._id
+                  )?._id ||
+                conversation?.participants?.every(
+                  (p) => p?._id == userInfo?._id
+                )
             ) ? (
               <p className="text-green-500 w-56 text-sm">Đang hoạt động</p>
             ) : (
@@ -197,15 +236,24 @@ const Message = ({ conversation, getConversation, setConversations, conversation
               return (
                 <div className="flex justify-end w-full" key={message?._id}>
                   <div className="mt-3">
-                    <p className="text-neutral-400 text-xs mb-1 text-right">{formatTimestamp(message?.created_at)}</p>
+                    <p className="text-neutral-400 text-xs mb-1 text-right">
+                      {formatTimestamp(message?.created_at)}
+                    </p>
                     <div
                       className="px-3 py-2 bg-[#1053f3] text-white rounded-tl-xl rounded-br-xl rounded-bl-xl w-fit"
                       style={{
-                        boxShadow: "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
+                        boxShadow:
+                          "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
                       }}
                     >
-                      <p dangerouslySetInnerHTML={{ __html: message?.content }} />
-                      <div className={`${message?.attachments?.length > 0 && "mt-2"} flex flex-col gap-2`}>
+                      <p
+                        dangerouslySetInnerHTML={{ __html: message?.content }}
+                      />
+                      <div
+                        className={`${
+                          message?.attachments?.length > 0 && "mt-2"
+                        } flex flex-col gap-2`}
+                      >
                         {message?.attachments?.map((attachment, index) => {
                           if (isImageFile(attachment?.public_id)) {
                             return (
@@ -218,9 +266,15 @@ const Message = ({ conversation, getConversation, setConversations, conversation
                             );
                           } else {
                             return (
-                              <div key={index} className="flex items-center gap-1">
+                              <div
+                                key={index}
+                                className="flex items-center gap-1"
+                              >
                                 <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-white" />
-                                <a className="text-white hover:underline" href={attachment?.url}>
+                                <a
+                                  className="text-white hover:underline"
+                                  href={attachment?.url}
+                                >
                                   {getFileName(attachment?.public_id)}
                                 </a>
                               </div>
@@ -237,15 +291,24 @@ const Message = ({ conversation, getConversation, setConversations, conversation
                 <div className="flex gap-2 mt-3" key={message?._id}>
                   <AvatarUi placement="left" data={message.created_by} />
                   <div>
-                    <p className="text-neutral-400 text-xs mb-1">{formatTimestamp(message?.created_at)}</p>
+                    <p className="text-neutral-400 text-xs mb-1">
+                      {formatTimestamp(message?.created_at)}
+                    </p>
                     <div
                       className="px-3 py-2 bg-white rounded-tr-xl rounded-br-xl rounded-bl-xl w-fit"
                       style={{
-                        boxShadow: "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
+                        boxShadow:
+                          "rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px",
                       }}
                     >
-                      <p dangerouslySetInnerHTML={{ __html: message?.content }} />
-                      <div className={`${message?.attachments?.length > 0 && "mt-2"} flex flex-col gap-2`}>
+                      <p
+                        dangerouslySetInnerHTML={{ __html: message?.content }}
+                      />
+                      <div
+                        className={`${
+                          message?.attachments?.length > 0 && "mt-2"
+                        } flex flex-col gap-2`}
+                      >
                         {message?.attachments?.map((attachment, index) => {
                           if (isImageFile(attachment?.public_id)) {
                             return (
@@ -258,9 +321,15 @@ const Message = ({ conversation, getConversation, setConversations, conversation
                             );
                           } else {
                             return (
-                              <div key={index} className="flex items-center gap-1">
+                              <div
+                                key={index}
+                                className="flex items-center gap-1"
+                              >
                                 <AiOutlinePaperClip className="w-5 h-5 cursor-pointer text-neutral-400" />
-                                <a className="text-neutral-400 hover:underline" href={attachment?.url}>
+                                <a
+                                  className="text-neutral-400 hover:underline"
+                                  href={attachment?.url}
+                                >
                                   {getFileName(attachment?.public_id)}
                                 </a>
                               </div>

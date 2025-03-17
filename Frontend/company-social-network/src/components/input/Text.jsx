@@ -10,6 +10,7 @@ const Text = ({
   disabled,
   type,
   isPassword,
+  placeholder,
 }) => {
   return (
     <div className={classname}>
@@ -24,6 +25,7 @@ const Text = ({
           disabled={disabled}
           className={`w-full ${type == "login" && "h-11"}`}
           value={value}
+          placeholder={placeholder}
           onChange={onChange}
         />
       ) : (
@@ -31,6 +33,7 @@ const Text = ({
           disabled={disabled}
           className={`w-full ${type == "login" && "h-11"}`}
           value={value}
+          placeholder={placeholder}
           onChange={onChange}
         />
       )}

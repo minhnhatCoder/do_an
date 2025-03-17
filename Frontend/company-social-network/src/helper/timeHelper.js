@@ -24,8 +24,14 @@ const convertTimeStampToString = (timeStamp, position) => {
 };
 
 const getFullTimeFormatted = (timeStamp, hasTime) => {
-  return `Ngày ${getDayOfTimeStamp(timeStamp)} tháng ${getMonthOfTimeStamp(timeStamp)} năm ${getYearOfTimeStamp(timeStamp)} ${hasTime ? `${getHourOfTimeStamp(timeStamp)}:${getMinuteOfTimeStamp(timeStamp)}` : ""}`
-}
+  return `Ngày ${getDayOfTimeStamp(timeStamp)} tháng ${getMonthOfTimeStamp(
+    timeStamp
+  )} năm ${getYearOfTimeStamp(timeStamp)} ${
+    hasTime
+      ? `${getHourOfTimeStamp(timeStamp)}:${getMinuteOfTimeStamp(timeStamp)}`
+      : ""
+  }`;
+};
 const getMonthOfTimeStamp = (timeStamp) => {
   return dayjs(timeStamp * 1000).month() || null;
 };
@@ -44,7 +50,6 @@ const getMinuteOfTimeStamp = (timeStamp) => {
 const getSecondOfTimeStamp = (timeStamp) => {
   return dayjs(timeStamp * 1000).second() || null;
 };
-
 
 function timeAgo(timestamp) {
   const now = new Date();
@@ -81,10 +86,10 @@ function formatTimestamp(timestamp) {
   const inputDate = dayjs(timestamp * 1000);
 
   // Check if the input date is from the same day
-  if (inputDate.isSame(currentDate, 'day')) {
-    return inputDate.format('hh:mm A');
+  if (inputDate.isSame(currentDate, "day")) {
+    return inputDate.format("hh:mm A");
   } else {
-    return inputDate.format('DD/MM/YYYY');
+    return inputDate.format("DD/MM/YYYY");
   }
 }
 
@@ -92,4 +97,21 @@ function getCurrentTimeStamp() {
   return dayjs().valueOf();
 }
 
-export { convertTimeStampToString, timeAgo, getMonthOfTimeStamp, getDayOfTimeStamp, getYearOfTimeStamp, getFullTimeFormatted, getHourOfTimeStamp, getMinuteOfTimeStamp, getSecondOfTimeStamp, formatTimestamp, getCurrentTimeStamp };
+const getTimeByFormat = (format) => {
+  return dayjs().format(format);
+};
+
+export {
+  convertTimeStampToString,
+  timeAgo,
+  getMonthOfTimeStamp,
+  getDayOfTimeStamp,
+  getYearOfTimeStamp,
+  getFullTimeFormatted,
+  getHourOfTimeStamp,
+  getMinuteOfTimeStamp,
+  getSecondOfTimeStamp,
+  formatTimestamp,
+  getCurrentTimeStamp,
+  getTimeByFormat,
+};

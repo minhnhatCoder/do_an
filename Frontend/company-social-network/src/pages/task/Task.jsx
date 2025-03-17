@@ -6,7 +6,18 @@
  * -----
  * Change Log: <press Ctrl + alt + c write changelog>
  */
-import { Button, Input, Tabs, Table, Tag, Space, Radio, Avatar, Popconfirm, Dropdown, Popover } from "antd";
+import {
+  Input,
+  Tabs,
+  Table,
+  Tag,
+  Space,
+  Radio,
+  Avatar,
+  Popconfirm,
+  Dropdown,
+  Popover,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { BiSearchAlt, BiSort, BiTask, BiTaskX } from "react-icons/bi";
 import { LuClipboardList, LuSlidersHorizontal } from "react-icons/lu";
@@ -23,10 +34,18 @@ import { GrEdit } from "react-icons/gr";
 import SelectUsers from "../../components/Select/Users";
 import SelectPriority from "../../components/Select/Priority";
 import SelectStar from "../../components/Select/Star";
+import Toast from "../../components/noti";
+import Button from "../../components/button";
 
 const Task = ({ currentProject }) => {
   const [tasks, setTasks] = useState([]);
-  const [filter, setFilter] = useState({ title: "", is_mine: "mine", status: 1, sort: "created_at", star: 0 });
+  const [filter, setFilter] = useState({
+    title: "",
+    is_mine: "mine",
+    status: 1,
+    sort: "created_at",
+    star: 0,
+  });
   const [showDetail, setShowDetail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -62,7 +81,9 @@ const Task = ({ currentProject }) => {
       key: "2",
       label: (
         <a
-          className={`${filter.sort == "-created_at" ? "!text-orange-500" : ""}`}
+          className={`${
+            filter.sort == "-created_at" ? "!text-orange-500" : ""
+          }`}
           onClick={() => {
             setFilter({ ...filter, sort: "-created_at" });
           }}
@@ -88,7 +109,9 @@ const Task = ({ currentProject }) => {
       key: "4",
       label: (
         <a
-          className={`${filter.sort == "-start_date" ? "!text-orange-500" : ""}`}
+          className={`${
+            filter.sort == "-start_date" ? "!text-orange-500" : ""
+          }`}
           onClick={() => {
             setFilter({ ...filter, sort: "-start_date" });
           }}
@@ -204,8 +227,17 @@ const Task = ({ currentProject }) => {
       <p className="font-bold text-xl">{currentProject?.title}</p>
       <div className="flex items-center justify-between mt-4">
         <div className="flex items-center justify-center gap-3">
-          <FilterCO relatedUsers={relatedUsers} filter={filter} setFilter={setFilter} />
-          <Dropdown menu={{ items }} placement="bottom" arrow={{ pointAtCenter: true }} trigger={["click"]}>
+          <FilterCO
+            relatedUsers={relatedUsers}
+            filter={filter}
+            setFilter={setFilter}
+          />
+          <Dropdown
+            menu={{ items }}
+            placement="bottom"
+            arrow={{ pointAtCenter: true }}
+            trigger={["click"]}
+          >
             <div className="flex items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 p-1 rounded-md">
               <BiSort className="w-4 h-4" />
               <p>Sắp xếp</p>
@@ -243,13 +275,10 @@ const Task = ({ currentProject }) => {
             />
           </div>
           <Button
-            type="primary"
-            icon={<AiOutlinePlus />}
-            size={"middle"}
-            className="flex items-center justify-center btn-blue"
+            className={"btn-blue flex items-center justify-center text-white"}
+            icon={<AiOutlinePlus className="w-5 h-5" />}
             onClick={() => {
               setShow(true);
-              setCurrentTaskId("");
             }}
           >
             Tạo công việc
@@ -329,7 +358,10 @@ const Task = ({ currentProject }) => {
                 return (
                   <div className="flex items-center gap-2">
                     <Avatar src={reciever?.image} size="large" />
-                    <Link to={`/profile/${reciever?._id}`} className="font-semibold">
+                    <Link
+                      to={`/profile/${reciever?._id}`}
+                      className="font-semibold"
+                    >
                       {reciever?.display_name}
                     </Link>
                   </div>
@@ -373,7 +405,10 @@ const Task = ({ currentProject }) => {
                       setShow(true);
                     }}
                   />
-                  <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(key)}>
+                  <Popconfirm
+                    title="Bạn có chắc chắn muốn xóa?"
+                    onConfirm={() => handleDelete(key)}
+                  >
                     <BsTrash className="w-5 h-5 cursor-pointer hover:text-blue-500" />
                   </Popconfirm>
                 </Space>
@@ -383,8 +418,19 @@ const Task = ({ currentProject }) => {
           dataSource={tasks}
           pagination={false}
         />
-        <Edit id={currentTaskId} show={show} setShow={setShow} projectId={currentProject?._id} getData={getTasks} />
-        <Detail id={currentTaskId} show={showDetail} setShow={setShowDetail} getTasks={getTasks} />
+        <Edit
+          id={currentTaskId}
+          show={show}
+          setShow={setShow}
+          projectId={currentProject?._id}
+          getData={getTasks}
+        />
+        <Detail
+          id={currentTaskId}
+          show={showDetail}
+          setShow={setShowDetail}
+          getTasks={getTasks}
+        />
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { useParams } from "react-router-dom";
 import UserServices from "../../services/user";
 import Toast from "../../components/noti";
-import { Empty, Spin } from "antd";
+import { Empty, Popconfirm, Spin } from "antd";
 import { useRootState } from "../../store";
 import useSocketStore from "../../store/socketStore";
 
@@ -82,7 +82,9 @@ const Friend = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <p className="font-bold text-2xl">Bạn bè</p>
-            <span className="text-sm text-neutral-500 mt-2">{friends?.length ?? 0} bạn bè</span>
+            <span className="text-sm text-neutral-500 mt-2">
+              {friends?.length ?? 0} bạn bè
+            </span>
           </div>
           {currentUser?._id == id && (
             <p
@@ -101,8 +103,13 @@ const Friend = () => {
               friends?.map((friend, index) => {
                 return (
                   <div className="w-[287px] mt-3 rounded-lg" key={index}>
-                    <img src={friend?.image} className="w-full h-[300px] rounded-lg" />
-                    <p className="font-bold mt-3 pl-3">{friend?.display_name}</p>
+                    <img
+                      src={friend?.image}
+                      className="w-full h-[300px] rounded-lg object-cover"
+                    />
+                    <p className="font-bold mt-3 pl-3">
+                      {friend?.display_name}
+                    </p>
                     <div className="flex items-center pl-3 gap-2">
                       <HiOutlineBuildingOffice className="w-4 h-4 text-neutral-500" />
                       <p className="text-sm text-neutral-500">Getfly</p>
@@ -115,7 +122,9 @@ const Friend = () => {
                     </div>
                     <div className="flex items-center pl-3 gap-2">
                       <FaSitemap className="w-4 h-4 text-neutral-500" />
-                      <p className="text-sm text-neutral-500">{friend?.department?.name}</p>
+                      <p className="text-sm text-neutral-500">
+                        {friend?.department?.name}
+                      </p>
                     </div>
                     <div className="px-3">
                       <Popconfirm
@@ -146,8 +155,13 @@ const Friend = () => {
               friendRequests?.map((friendRequest, index) => {
                 return (
                   <div className="w-[287px] mt-3 rounded-lg" key={index}>
-                    <img src={friendRequest?.sender?.image} className="w-full h-[300px] rounded-lg" />
-                    <p className="font-bold mt-3 pl-3">{friendRequest?.sender?.display_name}</p>
+                    <img
+                      src={friendRequest?.sender?.image}
+                      className="w-full h-[300px] rounded-lg"
+                    />
+                    <p className="font-bold mt-3 pl-3">
+                      {friendRequest?.sender?.display_name}
+                    </p>
                     <div className="flex items-center pl-3 gap-2">
                       <HiOutlineBuildingOffice className="w-4 h-4 text-neutral-500" />
                       <p className="text-sm text-neutral-500">Getfly</p>
@@ -155,18 +169,23 @@ const Friend = () => {
                     <div className="flex items-center pl-3 gap-2">
                       <BiSolidBriefcase className="w-4 h-4 text-neutral-500" />
                       <p className="text-sm text-neutral-500">
-                        {friendRequest?.sender?.position?.name} {friendRequest?.sender?.department?.name}
+                        {friendRequest?.sender?.position?.name}{" "}
+                        {friendRequest?.sender?.department?.name}
                       </p>
                     </div>
                     <div className="flex items-center pl-3 gap-2">
                       <FaSitemap className="w-4 h-4 text-neutral-500" />
-                      <p className="text-sm text-neutral-500">{friendRequest?.sender?.department?.name}</p>
+                      <p className="text-sm text-neutral-500">
+                        {friendRequest?.sender?.department?.name}
+                      </p>
                     </div>
                     <div className="px-3 flex items-center flex-col">
                       <button
                         className="btn-green w-full mt-3 !py-2 flex items-center justify-center gap-3"
                         onClick={() => {
-                          onApproversRequest(friendRequest?._id, { status: "approved" });
+                          onApproversRequest(friendRequest?._id, {
+                            status: "approved",
+                          });
                         }}
                       >
                         <BiCheckDouble className="text-white w-6 h-6" />
@@ -175,7 +194,9 @@ const Friend = () => {
                       <button
                         className="btn-red w-full mt-3 !py-2 flex items-center justify-center gap-3"
                         onClick={() => {
-                          onApproversRequest(friendRequest?._id, { status: "rejected" });
+                          onApproversRequest(friendRequest?._id, {
+                            status: "rejected",
+                          });
                         }}
                       >
                         <AiOutlineClose className="!text-white w-6 h-6" />

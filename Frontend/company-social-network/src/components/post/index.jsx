@@ -3,11 +3,20 @@ import React, { useEffect, useState } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { GoCommentDiscussion } from "react-icons/go";
 import { BiShare, BiSolidLock } from "react-icons/bi";
-import { AiOutlineEdit, AiOutlineGlobal, AiOutlineLike, AiTwotoneLike } from "react-icons/ai";
+import {
+  AiOutlineEdit,
+  AiOutlineGlobal,
+  AiOutlineLike,
+  AiTwotoneLike,
+} from "react-icons/ai";
 import Comment from "./Comment";
 import UserLiked from "./UserLiked";
 import { Link } from "react-router-dom";
-import { getDayOfTimeStamp, getFullTimeFormatted, getMonthOfTimeStamp } from "../../helper/timeHelper";
+import {
+  getDayOfTimeStamp,
+  getFullTimeFormatted,
+  getMonthOfTimeStamp,
+} from "../../helper/timeHelper";
 import { ImEarth } from "react-icons/im";
 import { HiUsers } from "react-icons/hi";
 import { FaUsers } from "react-icons/fa";
@@ -34,7 +43,12 @@ const Post = ({ post, setPost, posts }) => {
     setPost((prev) =>
       prev?.map((p) => {
         if (p?._id == data?._id) {
-          return { ...p, content: data?.content, show_type: data?.show_type, attachments: data?.attachments };
+          return {
+            ...p,
+            content: data?.content,
+            show_type: data?.show_type,
+            attachments: data?.attachments,
+          };
         } else {
           return p;
         }
@@ -45,7 +59,10 @@ const Post = ({ post, setPost, posts }) => {
   const onLikePost = async () => {
     try {
       const { data } = await PostServices.likePost(post?._id);
-      if (post?.created_user?._id != userInfo?._id && data?.liked_user?.find((u) => u?._id == userInfo?._id)) {
+      if (
+        post?.created_user?._id != userInfo?._id &&
+        data?.liked_user?.find((u) => u?._id == userInfo?._id)
+      ) {
         socket.emit("sendNotification", {
           userIds: [post?.created_user?._id],
           data: {
@@ -89,7 +106,10 @@ const Post = ({ post, setPost, posts }) => {
           } else return u?.display_name;
         });
       const newContent = newUser.splice(0, 2)?.toString();
-      const extraContent = newUser?.length > 2 ? `và ${newUser.length - 2} người khác đã thích bài viết` : "";
+      const extraContent =
+        newUser?.length > 2
+          ? `và ${newUser.length - 2} người khác đã thích bài viết`
+          : "";
       return newContent + extraContent;
     }
   };
@@ -118,10 +138,14 @@ const Post = ({ post, setPost, posts }) => {
   };
 
   return (
-    <div className="py-3 px-5 rounded-lg bg-white box_shadow-light w-full">
+    <div className="py-3 px-5 rounded-lg bg-white border w-full">
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-center gap-2">
-          <Avatar className="border border-black" size={40} src={post?.created_user?.image} />
+          <Avatar
+            className="border border-black"
+            size={40}
+            src={post?.created_user?.image}
+          />
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <Link
@@ -130,13 +154,19 @@ const Post = ({ post, setPost, posts }) => {
               >
                 {post?.created_user?.display_name}{" "}
               </Link>
-              {post?.title && <span className="font-light text-gray-500">{post?.title}</span>}
+              {post?.title && (
+                <span className="font-light text-gray-500">{post?.title}</span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
-              <Tooltip placement="bottom" title={getFullTimeFormatted(post?.created_at, true)}>
+              <Tooltip
+                placement="bottom"
+                title={getFullTimeFormatted(post?.created_at, true)}
+              >
                 <p className="font-light text-gray-500 text-sm">
-                  {getDayOfTimeStamp(post?.created_at)} tháng {getMonthOfTimeStamp(post?.created_at)}
+                  {getDayOfTimeStamp(post?.created_at)} tháng{" "}
+                  {getMonthOfTimeStamp(post?.created_at)}
                 </p>
               </Tooltip>
 
@@ -190,7 +220,10 @@ const Post = ({ post, setPost, posts }) => {
                 {
                   key: "2",
                   label: (
-                    <Popconfirm title="Bạn có chắc chắn muốn xóa?" onConfirm={() => handleDelete(post?._id)}>
+                    <Popconfirm
+                      title="Bạn có chắc chắn muốn xóa?"
+                      onConfirm={() => handleDelete(post?._id)}
+                    >
                       <div className="flex items-center gap-2">
                         <BsTrash className="w-5 h-5" />
                         <p className="font-semibold">Xóa bài viết</p>
@@ -205,7 +238,10 @@ const Post = ({ post, setPost, posts }) => {
           </Dropdown>
         ) : null}
       </div>
-      <div className="mt-3" dangerouslySetInnerHTML={{ __html: post?.content }} />
+      <div
+        className="mt-3"
+        dangerouslySetInnerHTML={{ __html: post?.content }}
+      />
       <Swiper spaceBetween={50} navigation={true} modules={[Navigation]}>
         {post?.attachments?.map((image, index) => {
           return (
@@ -221,7 +257,7 @@ const Post = ({ post, setPost, posts }) => {
                   src={image?.url}
                   className="bg-contain rounded-lg object-cover cursor-pointer bg-gray-200"
                   height={450}
-                  width={900}
+                  width={670}
                   style={{
                     background: "#F0F0F0",
                     borderRadius: 8,
@@ -279,9 +315,18 @@ const Post = ({ post, setPost, posts }) => {
       </div>
       {/* comment */}
       <Comment id={post?._id} onCommentSuccess={onComment} />
-      <UserLiked show={isShowUserLiked} setShow={setIsShowUserLiked} data={post?.liked_user} />
+      <UserLiked
+        show={isShowUserLiked}
+        setShow={setIsShowUserLiked}
+        data={post?.liked_user}
+      />
       <DetailPost show={show} setShow={setShow} id={id} />
-      <UploadPost show={showEdit} setShow={setShowEdit} id={id} cbSuccess={cbSuccess} />
+      <UploadPost
+        show={showEdit}
+        setShow={setShowEdit}
+        id={id}
+        cbSuccess={cbSuccess}
+      />
     </div>
   );
 };
